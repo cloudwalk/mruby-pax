@@ -22,4 +22,7 @@ MRuby::Gem::Specification.new('mruby-pax') do |spec|
 
   # Values accessible as TEST_ARGS inside test scripts
   # spec.test_args = {'tmp_dir' => Dir::tmpdir}
+  spec.add_dependency 'mruby-pax-network'
+  spec.add_dependency 'mruby-pax-io'
+  spec.add_dependency 'mruby-time'
 end
