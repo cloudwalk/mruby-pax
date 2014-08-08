@@ -46,6 +46,20 @@ mrb__serial(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, serial);
 }
 
+mrb_value
+mrb__set_backlight(mrb_state *mrb, mrb_value self)
+{
+  mrb_int mode;
+  uchar uMode[1];
+
+  mrb_get_args(mrb, "i", &mode);
+
+  sprintf(uMode, "%d", (int)mode);
+
+  ScrBackLight(uMode);
+
+  return mrb_fixnum_value(mode);
+}
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -60,6 +74,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_method(mrb, krn, "__sleep__", mrb_sleep, MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, tc, "_pax_time", mrb__pax_time, MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_serial"     , mrb__serial        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_backlight=" , mrb__set_backlight , MRB_ARGS_REQ(1));
 }
 
 void
