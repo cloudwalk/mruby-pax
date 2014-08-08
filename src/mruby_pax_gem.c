@@ -78,8 +78,8 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   tc  = mrb_class_get(mrb, "Time");
   pax = mrb_define_class(mrb, "PAX");
 
-  mrb_define_method(mrb, krn, "__sleep__", mrb_sleep, MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, tc, "_pax_time", mrb__pax_time, MRB_ARGS_NONE());
+  mrb_define_method(mrb       , krn , "__sleep__"   , mrb_sleep          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , tc  , "_pax_time"   , mrb__pax_time      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_serial"     , mrb__serial        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_backlight=" , mrb__set_backlight , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "_battery"    , mrb__battery       , MRB_ARGS_NONE());

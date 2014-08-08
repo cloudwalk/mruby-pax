@@ -1,6 +1,7 @@
 class PAX
   Network = ::Network
-  IO = ::IO
+  IO      = ::IO
+
   class System
     DEFAULT_BACKLIGHT = 1
     def self.serial
