@@ -1,6 +1,12 @@
 class PAX
   Network = ::Network
   IO = ::IO
+  class System
+    def self.serial
+      PAX._serial
+    end
+  end
+
   def self.start(file = "main.mrb")
     # TODO ./file has some leak problem after 4 tries
     begin

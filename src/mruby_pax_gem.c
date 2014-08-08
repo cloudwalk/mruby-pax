@@ -34,18 +34,32 @@ mrb__pax_time(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, sTime);
 }
 
+mrb_value
+mrb__serial(mrb_state *mrb, mrb_value self)
+{
+  char serial[32];
+
+  memset(&serial, 0, sizeof(serial));
+
+  ReadSN(&serial);
+
+  return mrb_str_new_cstr(mrb, serial);
+}
 
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
   struct RClass *krn;
   struct RClass *tc;
+  struct RClass *pax;
 
   krn = mrb->kernel_module;
   tc  = mrb_class_get(mrb, "Time");
+  pax = mrb_define_class(mrb, "PAX");
 
   mrb_define_method(mrb, krn, "__sleep__", mrb_sleep, MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, tc, "_pax_time", mrb__pax_time, MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_serial"     , mrb__serial        , MRB_ARGS_NONE());
 }
 
 void
