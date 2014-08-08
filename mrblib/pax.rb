@@ -2,6 +2,12 @@ class PAX
   Network = ::Network
   IO      = ::IO
 
+  class Display
+    def self.clear
+      ::IO.display_clear
+    end
+  end
+
   class System
     DEFAULT_BACKLIGHT = 1
     def self.serial
