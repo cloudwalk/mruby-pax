@@ -14,6 +14,10 @@ class PAX
     def self.backlight
       DEFAULT_BACKLIGHT
     end
+
+    def self.battery
+      PAX._battery
+    end
   end
 
   def self.start(file = "main.mrb")

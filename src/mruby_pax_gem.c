@@ -60,6 +60,13 @@ mrb__set_backlight(mrb_state *mrb, mrb_value self)
 
   return mrb_fixnum_value(mode);
 }
+
+mrb_value
+mrb__battery(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(BatteryCheck());
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -75,6 +82,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb, tc, "_pax_time", mrb__pax_time, MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_serial"     , mrb__serial        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_backlight=" , mrb__set_backlight , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "_battery"    , mrb__battery       , MRB_ARGS_NONE());
 }
 
 void
