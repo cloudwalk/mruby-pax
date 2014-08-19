@@ -27,16 +27,35 @@ class PAX
     end
   end
 
+  # Method should be implemented on platform class
+  #  class Platform
+  #    def self.start file
+  #      require 'da_funk.mrb'
+  #      require '<platform.mrb>'
+  #
+  #      app = Device::Support.path_to_class file
+  #
+  #      app.call
+  #    end
+  #  end
   def self.start(file = "main.mrb")
     # TODO ./file has some leak problem after 4 tries
     begin
+      # Library responsable for common code and API syntax for the user
       require "da_funk.mrb"
+      # Platform library responsible for implement the adapter for DaFunk
+      # class Device #DaFunk abstraction
+      #   self.adapter = 
       require "pax.mrb"
       require file
 
+      # Method to contantize name of file, example:
+      #   main.mrb/main.rb - Main
       app = Device::Support.path_to_class file
 
       loop do
+        # Main should implement method call
+        #  method call was need to avoid memory leak on irep table
         app.call
       end
     rescue => @exception
