@@ -14,7 +14,7 @@
 mrb_value
 mrb_sleep(mrb_state *mrb, mrb_value self)
 {
-  mrb_int miliseconds;
+  mrb_int miliseconds=0;
   mrb_get_args(mrb, "i", &miliseconds);
 
 #ifdef PAX
