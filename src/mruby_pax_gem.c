@@ -27,7 +27,7 @@ mrb_sleep(mrb_state *mrb, mrb_value self)
 mrb_value
 mrb__pax_time(mrb_state *mrb, mrb_value self)
 {
-  uchar time[7];
+  char time[7];
   const char sTime[20];
 
   memset(&time, 0, sizeof(time));
@@ -60,7 +60,7 @@ mrb_value
 mrb__set_backlight(mrb_state *mrb, mrb_value self)
 {
   mrb_int mode;
-  uchar uMode[1];
+  char uMode[1];
 
   mrb_get_args(mrb, "i", &mode);
 
