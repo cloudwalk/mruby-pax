@@ -1,9 +1,13 @@
+#include <stdlib.h>
+#include <stdio.h>
 #include "mruby.h"
 #include "mruby/value.h"
 #include "mruby/array.h"
 
+#ifdef PAX
 #include "posapi.h"
 #include "posapi_all.h"
+#endif
 
 #define DONE mrb_gc_arena_restore(mrb, 0)
 
@@ -13,7 +17,9 @@ mrb_sleep(mrb_state *mrb, mrb_value self)
   mrb_int miliseconds;
   mrb_get_args(mrb, "i", &miliseconds);
 
+#ifdef PAX
   DelayMs(miliseconds);
+#endif
 
   return mrb_fixnum_value(miliseconds);
 }
@@ -27,7 +33,9 @@ mrb__pax_time(mrb_state *mrb, mrb_value self)
   memset(&time, 0, sizeof(time));
   memset(&sTime, 0, sizeof(sTime));
 
+#ifdef PAX
   GetTime(&time);
+#endif
 
   sprintf(sTime, "20%02X-%02X-%02X %02X:%02X:%02X", (int)time[0], (int)time[1], (int)time[2], (int)time[3], (int)time[4], (int)time[5]);
 
@@ -41,7 +49,9 @@ mrb__serial(mrb_state *mrb, mrb_value self)
 
   memset(&serial, 0, sizeof(serial));
 
+#ifdef PAX
   ReadSN(&serial);
+#endif
 
   return mrb_str_new_cstr(mrb, serial);
 }
@@ -56,7 +66,9 @@ mrb__set_backlight(mrb_state *mrb, mrb_value self)
 
   sprintf(uMode, "%d", (int)mode);
 
+#ifdef PAX
   ScrBackLight(uMode);
+#endif
 
   return mrb_fixnum_value(mode);
 }
@@ -64,7 +76,9 @@ mrb__set_backlight(mrb_state *mrb, mrb_value self)
 mrb_value
 mrb__battery(mrb_state *mrb, mrb_value self)
 {
+#ifdef PAX
   return mrb_fixnum_value(BatteryCheck());
+#endif
 }
 
 void
