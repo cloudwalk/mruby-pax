@@ -90,7 +90,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
 
   krn = mrb->kernel_module;
   tc  = mrb_class_get(mrb, "Time");
-  pax = mrb_define_class(mrb, "PAX");
+  pax = mrb_define_class(mrb, "PAX", mrb->object_class);
 
   mrb_define_method(mrb       , krn , "__sleep__"   , mrb_sleep          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , tc  , "_pax_time"   , mrb__pax_time      , MRB_ARGS_NONE());
