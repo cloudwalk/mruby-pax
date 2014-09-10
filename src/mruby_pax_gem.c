@@ -78,6 +78,8 @@ mrb__battery(mrb_state *mrb, mrb_value self)
 {
 #ifdef PAX
   return mrb_fixnum_value(BatteryCheck());
+#else
+  return mrb_fixnum_value(0);
 #endif
 }
 
