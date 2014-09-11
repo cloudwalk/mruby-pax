@@ -12,7 +12,7 @@
 #define DONE mrb_gc_arena_restore(mrb, 0)
 
 mrb_value
-mrb_sleep(mrb_state *mrb, mrb_value self)
+mrb_s___sleep__(mrb_state *mrb, mrb_value self)
 {
   mrb_int miliseconds=0;
   mrb_get_args(mrb, "i", &miliseconds);
@@ -25,7 +25,7 @@ mrb_sleep(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb__pax_time(mrb_state *mrb, mrb_value self)
+mrb_s__pax_time(mrb_state *mrb, mrb_value self)
 {
   char time[7];
   const char sTime[20];
@@ -43,7 +43,7 @@ mrb__pax_time(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb__serial(mrb_state *mrb, mrb_value self)
+mrb_s__serial(mrb_state *mrb, mrb_value self)
 {
   char serial[32];
 
@@ -57,7 +57,7 @@ mrb__serial(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb__set_backlight(mrb_state *mrb, mrb_value self)
+mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
 {
   mrb_int mode;
   char uMode[1];
@@ -74,7 +74,7 @@ mrb__set_backlight(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb__battery(mrb_state *mrb, mrb_value self)
+mrb_s__battery(mrb_state *mrb, mrb_value self)
 {
 #ifdef PAX
   return mrb_fixnum_value(BatteryCheck());
@@ -94,11 +94,11 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   tc  = mrb_class_get(mrb, "Time");
   pax = mrb_define_class(mrb, "PAX", mrb->object_class);
 
-  mrb_define_method(mrb       , krn , "__sleep__"   , mrb_sleep          , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , tc  , "_pax_time"   , mrb__pax_time      , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "_serial"     , mrb__serial        , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "_backlight=" , mrb__set_backlight , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pax , "_battery"    , mrb__battery       , MRB_ARGS_NONE());
+  mrb_define_method(mrb       , krn , "__sleep__"   , mrb_s___sleep__      , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , tc  , "_pax_time"   , mrb_s__pax_time      , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_serial"     , mrb_s__serial        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_backlight=" , mrb_s__set_backlight , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "_battery"    , mrb_s__battery       , MRB_ARGS_NONE());
 }
 
 void
