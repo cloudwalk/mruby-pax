@@ -83,6 +83,26 @@ mrb_s__battery(mrb_state *mrb, mrb_value self)
 #endif
 }
 
+// TODO: Scalone be careful with the size of this buffer
+mrb_value
+mrb_s__gets(mrb_state *mrb, mrb_value self)
+{
+	unsigned char sValue[128];
+  mrb_int min, max;
+
+  mrb_get_args(mrb, "ii", &min, &max);
+
+#ifdef PAX
+  memset(&sValue, 0, sizeof(sValue));
+
+  GetString(sValue, 0xF5, (int)min, (int)max);
+
+  return mrb_str_new_cstr(mrb, sValue);
+#else
+  return mrb_nil_value();
+#endif
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -99,6 +119,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "_serial"     , mrb_s__serial        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_backlight=" , mrb_s__set_backlight , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "_battery"    , mrb_s__battery       , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_gets"       , mrb_s__gets          , MRB_ARGS_REQ(2));
 }
 
 void
