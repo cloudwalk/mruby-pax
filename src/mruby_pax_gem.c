@@ -4,19 +4,19 @@
 #include "mruby/value.h"
 #include "mruby/array.h"
 
+#include "xui.h"
+#include "ui.h"
 
 #define DONE mrb_gc_arena_restore(mrb, 0)
 
 mrb_value
 mrb_s__serial(mrb_state *mrb, mrb_value self)
 {
-  char serial[32];
+  char serial[128];
 
   memset(&serial, 0, sizeof(serial));
 
-#ifdef PAX
-  ReadSN(&serial);
-#endif
+	OsRegGetValue("ro.fac.sn", serial);
 
   return mrb_str_new_cstr(mrb, serial);
 }
