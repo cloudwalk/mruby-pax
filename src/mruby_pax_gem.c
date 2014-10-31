@@ -43,24 +43,9 @@ mrb_s__battery(mrb_state *mrb, mrb_value self)
 #endif
 }
 
-// TODO: Scalone be careful with the size of this buffer
-mrb_value
-mrb_s__gets(mrb_state *mrb, mrb_value self)
-{
-	unsigned char sValue[128];
-  mrb_int min, max;
 
-  mrb_get_args(mrb, "ii", &min, &max);
 
-#ifdef PAX
-  memset(&sValue, 0, sizeof(sValue));
 
-  GetString(sValue, 0xF5, (int)min, (int)max);
-
-  return mrb_str_new_cstr(mrb, sValue);
-#else
-  return mrb_nil_value();
-#endif
 }
 
 void
