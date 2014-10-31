@@ -6,6 +6,10 @@ class PAX
     def self.clear
       ::IO.display_clear
     end
+
+    def self.clear_line(line)
+      ::IO.display_clear_line line
+    end
   end
 
   class System
