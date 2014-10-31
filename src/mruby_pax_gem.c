@@ -25,15 +25,10 @@ mrb_value
 mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
 {
   mrb_int mode;
-  char uMode[1];
 
   mrb_get_args(mrb, "i", &mode);
 
-  sprintf(uMode, "%d", (int)mode);
-
-#ifdef PAX
-  ScrBackLight(uMode);
-#endif
+  OsKbBacklight(mode);
 
   return mrb_fixnum_value(mode);
 }
