@@ -36,16 +36,13 @@ mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
 mrb_value
 mrb_s__battery(mrb_state *mrb, mrb_value self)
 {
-#ifdef PAX
-  return mrb_fixnum_value(BatteryCheck());
-#else
-  return mrb_fixnum_value(0);
-#endif
-}
+  char battery[128];
 
+  memset(&battery, 0, sizeof(battery));
 
+  OsRegGetValue("ro.fac.battery", battery);
 
-
+  return mrb_str_new_cstr(mrb, battery);
 }
 
 void
