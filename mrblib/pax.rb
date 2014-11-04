@@ -8,7 +8,7 @@ class PAX
     end
 
     def self.clear_line(line)
-      ::IO.display_clear_line line
+      PAX.display_clear_line(line)
     end
   end
 
