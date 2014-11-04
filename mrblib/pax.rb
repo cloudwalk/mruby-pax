@@ -4,7 +4,9 @@ class PAX
 
   class Display
     def self.clear
-      ::IO.display_clear
+      PAX.display_clear
+      screen_x = 0
+      screen_y = 0
     end
 
     def self.clear_line(line)
