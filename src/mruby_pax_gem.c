@@ -130,6 +130,14 @@ mrb_pax_s_magnetic_read(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(ret);
 }
 
+mrb_value
+mrb_pax_s_magnetic_close(mrb_state *mrb, mrb_value self)
+{
+  OsMsrClose();
+
+  return mrb_nil_value();
+}
+
 /*{:track1 => "", :track2 => "", :track3 => ""}*/
 mrb_value
 mrb_pax_s_magnetic_tracks(mrb_state *mrb, mrb_value self)
@@ -174,6 +182,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "magnetic_open"      , mrb_pax_s_magnetic_open      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_read"      , mrb_pax_s_magnetic_read      , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "magnetic_close"     , mrb_pax_s_magnetic_close     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_tracks"    , mrb_pax_s_magnetic_tracks    , MRB_ARGS_REQ(1));
 }
 
