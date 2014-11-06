@@ -162,6 +162,23 @@ mrb_pax_s_magnetic_tracks(mrb_state *mrb, mrb_value self)
   return hash;
 }
 
+mrb_value
+mrb_pax_s_print_bitmap(mrb_state *mrb, mrb_value self)
+{
+  mrb_value path;
+  mrb_int x, y;
+  char *sPath;
+
+  mrb_get_args(mrb, "oii", &path, &y, &x);
+
+  if (mrb_string_p(path)) {
+    sPath = RSTRING_PTR(path);
+    display_bitmap(sPath, y, x);
+  }
+
+  return mrb_nil_value();
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -184,6 +201,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "magnetic_read"      , mrb_pax_s_magnetic_read      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_close"     , mrb_pax_s_magnetic_close     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_tracks"    , mrb_pax_s_magnetic_tracks    , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
 }
 
 void

@@ -27,6 +27,10 @@ class PAX
     def self.clear_line(line)
       PAX.display_clear_line(line)
     end
+
+    def self.display_bitmap(path, row = 0, column = 0)
+      PAX.print_bitmap(path, row, column)
+    end
   end
 
   class System
