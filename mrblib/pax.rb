@@ -51,7 +51,7 @@ class PAX
       require "./mrb/da_funk.mrb"
       # Platform library responsible for implement the adapter for DaFunk
       # class Device #DaFunk abstraction
-      #   self.adapter = 
+      #   self.adapter =
       require "./mrb/pax.mrb"
       require file
 
