@@ -103,7 +103,7 @@ module Kernel
   def screen_add_y(value)
     @screen_y += value
     @screen_x = 0
-    if @screen_y > SCREEN_Y_SIZE
+    if @screen_y > (SCREEN_Y_SIZE - 1)
       @screen_y = 0
     end
   end
