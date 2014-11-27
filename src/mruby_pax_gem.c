@@ -179,6 +179,25 @@ mrb_pax_s_print_bitmap(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+static mrb_value
+mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
+{
+  mrb_value host;
+  mrb_int ret;
+  char dnsAddr[50]="\0";
+
+  mrb_get_args(mrb, "o", &host);
+
+  if (mrb_string_p(host)) {
+    ret = OsNetDns(RSTRING_PTR(host), &dnsAddr, 5000);
+  }
+
+  if (ret == RET_OK)
+    return mrb_str_new(mrb, (void *)&dnsAddr, strlen(dnsAddr));
+  else
+    return host;
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -202,6 +221,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "magnetic_close"     , mrb_pax_s_magnetic_close     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_tracks"    , mrb_pax_s_magnetic_tracks    , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
 }
 
 void
