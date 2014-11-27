@@ -14,9 +14,9 @@ module Kernel
   XUI_KEYCANCEL = 223
   XUI_KEYCLEAR  = 14
   XUI_KEYENTER  = 28
-  XUI_KEYALPHA  = 69
   XUI_KEYSHARP  = 55
   XUI_KEYF1     = 59
+  XUI_KEYALPHA  = XUI_KEYF1
   XUI_KEYF2     = 60
   XUI_KEYF3     = 61
   XUI_KEYF4     = 62
@@ -30,8 +30,8 @@ module Kernel
   IO_INPUT_SECRET  = :secret
 
   INPUT_NUMBERS = 36
-  INPUT_LETTERS = 40
-  INPUT_SECRET  = 48
+  INPUT_LETTERS = 20
+  INPUT_SECRET  = 28
 
   attr_accessor :screen_x, :screen_y
 
