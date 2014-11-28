@@ -17,6 +17,12 @@ class PAX
     end
   end
 
+  class Audio
+    def self.beep(tone, milliseconds)
+      PAX.beep(tone, milliseconds)
+    end
+  end
+
   class Display
     def self.clear
       PAX.display_clear
