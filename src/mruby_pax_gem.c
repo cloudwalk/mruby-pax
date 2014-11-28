@@ -198,6 +198,16 @@ mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
     return host;
 }
 
+static mrb_value
+mrb_pax_s_beep(mrb_state *mrb, mrb_value self)
+{
+  mrb_int tone, milliseconds;
+
+  mrb_get_args(mrb, "ii", &tone, &milliseconds);
+
+  OsBeep(tone, milliseconds);
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -222,6 +232,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "magnetic_tracks"    , mrb_pax_s_magnetic_tracks    , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
+  mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
 }
 
 void
