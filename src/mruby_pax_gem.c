@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mruby.h"
+#include "mruby/compile.h"
 #include "mruby/value.h"
 #include "mruby/array.h"
 #include "mruby/string.h"
@@ -208,6 +209,35 @@ mrb_pax_s_beep(mrb_state *mrb, mrb_value self)
   OsBeep(tone, milliseconds);
 }
 
+static mrb_value
+mrb_pax_execute(mrb_state *mrb, mrb_value self)
+{
+  char code[1024];
+  char *s_app_name;
+  mrb_state *mrb2;
+  mrb_value app_name;
+  mrbc_context *c;
+
+  mrb_get_args(mrb, "S", &app_name);
+
+  if (mrb_string_p(app_name)) {
+    s_app_name = RSTRING_PTR(app_name);
+  } else
+    return mrb_false_value();
+
+  memset(code, 0, sizeof(code));
+  sprintf(code, "PAX.execute(\"%s\")", s_app_name);
+
+  mrb2 = mrb_open();
+
+  c = mrbc_context_new(mrb2);
+  mrb_load_string_cxt(mrb2, code, c);
+  mrbc_context_free(mrb2, c);
+  mrb_close(mrb2);
+
+  return mrb_true_value();
+}
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -233,6 +263,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , pax , "_execute"           , mrb_pax_execute              , MRB_ARGS_REQ(1));
 }
 
 void
