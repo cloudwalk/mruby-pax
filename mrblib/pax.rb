@@ -79,15 +79,15 @@ class PAX
   #      app.call
   #    end
   #  end
-  def self.start(file = "./mrb/main.mrb")
+  def self.start(file = "./robot_rock/main.mrb")
     # TODO ./file has some leak problem after 4 tries
     begin
       # Library responsable for common code and API syntax for the user
-      require "./mrb/da_funk.mrb"
+      require "./robot_rock/da_funk.mrb"
       # Platform library responsible for implement the adapter for DaFunk
       # class Device #DaFunk abstraction
       #   self.adapter =
-      require "./mrb/pax.mrb"
+      require "./robot_rock/pax.mrb"
       require file
 
       # Method to contantize name of file, example:
