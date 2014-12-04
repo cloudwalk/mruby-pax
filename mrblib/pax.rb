@@ -64,6 +64,10 @@ class PAX
     end
   end
 
+  def self.get_dir(file)
+    file.to_s.split(".")[-2].split("/").last
+  end
+
   # Method should be implemented on platform class
   #  class Platform
   #    def self.start file
