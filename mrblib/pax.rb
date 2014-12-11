@@ -83,7 +83,7 @@ class PAX
   end
 
   def self.get_dir(file)
-    file.to_s.split(".")[-2].split("/").last
+    "./#{file.to_s.split(".")[-2].split("/").last}"
   end
 
   # Method should be implemented on platform class
