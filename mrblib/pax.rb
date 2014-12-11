@@ -68,16 +68,15 @@ class PAX
     begin
       $LOAD_PATH = [get_dir(file)]
 
-      require "da_funk.mrb"
+      require "./robot_rock/da_funk.mrb"
       require "./robot_rock/pax.mrb"
-      require file
+      require "main.mrb"
 
-      app = Device::Support.path_to_class file
-      app.call
+      Main.call
     rescue => @exception
       puts "#{@exception.class}: #{@exception.message}"
       puts "#{@exception.backtrace[0..2].join("\n")}"
-      IO.getc
+      getc
       return nil
     end
   end
