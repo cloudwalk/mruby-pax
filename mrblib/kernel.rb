@@ -33,8 +33,6 @@ module Kernel
   INPUT_LETTERS = 20
   INPUT_SECRET  = 28
 
-  attr_accessor :screen_x, :screen_y
-
   def getc
     case PAX._getc
     when XUI_KEY0 then "0"
@@ -65,7 +63,7 @@ module Kernel
     end
   end
 
-  def print_line(buf, row=0, column=0)
+  def print_line(buf, row=nil, column=nil)
     __printstr__(buf, row, column)
   end
 
@@ -74,25 +72,25 @@ module Kernel
   end
 
   def get_string(min, max, mode = IO_INPUT_LETTERS)
-    PAX._gets(min, max, input_type(mode), screen_y, screen_x)
+    PAX._gets(min, max, input_type(mode), Screen.y, Screen.x)
   end
 
   # TODO Scalone refactory NEEDED
   def __printstr__(str, y = nil, x = nil)
-    @screen_y = (y || @screen_y || 0)
-    @screen_x = (x || @screen_x || 0)
+    Screen.y = (y || Screen.y || 0)
+    Screen.x = (x || Screen.x || 0)
 
     screen_add_y(1) if str == "\n"
 
     str.split("\n").each_with_index do |string,index|
       screen_add_y(1) if index > 0
 
-      if (@screen_x + string.size) < SCREEN_X_SIZE
-        _printstr__(string, @screen_y, @screen_x)
-        @screen_x += string.size
+      if (Screen.x + string.size) < SCREEN_X_SIZE
+        _printstr__(string, Screen.y, Screen.x)
+        Screen.x += string.size
       else
-        space = SCREEN_X_SIZE - @screen_x
-        _printstr__("#{string[0..(space - 1)]}", @screen_y, @screen_x)
+        space = SCREEN_X_SIZE - Screen.x
+        _printstr__("#{string[0..(space - 1)]}", Screen.y, Screen.x)
         screen_add_y(1)
         __printstr__("#{string[(space)..-1]}")
       end
@@ -101,10 +99,10 @@ module Kernel
 
   private
   def screen_add_y(value)
-    @screen_y += value
-    @screen_x = 0
-    if @screen_y > (SCREEN_Y_SIZE - 1)
-      @screen_y = 0
+    Screen.y += value
+    Screen.x = 0
+    if Screen.y > (SCREEN_Y_SIZE - 1)
+      Screen.y = 0
     end
   end
 

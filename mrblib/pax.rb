@@ -32,15 +32,14 @@ class PAX
   class Display
     def self.clear
       PAX.display_clear
-      screen_x = 0
-      screen_y = 0
+      Screen.fresh
     end
 
     def self.clear_line(line)
       PAX.display_clear_line(line)
     end
 
-    def self.display_bitmap(path, row = 0, column = 0)
+    def self.display_bitmap(path, row = Screen.y, column = Screen.x)
       PAX.print_bitmap(path, row, column)
     end
   end
