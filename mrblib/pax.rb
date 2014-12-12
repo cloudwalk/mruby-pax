@@ -65,10 +65,17 @@ class PAX
 
   def self.execute(file)
     begin
-      $LOAD_PATH = [get_dir(file)]
+      dir = get_dir(file)
+      $LOAD_PATH = [dir]
 
-      require "./robot_rock/da_funk.mrb"
+      if File.exist?("#{dir}/da_funk.mrb")
+        require "da_funk.mrb"
+      else
+        require "./robot_rock/da_funk.mrb"
+      end
+
       require "./robot_rock/pax.mrb"
+
       require "main.mrb"
 
       Main.call
