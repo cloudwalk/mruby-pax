@@ -80,6 +80,7 @@ class PAX
 
       Main.call
     rescue => @exception
+      PAX.display_clear
       puts "#{@exception.class}: #{@exception.message}"
       puts "#{@exception.backtrace[0..2].join("\n")}"
       getc
@@ -123,6 +124,7 @@ class PAX
         app.call
       end
     rescue => @exception
+      PAX.display_clear
       puts "#{@exception.class}: #{@exception.message}"
       puts "#{@exception.backtrace[0..2].join("\n")}"
       IO.getc
