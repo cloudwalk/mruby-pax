@@ -43,6 +43,88 @@ get_emv_parameter(mrb_state *mrb, mrb_value klass)
 
   return hash;
 }
+
+static mrb_value
+set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
+{
+  EMV_PARAM parameter;
+  mrb_value value;
+
+  memset(&parameter, 0, sizeof(parameter));
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"));
+  parameter.MerchName = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"));
+  parameter.MerchCateCode = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"));
+  parameter.MerchId = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TermId"));
+  parameter.TermId = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TerminalType"));
+  parameter.TerminalType = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Capability"));
+  parameter.Capability = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExCapability"));
+  parameter.ExCapability = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrExp"));
+  parameter.TransCurrExp = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrExp"));
+  parameter.ReferCurrExp = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCode"));
+  parameter.ReferCurrCode = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "CountryCode"));
+  parameter.CountryCode = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrCode"));
+  parameter.TransCurrCode = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCon"));
+  parameter.ReferCurrCon = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransType"));
+  parameter.TransType = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ForceOnline"));
+  parameter.ForceOnline = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "GetDataPIN"));
+  parameter.GetDataPIN = RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"));
+  parameter.SurportPSESel = RSTRING_PTR(value);
+
+  EMVSetParameter(parameter);
+
+  return mrb_nil_value();
+}
+
 mrb_value
 mrb_s_core_init(mrb_state *mrb, mrb_value klass)
 {
