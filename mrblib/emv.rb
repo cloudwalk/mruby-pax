@@ -58,5 +58,29 @@ class PAX
     AC_TC                    = 0x01
     AC_ARQC                  = 0x02
     AC_AAC_HOST              = 0x03
+
+    EMV_PARAMETER_DEFAULT = {
+      "MerchName"     = "",
+      "MerchCateCode" = "",
+      "MerchId"       = "",
+      "TermId"        = "",
+      "TerminalType"  = "",
+      "Capability"    = "",
+      "ExCapability"  = "",
+      "TransCurrExp"  = "",
+      "ReferCurrExp"  = "",
+      "ReferCurrCode" = "",
+      "CountryCode"   = "",
+      "TransCurrCode" = "",
+      "ReferCurrCon"  = "",
+      "TransType"     = "",
+      "ForceOnline"   = "",
+      "GetDataPIN"    = "",
+      "SurportPSESel" = ""
+    }
+
+    def self.parameter_default
+      EMV_PARAMETER_DEFAULT.dup
+    end
   end
 end
