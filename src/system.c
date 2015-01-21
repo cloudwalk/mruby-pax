@@ -109,9 +109,7 @@ void
 mrb_system_init(mrb_state* mrb)
 {
   struct RClass *pax;
-  struct RClass *krn;
 
-  krn = mrb->kernel_module;
   pax = mrb_define_class(mrb, "PAX", mrb->object_class);
 
   mrb_define_class_method(mrb , pax , "_serial"            , mrb_s__serial                , MRB_ARGS_NONE());
