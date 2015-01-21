@@ -94,7 +94,7 @@ mrb_display_init(mrb_state* mrb)
   struct RClass *krn;
 
   krn = mrb->kernel_module;
-  pax = mrb_class_get(mrb, "PAX", mrb->object_class);
+  pax = mrb_class_get(mrb, "PAX");
 
   mrb_define_method(mrb       , krn , "_printstr__"        , mrb__printstr__              , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_NONE());

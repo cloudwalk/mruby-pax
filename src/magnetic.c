@@ -72,7 +72,7 @@ mrb_magnetic_init(mrb_state* mrb)
   struct RClass *krn;
 
   krn = mrb->kernel_module;
-  pax = mrb_class_get(mrb, "PAX", mrb->object_class);
+  pax = mrb_class_get(mrb, "PAX");
 
   mrb_define_class_method(mrb , pax , "magnetic_open"      , mrb_pax_s_magnetic_open      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "magnetic_read"      , mrb_pax_s_magnetic_read      , MRB_ARGS_NONE());
