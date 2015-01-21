@@ -9,6 +9,9 @@
 
 #include "osal.h"
 #include "emvlib_Prolin.h"
+/*#include "CLEntryAPI_Prolin.h"*/
+/*#include "ClssApi_Wave_prolin.h"*/
+/*#include "ClssApi_MC_prolin.h"*/
 
 /*Callbacks*/
 
@@ -27,6 +30,19 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum) { return EMV_OK; 
 unsigned char cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv) { return EMV_OK; };
 
 /*Callbacks*/
+
+/*[>CTLS Callbacks<]*/
+/*[>Generical<]*/
+/*unsigned char cPiccIsoCommand_Entry(uchar cid, APDU_SEND *ApduSend, APDU_RESP *ApduRecv) { return EMV_OK; };*/
+/*void DelayMs(ushort Ms) { sleep(Ms/1000); };*/
+
+/*[>MasterCard<]*/
+/*unsigned char cPiccIsoCommand_MC(uchar cid, APDU_SEND *ApduSend, APDU_RESP *ApduRecv) { return EMV_OK; };*/
+/*int cClssGetUnknowTLVData_MC(uchar *pucTag, uchar ucTagLen, uint unLen, uchar *pucdata) { return EMV_OK; };*/
+/*[>Wave<]*/
+/*int cClssGetUnknowTLVData_Wave(unsigned short usTag, unsigned char *pucData, int nLen) { return EMV_OK; };*/
+/*uchar cPiccIsoCommand_Wave(uchar cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv) { return EMV_OK; };*/
+/*[>CTLS Callbacks<]*/
 
 static mrb_value
 get_emv_parameter(mrb_state *mrb, mrb_value klass)
