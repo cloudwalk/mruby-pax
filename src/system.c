@@ -11,7 +11,7 @@
 #include "xui.h"
 #include "ui.h"
 
-mrb_value
+static mrb_value
 mrb_s__serial(mrb_state *mrb, mrb_value self)
 {
   char serial[128];
@@ -23,7 +23,7 @@ mrb_s__serial(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, serial);
 }
 
-mrb_value
+static mrb_value
 mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
 {
   mrb_int mode;
@@ -35,7 +35,7 @@ mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(mode);
 }
 
-mrb_value
+static mrb_value
 mrb_s__battery(mrb_state *mrb, mrb_value self)
 {
   char battery[128];
@@ -119,3 +119,4 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , pax , "_execute"           , mrb_pax_execute              , MRB_ARGS_REQ(1));
 }
+
