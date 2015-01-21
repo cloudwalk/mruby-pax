@@ -137,7 +137,7 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"));
   parameter.SurportPSESel = RSTRING_PTR(value);
 
-  EMVSetParameter(parameter);
+  EMVSetParameter(&parameter);
 
   return mrb_nil_value();
 }
