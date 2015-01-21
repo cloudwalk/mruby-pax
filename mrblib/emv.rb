@@ -60,23 +60,23 @@ class PAX
     AC_AAC_HOST              = 0x03
 
     EMV_PARAMETER_DEFAULT = {
-      "MerchName"     = "",
-      "MerchCateCode" = "",
-      "MerchId"       = "",
-      "TermId"        = "",
-      "TerminalType"  = "",
-      "Capability"    = "",
-      "ExCapability"  = "",
-      "TransCurrExp"  = "",
-      "ReferCurrExp"  = "",
-      "ReferCurrCode" = "",
-      "CountryCode"   = "",
-      "TransCurrCode" = "",
-      "ReferCurrCon"  = "",
-      "TransType"     = "",
-      "ForceOnline"   = "",
-      "GetDataPIN"    = "",
-      "SurportPSESel" = ""
+      "MerchName"     => "",
+      "MerchCateCode" => "",
+      "MerchId"       => "",
+      "TermId"        => "",
+      "TerminalType"  => "",
+      "Capability"    => "",
+      "ExCapability"  => "",
+      "TransCurrExp"  => "",
+      "ReferCurrExp"  => "",
+      "ReferCurrCode" => "",
+      "CountryCode"   => "",
+      "TransCurrCode" => "",
+      "ReferCurrCon"  => 0,
+      "TransType"     => "",
+      "ForceOnline"   => "",
+      "GetDataPIN"    => "",
+      "SurportPSESel" => ""
     }
 
     def self.parameter_default
