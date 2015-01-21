@@ -40,23 +40,25 @@ get_emv_parameter(mrb_state *mrb, mrb_value klass)
 
   hash = mrb_funcall(mrb, klass, "parameter_default", 0);
 
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"), mrb_str_new_cstr(mrb, parameter.MerchName));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"), mrb_str_new_cstr(mrb, parameter.MerchCateCode));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"), mrb_str_new_cstr(mrb, parameter.MerchId));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TermId"), mrb_str_new_cstr(mrb, parameter.TermId));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TerminalType"), mrb_str_new_cstr(mrb, parameter.TerminalType));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "Capability"), mrb_str_new_cstr(mrb, parameter.Capability));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ExCapability"), mrb_str_new_cstr(mrb, parameter.ExCapability));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrExp"), mrb_str_new_cstr(mrb, parameter.TransCurrExp));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrExp"), mrb_str_new_cstr(mrb, parameter.ReferCurrExp));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCode"), mrb_str_new_cstr(mrb, parameter.ReferCurrCode));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "CountryCode"), mrb_str_new_cstr(mrb, parameter.CountryCode));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrCode"), mrb_str_new_cstr(mrb, parameter.TransCurrCode));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCon"), mrb_str_new_cstr(mrb, parameter.ReferCurrCon));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransType"), mrb_str_new_cstr(mrb, parameter.TransType));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ForceOnline"), mrb_str_new_cstr(mrb, parameter.ForceOnline));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "GetDataPIN"), mrb_str_new_cstr(mrb, parameter.GetDataPIN));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"), mrb_str_new_cstr(mrb, parameter.SurportPSESel));
+  /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
+
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"), mrb_str_new_static(mrb, &parameter.MerchName, 256));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"), mrb_str_new_static(mrb, &parameter.MerchCateCode, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"), mrb_str_new_static(mrb, &parameter.MerchId, 15));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TermId"), mrb_str_new_static(mrb, &parameter.TermId, 8));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TerminalType"), mrb_str_new_static(mrb, &parameter.TerminalType, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "Capability"), mrb_str_new_static(mrb, &parameter.Capability, 3));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ExCapability"), mrb_str_new_static(mrb, &parameter.ExCapability, 5));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrExp"), mrb_str_new_static(mrb, &parameter.TransCurrExp, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrExp"), mrb_str_new_static(mrb, &parameter.ReferCurrExp, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCode"), mrb_str_new_static(mrb, &parameter.ReferCurrCode, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "CountryCode"), mrb_str_new_static(mrb, &parameter.CountryCode, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrCode"), mrb_str_new_static(mrb, &parameter.TransCurrCode, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCon"), mrb_str_new_static(mrb, &parameter.ReferCurrCon, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransType"), mrb_str_new_static(mrb, &parameter.TransType, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ForceOnline"), mrb_str_new_static(mrb, &parameter.ForceOnline, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "GetDataPIN"), mrb_str_new_static(mrb, &parameter.GetDataPIN, 1));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"), mrb_str_new_static(mrb, &parameter.SurportPSESel, 1));
 
   return hash;
 }
