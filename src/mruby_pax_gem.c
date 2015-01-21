@@ -16,10 +16,10 @@
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
-  mrb_system_init();
-  mrb_display_init();
-  mrb_magnetic_init();
-  mrb_emv_init();
+  mrb_system_init(mrb);
+  mrb_display_init(mrb);
+  mrb_magnetic_init(mrb);
+  mrb_emv_init(mrb);
 }
 
 void
