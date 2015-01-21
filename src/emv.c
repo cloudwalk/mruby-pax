@@ -10,6 +10,23 @@
 #include "osal.h"
 #include "emvlib_Prolin.h"
 
+/*Callbacks*/
+
+int  cEMVSetParam(void) { return EMV_OK; };
+unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut) { return EMV_OK; };
+unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn) { return EMV_OK; };
+int  cEMVInputAmount(unsigned long *AuthAmt, unsigned long *CashBackAmt) { return EMV_OK; };
+int cEMVPedVerifyPlainPin(uchar ucIccSlot, uchar *pucExpPinLenIn, uchar *ucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
+int cEMVPedVerifyCipherPin(uchar ucIccSlot, uchar *pExpPinLenIn, RSA_PINKEY *tRsaPinKeyIn, uchar *pucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
+int  cEMVGetHolderPwd(int TryFlag, int RemainCnt, unsigned char *pin) { return EMV_OK; };
+int  cCertVerify(void) { return EMV_OK; };
+void cEMVVerifyPINOK(void) { return; };
+unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv) { return EMV_OK; };
+int  cEMVUnknowTLVData(unsigned short Tag, unsigned char *dat, int len) { return EMV_OK; };
+int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum) { return EMV_OK; };
+unsigned char cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv) { return EMV_OK; };
+
+/*Callbacks*/
 
 static mrb_value
 get_emv_parameter(mrb_state *mrb, mrb_value klass)
