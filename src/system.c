@@ -105,6 +105,12 @@ mrb_pax_execute(mrb_state *mrb, mrb_value self)
   return mrb_true_value();
 }
 
+static mrb_value
+mrb_pax_s_reboot(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(OsReboot());
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -118,5 +124,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , pax , "_execute"           , mrb_pax_execute              , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "_reboot"            , mrb_pax_s_reboot             , MRB_ARGS_NONE());
 }
 

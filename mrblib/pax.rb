@@ -61,6 +61,14 @@ class PAX
     def self.battery
       PAX._battery
     end
+
+    def self.reboot
+      PAX._reboot
+    end
+
+    class << self
+      alias_method :restart, :reboot
+    end
   end
 
   def self.execute(file)
