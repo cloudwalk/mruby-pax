@@ -11,7 +11,7 @@
 #include "ui.h"
 
 mrb_value
-mrb_pax_s_magnetic_open(mrb_state *mrb, mrb_value self)
+mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
 
@@ -24,7 +24,7 @@ mrb_pax_s_magnetic_open(mrb_state *mrb, mrb_value self)
 
 /*TODO Scalone REMOVE ALL MAGNETIC FUNCTIONS FROM HERE USE PURE RUBY IMPLEMENTATION WITH IO*/
 mrb_value
-mrb_pax_s_magnetic_read(mrb_state *mrb, mrb_value self)
+mrb_magnetic_s_read(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
 
@@ -34,7 +34,7 @@ mrb_pax_s_magnetic_read(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb_pax_s_magnetic_close(mrb_state *mrb, mrb_value self)
+mrb_magnetic_s_close(mrb_state *mrb, mrb_value self)
 {
   OsMsrClose();
 
@@ -43,7 +43,7 @@ mrb_pax_s_magnetic_close(mrb_state *mrb, mrb_value self)
 
 /*{:track1 => "", :track2 => "", :track3 => ""}*/
 mrb_value
-mrb_pax_s_magnetic_tracks(mrb_state *mrb, mrb_value self)
+mrb_magnetic_s_tracks(mrb_state *mrb, mrb_value self)
 {
   /*char track1[79+1], track2[37+1], track3[107+1];*/
   ST_MSR_DATA track1;
@@ -69,14 +69,14 @@ void
 mrb_magnetic_init(mrb_state* mrb)
 {
   struct RClass *pax;
-  struct RClass *krn;
+  struct RClass *magnetic;
 
-  krn = mrb->kernel_module;
-  pax = mrb_class_get(mrb, "PAX");
+  pax      = mrb_class_get(mrb, "PAX");
+  magnetic = mrb_define_class(mrb, "Magnetic", pax);
 
-  mrb_define_class_method(mrb , pax , "magnetic_open"      , mrb_pax_s_magnetic_open      , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "magnetic_read"      , mrb_pax_s_magnetic_read      , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "magnetic_close"     , mrb_pax_s_magnetic_close     , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "magnetic_tracks"    , mrb_pax_s_magnetic_tracks    , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , magnetic , "open"      , mrb_magnetic_s_open      , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , magnetic , "read"      , mrb_magnetic_s_read      , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , magnetic , "close"     , mrb_magnetic_s_close     , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , magnetic , "tracks"    , mrb_magnetic_s_tracks    , MRB_ARGS_REQ(1));
 }
 
