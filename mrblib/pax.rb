@@ -2,21 +2,6 @@ class PAX
   Network = ::Network
   IO      = ::IO
 
-  class IO
-    def self.read_card(timeout)
-      time = Time.now + (timeout.to_f / 1000.0)
-      PAX.magnetic_open
-
-      loop do
-        break if PAX.magnetic_read == 1 || time <= Time.now
-      end
-
-      PAX.magnetic_tracks
-    ensure
-      PAX.magnetic_close
-    end
-  end
-
   class Audio
     def self.beep(tone, milliseconds)
       PAX.beep(tone, milliseconds)
