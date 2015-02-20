@@ -55,4 +55,7 @@ class PAX
       alias_method :restart, :reboot
     end
   end
+
+  def self.setup
+  end
 end
