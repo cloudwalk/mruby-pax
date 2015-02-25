@@ -1,6 +1,5 @@
 class PAX
   Network = ::Network
-  IO      = ::IO
 
   class Audio
     def self.beep(tone, milliseconds)

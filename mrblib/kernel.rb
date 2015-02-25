@@ -1,6 +1,4 @@
 module Kernel
-  SCREEN_X_SIZE = 20
-  SCREEN_Y_SIZE = 7
   XUI_KEY1      = 2
   XUI_KEY2      = 3
   XUI_KEY3      = 4
@@ -33,6 +31,36 @@ module Kernel
   INPUT_LETTERS = 20
   INPUT_SECRET  = 28
 
+  def print_line(buf, row=nil, column=nil)
+    __printstr__(buf, row, column)
+  end
+
+  # TODO Refactor needed
+  def __printstr__(str, y = nil, x = nil)
+    Screen.y = (y || Screen.y || 0)
+    Screen.x = (x || Screen.x || 0)
+
+    Screen.add_y(1) if str == "\n"
+
+    str.split("\n").each_with_index do |string,index|
+      Screen.add_y(1) if index > 0
+
+      if (Screen.x + string.size) < Screen::SCREEN_X_SIZE
+        _printstr__(string, Screen.y, Screen.x)
+        Screen.x += string.size
+      else
+        space = Screen::SCREEN_X_SIZE - Screen.x
+        _printstr__("#{string[0..(space - 1)]}", Screen.y, Screen.x)
+        Screen.add_y(1)
+        __printstr__("#{string[(space)..-1]}")
+      end
+    end
+  end
+
+  def gets(separator = 0x0D.chr, limit = Screen::SCREEN_X_SIZE, mode = IO_INPUT_LETTERS)
+    Device::IO.get_string(1, limit, mode).split(separator).first
+  end
+
   def getc
     case PAX._getc
     when XUI_KEY0 then "0"
@@ -63,49 +91,7 @@ module Kernel
     end
   end
 
-  def print_line(buf, row=nil, column=nil)
-    __printstr__(buf, row, column)
-  end
-
-  def gets(separator, limit, mode)
-    get_string(1, limit, mode).split(separator).first
-  end
-
-  def get_string(min, max, mode = IO_INPUT_LETTERS)
-    PAX._gets(min, max, input_type(mode), Screen.y, Screen.x)
-  end
-
-  # TODO Scalone refactory NEEDED
-  def __printstr__(str, y = nil, x = nil)
-    Screen.y = (y || Screen.y || 0)
-    Screen.x = (x || Screen.x || 0)
-
-    screen_add_y(1) if str == "\n"
-
-    str.split("\n").each_with_index do |string,index|
-      screen_add_y(1) if index > 0
-
-      if (Screen.x + string.size) < SCREEN_X_SIZE
-        _printstr__(string, Screen.y, Screen.x)
-        Screen.x += string.size
-      else
-        space = SCREEN_X_SIZE - Screen.x
-        _printstr__("#{string[0..(space - 1)]}", Screen.y, Screen.x)
-        screen_add_y(1)
-        __printstr__("#{string[(space)..-1]}")
-      end
-    end
-  end
-
   private
-  def screen_add_y(value)
-    Screen.y += value
-    Screen.x = 0
-    if Screen.y > (SCREEN_Y_SIZE - 1)
-      Screen.y = 0
-    end
-  end
-
   def input_type(type)
     case type
     when IO_INPUT_NUMBERS then INPUT_NUMBERS
@@ -116,3 +102,4 @@ module Kernel
     end
   end
 end
+
