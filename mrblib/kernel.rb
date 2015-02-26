@@ -61,8 +61,9 @@ module Kernel
     Device::IO.get_string(1, limit, mode).split(separator).first
   end
 
-  def getc
-    case PAX._getc
+  def getc(timeout_io = nil)
+    timeout_io ||= IO.timeout
+    case PAX._getc(timeout_io)
     when XUI_KEY0 then "0"
     when XUI_KEY1 then "1"
     when XUI_KEY2 then "2"

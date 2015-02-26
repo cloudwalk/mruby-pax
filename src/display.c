@@ -10,6 +10,7 @@
 #include "osal.h"
 #include "xui.h"
 #include "ui.h"
+#include "keyboard.h"
 
 mrb_value
 mrb__printstr__(mrb_state *mrb, mrb_value self)
@@ -33,8 +34,12 @@ mrb__printstr__(mrb_state *mrb, mrb_value self)
 mrb_value
 mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
 {
+  mrb_int timeout=0;
+
+  mrb_get_args(mrb, "i", &timeout);
+
   XuiClearKey();
-  return mrb_fixnum_value(XuiGetKey());
+  return mrb_fixnum_value(GetKey(timeout));
 }
 
 mrb_value
