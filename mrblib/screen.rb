@@ -11,7 +11,7 @@ class Screen
     self.y = 0
   end
 
-  def add_y(value)
+  def self.add_y(value)
     self.y += value
     self.x = 0
     if self.y > (SCREEN_Y_SIZE - 1)
