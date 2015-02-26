@@ -77,35 +77,6 @@ mrb_pax_s_beep(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_pax_execute(mrb_state *mrb, mrb_value self)
-{
-  char code[1024];
-  char *s_app_name;
-  mrb_state *mrb2;
-  mrb_value app_name;
-  mrbc_context *c;
-
-  mrb_get_args(mrb, "S", &app_name);
-
-  if (mrb_string_p(app_name)) {
-    s_app_name = RSTRING_PTR(app_name);
-  } else
-    return mrb_false_value();
-
-  memset(code, 0, sizeof(code));
-  sprintf(code, "PAX.execute(\"%s\")", s_app_name);
-
-  mrb2 = mrb_open();
-
-  c = mrbc_context_new(mrb2);
-  mrb_load_string_cxt(mrb2, code, c);
-  mrbc_context_free(mrb2, c);
-  mrb_close(mrb2);
-
-  return mrb_true_value();
-}
-
-static mrb_value
 mrb_pax_s_reboot(mrb_state *mrb, mrb_value self)
 {
   return mrb_fixnum_value(OsReboot());
@@ -123,7 +94,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "_battery"           , mrb_s__battery               , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb , pax , "_execute"           , mrb_pax_execute              , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "_reboot"            , mrb_pax_s_reboot             , MRB_ARGS_NONE());
 }
 

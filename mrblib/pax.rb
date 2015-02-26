@@ -7,12 +7,6 @@ class PAX
     end
   end
 
-  class Runtime
-    def self.execute(app)
-      PAX._execute(app)
-    end
-  end
-
   class Display
     def self.clear
       PAX.display_clear
