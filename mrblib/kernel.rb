@@ -1,27 +1,28 @@
 module Kernel
-  XUI_KEY1      = 2
-  XUI_KEY2      = 3
-  XUI_KEY3      = 4
-  XUI_KEY4      = 5
-  XUI_KEY5      = 6
-  XUI_KEY6      = 7
-  XUI_KEY7      = 8
-  XUI_KEY8      = 9
-  XUI_KEY9      = 10
-  XUI_KEY0      = 11
-  XUI_KEYCANCEL = 223
-  XUI_KEYCLEAR  = 14
-  XUI_KEYENTER  = 28
-  XUI_KEYSHARP  = 55
-  XUI_KEYF1     = 59
-  XUI_KEYALPHA  = XUI_KEYF1
-  XUI_KEYF2     = 60
-  XUI_KEYF3     = 61
-  XUI_KEYF4     = 62
-  XUI_KEYFUNC   = 102
-  XUI_KEYUP     = 103
-  XUI_KEYDOWN   = 108
-  XUI_KEYMENU   = 139
+  XUI_KEY1       = 2
+  XUI_KEY2       = 3
+  XUI_KEY3       = 4
+  XUI_KEY4       = 5
+  XUI_KEY5       = 6
+  XUI_KEY6       = 7
+  XUI_KEY7       = 8
+  XUI_KEY8       = 9
+  XUI_KEY9       = 10
+  XUI_KEY0       = 11
+  XUI_KEYCANCEL  = 223
+  XUI_KEYTIMEOUT = 18
+  XUI_KEYCLEAR   = 14
+  XUI_KEYENTER   = 28
+  XUI_KEYSHARP   = 55
+  XUI_KEYF1      = 59
+  XUI_KEYALPHA   = XUI_KEYF1
+  XUI_KEYF2      = 60
+  XUI_KEYF3      = 61
+  XUI_KEYF4      = 62
+  XUI_KEYFUNC    = 102
+  XUI_KEYUP      = 103
+  XUI_KEYDOWN    = 108
+  XUI_KEYMENU    = 139
 
   IO_INPUT_NUMBERS = :numbers
   IO_INPUT_LETTERS = :letters
@@ -79,6 +80,7 @@ module Kernel
     when XUI_KEYENTER then 0x0D.chr
     when XUI_KEYALPHA then 0x10.chr
     when XUI_KEYSHARP then 0x11.chr
+    when XUI_KEYTIMEOUT then 0x12.chr
     when XUI_KEYF1 then 0x01.chr
     when XUI_KEYF2 then 0x02.chr
     when XUI_KEYF3 then 0x03.chr
