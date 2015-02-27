@@ -82,6 +82,20 @@ mrb_pax_s_reboot(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(OsReboot());
 }
 
+static mrb_value
+mrb_pax_s_hwclock(mrb_state *mrb, mrb_value self)
+{
+  mrb_int seconds;
+  struct timeval tv;
+
+  mrb_get_args(mrb, "i", &seconds);
+
+  tv.tv_sec = seconds;
+  tv.tv_usec = 0;
+
+  mrb_fixnum_value(settimeofday(&tv,NULL));
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -95,5 +109,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , pax , "_reboot"            , mrb_pax_s_reboot             , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "hwclock"            , mrb_pax_s_hwclock            , MRB_ARGS_REQ(1));
 }
 
