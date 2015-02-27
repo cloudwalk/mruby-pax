@@ -85,15 +85,19 @@ mrb_pax_s_reboot(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_s_hwclock(mrb_state *mrb, mrb_value self)
 {
-  mrb_int seconds;
-  struct timeval tv;
+  ST_TIME t;
+  mrb_int year, month, day, hour, minute, second;
 
-  mrb_get_args(mrb, "i", &seconds);
+  mrb_get_args(mrb, "iiiiii", &year, &month, &day, &hour, &minute, &second);
 
-  tv.tv_sec = seconds;
-  tv.tv_usec = 0;
+  t.Year   = year;
+  t.Month  = month;
+  t.Day    = day;
+  t.Hour   = hour;
+  t.Minute = minute;
+  t.Second = second;
 
-  mrb_fixnum_value(settimeofday(&tv,NULL));
+  mrb_fixnum_value(OsSetTime(&t));
 }
 
 void
@@ -109,6 +113,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , pax , "_reboot"            , mrb_pax_s_reboot             , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "hwclock"            , mrb_pax_s_hwclock            , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "hwclock"            , mrb_pax_s_hwclock            , MRB_ARGS_REQ(6));
 }
 
