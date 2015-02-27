@@ -38,7 +38,6 @@ mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "i", &timeout);
 
-  XuiClearKey();
   return mrb_fixnum_value(GetKey(timeout));
 }
 
