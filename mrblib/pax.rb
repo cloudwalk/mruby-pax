@@ -20,6 +20,10 @@ class PAX
     def self.display_bitmap(path, row = Screen.y, column = Screen.x)
       PAX.print_bitmap(path, row, column)
     end
+
+    def self.print_in_line(buf, row=nil, column=nil)
+      __printstr__(buf, row, column)
+    end
   end
 
   class System
