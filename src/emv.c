@@ -377,6 +377,6 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "set_parameter", mrb_s_set_emv_parameter , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "get_app", mrb_s_get_emv_app , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "set_app", mrb_s_set_emv_app , MRB_ARGS_REQ(1));
-
   mrb_define_class_method(mrb, emv, "del_app", mrb_s_set_emv_del_app , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "del_apps", mrb_s_set_emv_del_apps , MRB_ARGS_NONE());
 }
