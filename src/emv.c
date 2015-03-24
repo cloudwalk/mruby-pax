@@ -345,7 +345,7 @@ mrb_s_set_emv_del_app(mrb_state *mrb, mrb_value klass)
   mrb_value aid;
   mrb_int ret=EMV_OK;
 
-  mrb_get_args(mrb, "S", &aid);
+  mrb_get_args(mrb, "s", &aid);
 
   if (mrb_string_p(aid))
     ret = EMVDelApp(RSTRING_PTR(aid), RSTRING_LEN(aid));
