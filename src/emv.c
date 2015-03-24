@@ -45,19 +45,17 @@ unsigned char cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *t
 /*[>CTLS Callbacks<]*/
 
 static mrb_value
-get_emv_parameter(mrb_state *mrb, mrb_value klass)
+mrb_s_get_emv_parameter(mrb_state *mrb, mrb_value klass)
 {
   EMV_PARAM parameter;
   mrb_value hash;
 
-  EMVGetParameter(&parameter);
-
   memset(&parameter, 0, sizeof(parameter));
 
+  EMVGetParameter(&parameter);
   hash = mrb_funcall(mrb, klass, "parameter_default", 0);
 
   /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"), mrb_str_new_static(mrb, &parameter.MerchName, 256));
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"), mrb_str_new_static(mrb, &parameter.MerchCateCode, 2));
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"), mrb_str_new_static(mrb, &parameter.MerchId, 15));
@@ -79,7 +77,7 @@ get_emv_parameter(mrb_state *mrb, mrb_value klass)
   return hash;
 }
 
-static mrb_value
+static void
 set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_PARAM parameter;
@@ -157,14 +155,27 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
   parameter.SurportPSESel = (unsigned char)RSTRING_PTR(value);
 
   EMVSetParameter(&parameter);
-
-  return mrb_nil_value();
 }
 
 mrb_value
 mrb_s_core_init(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVCoreInit());
+}
+
+static mrb_value
+mrb_s_set_emv_parameter(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value hash;
+
+  mrb_get_args(mrb, "o", &hash);
+
+  if (mrb_hash_p(hash))
+    set_emv_parameter(mrb, klass, hash);
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a hash");
+
+  return mrb_nil_value();
 }
 
 void
@@ -174,7 +185,9 @@ mrb_emv_init(mrb_state* mrb)
   struct RClass *emv;
 
   pax = mrb_class_get(mrb, "PAX");
-  emv = mrb_define_class(mrb, "EMV", pax);
+  emv = mrb_define_class_under(mrb, pax, "EMV",  mrb->object_class);
 
   mrb_define_class_method(mrb, emv, "core_init", mrb_s_core_init , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, emv, "get_parameter", mrb_s_get_emv_parameter , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, emv, "set_parameter", mrb_s_set_emv_parameter , MRB_ARGS_REQ(1));
 }
