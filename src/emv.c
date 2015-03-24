@@ -228,7 +228,7 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
 }
 
 static int
-set_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
+add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_APPLIST parameter;
   mrb_value value;
@@ -324,7 +324,7 @@ set_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 }
 
 static mrb_value
-mrb_s_set_emv_app(mrb_state *mrb, mrb_value klass)
+mrb_s_add_emv_app(mrb_state *mrb, mrb_value klass)
 {
   mrb_value hash;
   mrb_int ret=EMV_OK;
@@ -332,7 +332,7 @@ mrb_s_set_emv_app(mrb_state *mrb, mrb_value klass)
   mrb_get_args(mrb, "o", &hash);
 
   if (mrb_hash_p(hash))
-    ret = set_emv_app(mrb, klass, hash);
+    ret = add_emv_app(mrb, klass, hash);
   else
     mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a hash");
 
@@ -340,7 +340,7 @@ mrb_s_set_emv_app(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_set_emv_del_app(mrb_state *mrb, mrb_value klass)
+mrb_s_del_emv_app(mrb_state *mrb, mrb_value klass)
 {
   mrb_value aid;
   mrb_int ret=EMV_OK;
@@ -356,7 +356,7 @@ mrb_s_set_emv_del_app(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_set_emv_del_apps(mrb_state *mrb, mrb_value klass)
+mrb_s_del_emv_apps(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVDelAllApp());
 }
@@ -373,7 +373,7 @@ mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "i", &index);
 
-  ret = EMVAddCAPK(index, &parameter);
+  ret = EMVGetCAPK(index, &parameter);
 
   if (ret == EMV_OK)
   {
@@ -398,7 +398,7 @@ mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
 }
 
 static int
-set_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
+add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_CAPK parameter;
   mrb_value value;
@@ -446,11 +446,11 @@ set_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "CheckSum"));
   strncpy(&parameter.CheckSum, RSTRING_PTR(value), 20);
 
-  return EMVGetCAPK(&parameter);
+  return EMVAddCAPK(&parameter);
 }
 
 static mrb_value
-mrb_s_set_emv_pki(mrb_state *mrb, mrb_value klass)
+mrb_s_add_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value hash;
   mrb_int ret=EMV_OK;
@@ -458,7 +458,7 @@ mrb_s_set_emv_pki(mrb_state *mrb, mrb_value klass)
   mrb_get_args(mrb, "o", &hash);
 
   if (mrb_hash_p(hash))
-    ret = set_emv_pki(mrb, klass, hash);
+    ret = add_emv_pki(mrb, klass, hash);
   else
     mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a hash");
 
@@ -466,7 +466,7 @@ mrb_s_set_emv_pki(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_set_emv_del_pki(mrb_state *mrb, mrb_value klass)
+mrb_s_del_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value keyID, rid;
   mrb_int ret=EMV_OK;
@@ -482,7 +482,7 @@ mrb_s_set_emv_del_pki(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_set_emv_check_pki(mrb_state *mrb, mrb_value klass)
+mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value keyID, rid;
   mrb_int ret=EMV_OK;
@@ -512,12 +512,12 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "get_parameter", mrb_s_get_emv_parameter , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "set_parameter", mrb_s_set_emv_parameter , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "get_app", mrb_s_get_emv_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "set_app", mrb_s_set_emv_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_app", mrb_s_set_emv_del_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_apps", mrb_s_set_emv_del_apps , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, emv, "add_app", mrb_s_add_emv_app , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "del_app", mrb_s_del_emv_app , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "del_apps", mrb_s_del_emv_apps , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "get_pki", mrb_s_get_emv_pki , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "set_pki", mrb_s_set_emv_pki , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_pki", mrb_s_set_emv_del_pki , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, emv, "check_pki", mrb_s_set_emv_check_pki , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, emv, "add_pki", mrb_s_add_emv_pki , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "del_pki", mrb_s_del_emv_pki , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, emv, "check_pki", mrb_s_check_emv_pki , MRB_ARGS_REQ(2));
 
 }
