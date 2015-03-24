@@ -102,6 +102,19 @@ class PAX
       "RiskManData"     => ""
     }
 
+    EMV_PKI_DEFAULT = {
+      "RID"         => "",
+      "KeyID"       => "",
+      "HashInd"     => "",
+      "ArithInd"    => "",
+      "ModulLen"    => "",
+      "Modul"       => "",
+      "ExponentLen" => "",
+      "Exponent"    => "",
+      "ExpDate"     => "",
+      "CheckSum"    => ""
+    }
+
     def self.parameter_default
       EMV_PARAMETER_DEFAULT.dup
     end
@@ -109,5 +122,10 @@ class PAX
     def self.app_default
       EMV_APP_DEFAULT.dup
     end
+
+    def self.pki_default
+      EMV_PKI_DEFAULT.dup
+    end
+
   end
 end

@@ -361,6 +361,142 @@ mrb_s_set_emv_del_apps(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(EMVDelAllApp());
 }
 
+static mrb_value
+mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
+{
+  EMV_CAPK parameter;
+  mrb_value hash;
+  mrb_int index;
+  int ret=EMV_NOT_FOUND;
+
+  memset(&parameter, 0, sizeof(parameter));
+
+  mrb_get_args(mrb, "i", &index);
+
+  ret = EMVAddCAPK(index, &parameter);
+
+  if (ret == EMV_OK)
+  {
+    hash = mrb_funcall(mrb, klass, "pki_default", 0);
+    /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RID")         , mrb_str_new_static(mrb , &parameter.RID         , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "KeyID")       , mrb_str_new_static(mrb , &parameter.KeyID       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "HashInd")     , mrb_str_new_static(mrb , &parameter.HashInd     , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ArithInd")    , mrb_str_new_static(mrb , &parameter.ArithInd    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ModulLen")    , mrb_str_new_static(mrb , &parameter.ModulLen    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Modul")       , mrb_str_new_static(mrb , &parameter.Modul       , 248));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExponentLen") , mrb_str_new_static(mrb , &parameter.ExponentLen , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Exponent")    , mrb_str_new_static(mrb , &parameter.Exponent    , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExpDate")     , mrb_str_new_static(mrb , &parameter.ExpDate     , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "CheckSum")    , mrb_str_new_static(mrb , &parameter.CheckSum    , 20));
+
+    return hash;
+  } else {
+    return mrb_fixnum_value(ret);
+    /*mrb_raisef(mrb, E_EMV_ERROR, "object isn't a hash", );*/
+  }
+}
+
+static int
+set_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
+{
+  EMV_CAPK parameter;
+  mrb_value value;
+  mrb_int iValue;
+
+  memset(&parameter, 0, sizeof(parameter));
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RID"));
+  strncpy(&parameter.RID, RSTRING_PTR(value), 5);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "KeyID"));
+  parameter.KeyID = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "HashInd"));
+  parameter.HashInd = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ArithInd"));
+  parameter.ArithInd = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ModulLen"));
+  parameter.ModulLen = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Modul"));
+  strncpy(&parameter.Modul, RSTRING_PTR(value), 248);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExponentLen"));
+  parameter.ExponentLen = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Exponent"));
+  strncpy(&parameter.Exponent, RSTRING_PTR(value), 3);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExpDate"));
+  strncpy(&parameter.ExpDate, RSTRING_PTR(value), 3);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "CheckSum"));
+  strncpy(&parameter.CheckSum, RSTRING_PTR(value), 20);
+
+  return EMVGetCAPK(&parameter);
+}
+
+static mrb_value
+mrb_s_set_emv_pki(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value hash;
+  mrb_int ret=EMV_OK;
+
+  mrb_get_args(mrb, "o", &hash);
+
+  if (mrb_hash_p(hash))
+    ret = set_emv_pki(mrb, klass, hash);
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a hash");
+
+  return mrb_fixnum_value(ret);
+}
+
+static mrb_value
+mrb_s_set_emv_del_pki(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value keyID, rid;
+  mrb_int ret=EMV_OK;
+
+  mrb_get_args(mrb, "ss", &keyID, &rid);
+
+  if (mrb_string_p(keyID) || mrb_string_p(rid))
+    ret = EMVDelCAPK(RSTRING_PTR(keyID), RSTRING_PTR(rid));
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a string");
+
+  return mrb_fixnum_value(ret);
+}
+
+static mrb_value
+mrb_s_set_emv_check_pki(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value keyID, rid;
+  mrb_int ret=EMV_OK;
+
+  mrb_get_args(mrb, "ss", &keyID, &rid);
+
+  if (mrb_string_p(keyID) || mrb_string_p(rid))
+    ret = EMVCheckCAPK(RSTRING_PTR(keyID), RSTRING_PTR(rid));
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a string");
+
+  return mrb_fixnum_value(ret);
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -379,4 +515,9 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "set_app", mrb_s_set_emv_app , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "del_app", mrb_s_set_emv_del_app , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "del_apps", mrb_s_set_emv_del_apps , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, emv, "get_pki", mrb_s_get_emv_pki , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "set_pki", mrb_s_set_emv_pki , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "del_pki", mrb_s_set_emv_del_pki , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, emv, "check_pki", mrb_s_set_emv_check_pki , MRB_ARGS_REQ(2));
+
 }
