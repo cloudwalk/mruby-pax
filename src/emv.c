@@ -227,7 +227,7 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
   }
 }
 
-static void
+static int
 set_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_APPLIST parameter;
@@ -323,6 +323,22 @@ set_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
   return EMVAddApp(&parameter);
 }
 
+static mrb_value
+mrb_s_set_emv_app(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value hash;
+  mrb_int ret=EMV_OK;
+
+  mrb_get_args(mrb, "o", &hash);
+
+  if (mrb_hash_p(hash))
+    ret = set_emv_app(mrb, klass, hash);
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a hash");
+
+  return mrb_fixnum_value(ret);
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -337,4 +353,7 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "core_init", mrb_s_core_init , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "get_parameter", mrb_s_get_emv_parameter , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "set_parameter", mrb_s_set_emv_parameter , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "get_app", mrb_s_get_emv_app , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "set_app", mrb_s_set_emv_app , MRB_ARGS_REQ(1));
+
 }
