@@ -9,6 +9,9 @@
 
 #include "osal.h"
 #include "emvlib_Prolin.h"
+
+/*#define E_EMV_ERROR (mrb_class_get_under(mrb,mrb_class_get_under(mrb,mrb_class_get(mrb,"PAX"),"EMV"),"EMVError"))*/
+
 /*#include "CLEntryAPI_Prolin.h"*/
 /*#include "ClssApi_Wave_prolin.h"*/
 /*#include "ClssApi_MC_prolin.h"*/
@@ -183,9 +186,11 @@ mrb_emv_init(mrb_state* mrb)
 {
   struct RClass *pax;
   struct RClass *emv;
+  struct RClass *error;
 
   pax = mrb_class_get(mrb, "PAX");
   emv = mrb_define_class_under(mrb, pax, "EMV",  mrb->object_class);
+  /*error = mrb_define_class_under(mrb, pax, "EMVError", mrb->eStandardError_class);*/
 
   mrb_define_class_method(mrb, emv, "core_init", mrb_s_core_init , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "get_parameter", mrb_s_get_emv_parameter , MRB_ARGS_NONE());
