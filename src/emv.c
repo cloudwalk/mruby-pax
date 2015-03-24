@@ -193,7 +193,7 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "i", &index);
 
-  ret = EMVGetApp(index, parameter);
+  ret = EMVGetApp(index, &parameter);
 
   if (ret == EMV_OK)
   {
