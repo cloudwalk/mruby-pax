@@ -339,6 +339,28 @@ mrb_s_set_emv_app(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
+static mrb_value
+mrb_s_set_emv_del_app(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value aid;
+  mrb_int ret=EMV_OK;
+
+  mrb_get_args(mrb, "S", &aid);
+
+  if (mrb_string_p(aid))
+    ret = EMVDelApp(RSTRING_PTR(aid), RSTRING_LEN(aid));
+  else
+    mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a string");
+
+  return mrb_fixnum_value(ret);
+}
+
+static mrb_value
+mrb_s_set_emv_del_apps(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(EMVDelAllApp());
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -356,4 +378,5 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "get_app", mrb_s_get_emv_app , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "set_app", mrb_s_set_emv_app , MRB_ARGS_REQ(1));
 
+  mrb_define_class_method(mrb, emv, "del_app", mrb_s_set_emv_del_app , MRB_ARGS_REQ(1));
 }
