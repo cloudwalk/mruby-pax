@@ -79,8 +79,35 @@ class PAX
       "SurportPSESel" => ""
     }
 
+    EMV_APP_DEFAULT = {
+      "AppName"         => "",
+      "AID"             => "",
+      "AidLen"          => "",
+      "SelFlag"         => "",
+      "Priority"        => "",
+      "TargetPer"       => "",
+      "MaxTargetPer"    => "",
+      "FloorLimitCheck" => "",
+      "RandTransSel"    => "",
+      "VelocityCheck"   => "",
+      "FloorLimit"      => 0,
+      "Threshold"       => "",
+      "TACDenial"       => "",
+      "TACOnline"       => "",
+      "TACDefault"      => "",
+      "AcquierId"       => "",
+      "dDOL"            => "",
+      "tDOL"            => "",
+      "Version"         => "",
+      "RiskManData"     => ""
+    }
+
     def self.parameter_default
       EMV_PARAMETER_DEFAULT.dup
+    end
+
+    def self.app_default
+      EMV_APP_DEFAULT.dup
     end
   end
 end

@@ -181,6 +181,148 @@ mrb_s_set_emv_parameter(mrb_state *mrb, mrb_value klass)
   return mrb_nil_value();
 }
 
+static mrb_value
+mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
+{
+  EMV_APPLIST parameter;
+  mrb_value hash;
+  mrb_int index;
+  int ret=EMV_NOT_FOUND;
+
+  memset(&parameter, 0, sizeof(parameter));
+
+  mrb_get_args(mrb, "i", &index);
+
+  ret = EMVGetApp(index, parameter);
+
+  if (ret == EMV_OK)
+  {
+    hash = mrb_funcall(mrb, klass, "app_default", 0);
+    /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AppName")         , mrb_str_new_static(mrb , &parameter.AppName         , 33));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AID")             , mrb_str_new_static(mrb , &parameter.AID             , 17));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AidLen")          , mrb_str_new_static(mrb , &parameter.AidLen          , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SelFlag")         , mrb_str_new_static(mrb , &parameter.SelFlag         , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Priority")        , mrb_str_new_static(mrb , &parameter.Priority        , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TargetPer")       , mrb_str_new_static(mrb , &parameter.TargetPer       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MaxTargetPer")    , mrb_str_new_static(mrb , &parameter.MaxTargetPer    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimitCheck") , mrb_str_new_static(mrb , &parameter.FloorLimitCheck , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RandTransSel")    , mrb_str_new_static(mrb , &parameter.RandTransSel    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "VelocityCheck")   , mrb_str_new_static(mrb , &parameter.VelocityCheck   , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimit")      , mrb_str_new_static(mrb , &parameter.FloorLimit      , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Threshold")       , mrb_str_new_static(mrb , &parameter.Threshold       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDenial")       , mrb_str_new_static(mrb , &parameter.TACDenial       , 6));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACOnline")       , mrb_str_new_static(mrb , &parameter.TACOnline       , 6));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDefault")      , mrb_str_new_static(mrb , &parameter.TACDefault      , 6));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AcquierId")       , mrb_str_new_static(mrb , &parameter.AcquierId       , 6));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "dDOL")            , mrb_str_new_static(mrb , &parameter.dDOL            , 256));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "tDOL")            , mrb_str_new_static(mrb , &parameter.tDOL            , 256));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Version")         , mrb_str_new_static(mrb , &parameter.Version         , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new_static(mrb , &parameter.RiskManData     , 10));
+
+    return hash;
+  } else {
+    return mrb_fixnum_value(ret);
+    /*mrb_raisef(mrb, E_EMV_ERROR, "object isn't a hash", );*/
+  }
+}
+
+static void
+set_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
+{
+  EMV_APPLIST parameter;
+  mrb_value value;
+  mrb_int iValue;
+
+  memset(&parameter, 0, sizeof(parameter));
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AppName"));
+  strncpy(&parameter.AppName, RSTRING_PTR(value), 33);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AID"));
+  strncpy(&parameter.AppName, RSTRING_PTR(value), 33);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AidLen"));
+  parameter.AidLen = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SelFlag"));
+  parameter.SelFlag = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Priority"));
+  parameter.Priority = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TargetPer"));
+  parameter.TargetPer = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MaxTargetPer"));
+  parameter.MaxTargetPer = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimitCheck"));
+  parameter.FloorLimitCheck = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RandTransSel"));
+  parameter.RandTransSel = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "VelocityCheck"));
+  parameter.VelocityCheck = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimit"));
+  parameter.FloorLimit = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  iValue = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimit")));
+  parameter.FloorLimit = iValue;
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Threshold"));
+  parameter.Threshold = (unsigned char)RSTRING_PTR(value);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACDenial"));
+  strncpy(&parameter.TACDenial, RSTRING_PTR(value), 6);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACOnline"));
+  strncpy(&parameter.TACOnline, RSTRING_PTR(value), 6);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACDefault"));
+  strncpy(&parameter.TACDefault, RSTRING_PTR(value), 6);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AcquierId"));
+  strncpy(&parameter.AcquierId, RSTRING_PTR(value), 6);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "dDOL"));
+  strncpy(&parameter.dDOL, RSTRING_PTR(value), 256);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "tDOL"));
+  strncpy(&parameter.tDOL, RSTRING_PTR(value), 256);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Version"));
+  strncpy(&parameter.Version, RSTRING_PTR(value), 3);
+
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RiskManData"));
+  strncpy(&parameter.RiskManData, RSTRING_PTR(value), 10);
+
+  return EMVAddApp(&parameter);
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
