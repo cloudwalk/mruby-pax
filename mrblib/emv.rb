@@ -132,5 +132,9 @@ class PAX
       EMV_PKI_DEFAULT.dup
     end
 
+    def self.init
+      self.icc = PAX::ICCard.smart_card_init
+      self._init
+    end
   end
 end
