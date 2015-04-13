@@ -136,5 +136,11 @@ class PAX
       self.icc = PAX::ICCard.smart_card_init
       self._init
     end
+
+    def self.load_apps(table)
+      table.apps.each do |app|
+        self.add_app(self.parse_app(app))
+      end
+    end
   end
 end
