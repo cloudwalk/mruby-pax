@@ -142,5 +142,11 @@ class PAX
         self.add_app(self.parse_app(app))
       end
     end
+
+    def self.load_pkis(table)
+      table.pkis.each do |pki|
+        self.add_pki(self.parse_pki(pki))
+      end
+    end
   end
 end
