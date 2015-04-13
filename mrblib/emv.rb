@@ -312,5 +312,59 @@ class PAX
       # authorization_code_unable_online_offline_declined, 2]
       [general, app]
     end
+
+    def self.parse_pki(row)
+      pki = EMV_PKI_DEFAULT.dup
+
+      #:rid=>"AAA0000001"
+      pki["RID"]         = [row.rid].pack("H*")
+
+      # KeyID - key index
+      #pki["KeyID"]       = [row.index].pack("H*")
+      pki["KeyID"]       = [row.ca_public_key_index].pack("H*")
+
+      # HashInd - HASH arithmetic index (must be 1)
+      pki["HashInd"]     = "1"
+
+      # ArithInd - RSA arithmetic index (must be 1)
+      pki["ArithInd"]     = "1"
+
+      #:ca_public_key_modulus_byte_length=>"176"
+      pki["ModulLen"]    = row.ca_public_key_modulus_byte_length.to_i.chr
+
+      #:ca_public_key_modulus=>"D9E36579B94A5FF3150B64643D85C06E6E9F0682BE56CDD69FCB053913495BDBC327DA3CAC0EA2A0DA1D55DF7C66A0C6F6A9039FA72753C434F4A63BED54062799DF1F6D6E1F315A8F4109721126E11F4FF562C18A4AE6A4D9F0C2A5C2A8E44D6A98628C7E25290584F0F3D9ECE6566FDB7688596649BEC89A1CBC8BBED075538300D0D83FF8755E1CE73668908C387E14ACDF0F9F1DE436A5A07308812D6AE3A16170EDF2522B36FBE94358F50C0B69000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      pki["Modul"]       = [row.ca_public_key_modulus].pack("H*")
+
+      #:ca_public_key_exponent_byte_length=>"3"
+      pki["ExponentLen"] = row.ca_public_key_exponent_byte_length
+
+      #:ca_public_key_exponent=>"010001"
+      pki["Exponent"]    = [row.ca_public_key_exponent].pack("H*")
+
+      # ExpDate (baExpirationDate ProcessTransaction)
+      pki["ExpDate"]    = ["160410"].pack("H*")
+
+      #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af00000000"
+      pki["CheckSum"]    = [row.ca_public_key_check_sum].pack("H*")
+
+      # = ProcessTransaction
+
+      # = Not Found (contain in emv interface but not in row)
+
+      # = Unreferenced for now, will be necessary on pinpad
+      # [:master_key_index                                 , 2],
+      # [:working_key                                      , 32]
+
+      # = Unused
+      # [:length                                           , 3],
+      # [:index                                            , 2],
+      # [:identification                                   , 1],
+      # [:acquirer_id                                      , 2],
+      # [:ca_public_key_index                              , 2],
+      # [:status_check_sum                                 , 1],
+      # [:reserved                                         , 2],
+      pki
+    end
   end
 end
+
