@@ -59,6 +59,7 @@ class PAX
     AC_ARQC                  = 0x02
     AC_AAC_HOST              = 0x03
 
+    # TODO Scalone implement default values
     EMV_PARAMETER_DEFAULT = {
       "MerchName"     => "",
       "MerchCateCode" => "",
@@ -114,6 +115,10 @@ class PAX
       "ExpDate"     => "",
       "CheckSum"    => ""
     }
+
+    class << self
+      attr_accessor :icc
+    end
 
     def self.parameter_default
       EMV_PARAMETER_DEFAULT.dup
