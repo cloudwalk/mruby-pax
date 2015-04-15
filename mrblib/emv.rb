@@ -171,13 +171,13 @@ class PAX
       #:terminal_additional_capabilities=>"6000F0F000"
       general["ExCapability"]  = [row.terminal_additional_capabilities].pack("H*")
 
-      #:terminal_country_code=>"0076"
+      #:terminal_country_code=>"0" + "076"
       general["CountryCode"]   = ["0" + row.terminal_country_code].pack("H*")
 
-      #:transaction_currency_code=>"0986"
+      #:transaction_currency_code=>"0" + "986"
       general["TransCurrCode"] = ["0" + row.transaction_currency_code].pack("H*")
 
-      #:transaction_currency_exponent=>"02"
+      #:transaction_currency_exponent=>"0" + "2"
       general["TransCurrExp"]  = ["0" + row.transaction_currency_exponent].pack("H*")
 
       # ReferCurrCode - reference currency code (default: “\x08\x40”)
@@ -235,8 +235,8 @@ class PAX
       #Device::Display.clear; p "[#{row.terminal_action_code_online}]"; getc
 
       # :acquirer_id=>"04",
-      app["AcquierId"]       = [row.acquirer_id + "FFFFFFFFFF"].pack("H*");
-      #app["AcquierId"]       = "0100FF"
+      app["AcquierId"]       = [("FFFFFFFFFFFF" + row.acquirer_id)[-12..-1]].pack("H*");
+      #app["AcquierId"]       = "0000"
       #Device::Display.clear; p "[#{row.acquirer_id}]"; getc
 
       # :tdol=>"0000000000000000000000000000000000000000",
