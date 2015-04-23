@@ -101,7 +101,7 @@ mrb_display_init(mrb_state* mrb)
   pax = mrb_class_get(mrb, "PAX");
 
   mrb_define_method(mrb       , krn , "_printstr__"        , mrb__printstr__              , MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "_gets"              , mrb_pax_s__gets              , MRB_ARGS_REQ(5));
   mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line , MRB_ARGS_REQ(1));
