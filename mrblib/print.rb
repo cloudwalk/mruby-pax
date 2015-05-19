@@ -21,6 +21,24 @@ class PAX
       attr_accessor :single_width, :single_height, :multi_width, :multi_height
     end
 
+    # @brief Initialize Printer device.
+    #
+    # @param singlecode_width [Fixnum] The width control of single code font.
+    #  (For non-monospaced font, width of each character may not meet the settings).
+    #  The value ranges from 8 to 64.
+    # @param singlecode_height [Fixnum] The height control of single code font.
+    #  The value ranges from 8 to 64.
+    # @param multicode_width [Fixnum] The width control of multiple code font.
+    #  The value ranges from 12 to 64.
+    # @param multicode_height [Fixnum] The height control of multiple code font
+    #  The value ranges from 12 to 64.
+    #
+    # @retval RET_OK Success.
+    # @retval ERR_FONT_NOT_EXIST Font does not exist.
+    # @retval ERR_INVALID_PARAM Invalid parameter.
+    # @retval ERR_DEV_BUSY Device is busy.
+    #
+    # @return [Fixnum] Return number.
     def self.start(singlecode_width=DEFAULT_SINGLE_WIDTH,
                    singlecode_height=DEFAULT_SINGLE_HEIGHT,
                    multicode_width=DEFAULT_MULTI_WIDTH,
@@ -29,7 +47,7 @@ class PAX
       self.size(singlecode_width, singlecode_height, multicode_width, multicode_height)
     end
 
-    # @brief Check printer status, useful for paper check.
+    # @brief Start Printer Device.
     #
     # @retval RET_OK Success.
     # @retval ERR_FONT_NOT_EXIST Font does not exist.
@@ -55,15 +73,15 @@ class PAX
       self._close
     end
 
-    # @brief Selects print fonts.
+    # @brief Selects print font.
     #
     # @param filename [String] Font filename.
     #
     # @retval RET_OK Success.
     # @retval ERR_FONT_NOT_EXIST Font does not exist.
     # @retval ERR_INVALID_PARAM Invalid parameter.
-    def self.font=(path)
-      self._font = path
+    def self.font=(filename)
+      self._font = filename
     end
 
     # @brief Sets printing gray level.
