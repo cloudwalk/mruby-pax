@@ -43,8 +43,11 @@ class PAX
                    singlecode_height=DEFAULT_SINGLE_HEIGHT,
                    multicode_width=DEFAULT_MULTI_WIDTH,
                    multicode_height=DEFAULT_MULTI_HEIGHT)
-      self.open
-      self.size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+      ret = self.open
+      if ret == RET_OK
+        self.size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+      end
+      ret
     end
 
     # @brief Start Printer Device.
