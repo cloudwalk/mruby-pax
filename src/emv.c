@@ -18,22 +18,169 @@
 
 /*Callbacks*/
 
-int  cEMVSetParam(void) { return EMV_OK; };
-unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut) { return EMV_OK; };
-unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn) { return EMV_OK; };
-int  cEMVInputAmount(unsigned long *AuthAmt, unsigned long *CashBackAmt) { return EMV_OK; };
-int cEMVPedVerifyPlainPin(uchar ucIccSlot, uchar *pucExpPinLenIn, uchar *ucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
-int cEMVPedVerifyCipherPin(uchar ucIccSlot, uchar *pExpPinLenIn, RSA_PINKEY *tRsaPinKeyIn, uchar *pucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
-int  cEMVGetHolderPwd(int TryFlag, int RemainCnt, unsigned char *pin) { return EMV_OK; };
-int  cCertVerify(void) { return EMV_OK; };
-void cEMVVerifyPINOK(void) { return; };
-unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv) { return EMV_OK; };
-int  cEMVUnknowTLVData(unsigned short Tag, unsigned char *dat, int len) { return EMV_OK; };
-int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum) {
-  display("Wait APP");
-  return EMV_OK;
-};
-unsigned char cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv) { return EMV_OK; };
+/**
+*	@fn	int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
+*	@brief	EMV回调函数，实现脱机明文PIN获取及明文PIN的校验功能
+*	@param	[in] IccSlot     卡片所在的卡座号
+*	@param	[in] ExpPinLenIn 可输入的合法密码长度字符串
+*	@param	[in] Mode		 IC卡命令模式
+*	@param	[in] TimeoutMs	 输入PIN的超时时间
+*	@param	[out] IccRespOut 卡片响应的状态码
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
+{
+	return 0;
+}
+
+/**
+*	@fn int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
+*	@brief	EMV回调函数，实现脱机密文PIN的获取和密文PIN的校验
+*	@param	[in] IccSlot 卡片所在的卡座号
+*	@param	[in] ExpPinLenIn	可输入的合法密码长度字符串
+*	@param	[in] RsaPinKeyIn	加密所需数据结构
+*	@param	[in] Mode	IC卡命令模式
+*	@param	[in] TimeoutMs	输入PIN的超时时间
+*	@param	[out] IccRespOut 卡片响应的状态码
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
+{
+	return 0;
+}
+
+/**
+*	@fn	int  cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
+*	@brief	EMV回调函数，实现接触式读卡操作
+*	@param	[in] ucslot 卡片逻辑通道号
+*	@param	[in] tApduSend	发送给ICC卡命令数据结构
+*	@param	[out] tApduRecv 从ICC卡返回的数据结构
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
+{
+	int iRet;
+  int iLogCnt;
+  char szLogBuf[1024];
+
+	iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
+	if(iRet != 0)
+	{
+		return 0x01;
+	}
+
+	for(iLogCnt = 0; iLogCnt < 4; iLogCnt++)
+	{
+		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduSend->Command+iLogCnt));
+	}
+	if (tApduSend->Lc != 0)
+	{
+		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Lc);
+		for(iLogCnt = 0; iLogCnt < tApduSend->Lc; iLogCnt++)
+		{
+			sprintf(szLogBuf+(iLogCnt+5)*3, "%02X ", *(tApduSend->DataIn+iLogCnt));
+		}
+		if (tApduSend->Le != 0)
+		{
+			sprintf(szLogBuf+(5+tApduSend->Lc)*3, "%02X ", (char)tApduSend->Le);
+		}
+	}
+	else
+	{
+		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Le);
+	}
+
+	for(iLogCnt = 0; iLogCnt < tApduRecv->LenOut; iLogCnt++)
+	{
+		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduRecv->DataOut+iLogCnt));
+	}
+	sprintf(szLogBuf+iLogCnt*3, "%02X ", tApduRecv->SWA);
+	sprintf(szLogBuf+(iLogCnt+1)*3, "%02X ", tApduRecv->SWB);
+	return 0;
+}
+
+// Callback function required by EMV core.
+// in EMV ver 2.1+, this function is called before GPO
+int cEMVSetParam(void)
+{
+	return 0;
+}
+
+unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
+{
+	return 0;
+}
+
+unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
+{
+	return 0;
+}
+
+// it is acallback function for EMV kernel,
+// for displaying a amount input box,
+// developer customize
+int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
+{
+	return 0;
+}
+
+// Callback function required by EMV core.
+// Wait holder enter PIN.
+// developer customized.
+// Modified by Kim_LinHB 2014-6-8 v1.01.0000
+int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
+{
+  return 0;
+}
+
+// 持卡人认证例程
+// Callback function required by EMV core.
+// Don't need to care about this function
+int cCertVerify(void)
+{
+//	AppSetMckParam(!ChkIssuerOption(ISSUER_EN_EMVPIN_BYPASS));
+	return -1;
+}
+
+unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
+{
+	return 0;
+}
+
+// 处理DOL的过程中，EMV库遇到不识别的TAG时会调用该回调函数，要求应用程序处理
+// 如果应用程序无法处理，则直接返回-1，提供该函数只为解决一些不符合EMV的特殊
+// 应用程序的要求，一般情况下返回-1即可
+// Callback function required by EMV core.
+// When processing DOL, if there is a tag that EMV core doesn't know about, core will call this function.
+// developer should offer processing for proprietary tag.
+// if really unable to, just return -1
+int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
+{
+	return 0;
+}
+
+// Modified by Kim_LinHB 2014-5-31
+// for displaying a application list to card holder to select
+// if there is only one application in the chip, then EMV kernel will not call this callback function
+int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
+{
+	return 0;
+}
+
+// 如果不需要提示密码验证成功，则直接返回就可以了
+// Callback function required by EMV core.
+// Display "EMV PIN OK" info. (plaintext/enciphered PIN)
+// Modified by Kim_LinHB 2014-6-8 v1.01.0000
+void cEMVVerifyPINOK(void)
+{
+  return;
+}
 
 /*Callbacks*/
 
