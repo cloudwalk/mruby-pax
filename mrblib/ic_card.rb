@@ -33,7 +33,7 @@ class PAX
 
     def initialize(slot)
       @slot   = slot
-      self.open
+      #self.open
     end
 
     def open
