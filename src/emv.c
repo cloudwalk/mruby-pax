@@ -711,6 +711,29 @@ mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
+mrb_s_emv_read_data(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(EMVReadAppData());
+}
+
+static mrb_value
+mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int tag;
+	int dataLength;
+	char buffer[1024];
+	char dataOut[1024];
+
+  memset(&dataOut, 0, sizeof(dataOut));
+
+  mrb_get_args(mrb, "i", &tag);
+
+  EMVGetTLVData(tag, dataOut, &dataLength);
+
+  return mrb_str_new(mrb, dataOut, dataLength);
+}
+
+static mrb_value
 mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
 {
   char paucVer[20];
@@ -746,5 +769,7 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "check_pki", mrb_s_check_emv_pki , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, emv, "_init", mrb_s_emv__init , MRB_ARGS_NONE());
   mrb_define_class_method(mrb, emv, "app_select", mrb_s_emv_app_select , MRB_ARGS_REQ(2));
+	mrb_define_class_method(mrb, emv, "read_data", mrb_s_emv_read_data , MRB_ARGS_NONE());
+	mrb_define_class_method(mrb, emv, "get_tlv", mrb_s_emv_get_tlv , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
 }
