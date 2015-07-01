@@ -721,7 +721,6 @@ mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
 {
 	mrb_int tag;
 	int dataLength;
-	char buffer[1024];
 	char dataOut[1024];
 
   memset(&dataOut, 0, sizeof(dataOut));
@@ -731,6 +730,17 @@ mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
   EMVGetTLVData(tag, dataOut, &dataLength);
 
   return mrb_str_new(mrb, dataOut, dataLength);
+}
+
+static mrb_value
+mrb_s_emv_set_tlv(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int tag;
+	unsigned char *dataOut;
+
+  mrb_get_args(mrb, "is", &tag, &dataOut);
+
+  return mrb_fixnum_value(EMVSetTLVData(tag, dataOut, strlen(dataOut)));
 }
 
 static mrb_value
@@ -771,5 +781,6 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "app_select", mrb_s_emv_app_select , MRB_ARGS_REQ(2));
 	mrb_define_class_method(mrb, emv, "read_data", mrb_s_emv_read_data , MRB_ARGS_NONE());
 	mrb_define_class_method(mrb, emv, "get_tlv", mrb_s_emv_get_tlv , MRB_ARGS_REQ(1));
+	mrb_define_class_method(mrb, emv, "set_tlv", mrb_s_emv_set_tlv , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
 }
