@@ -21,6 +21,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_magnetic_init(mrb);
   mrb_emv_init(mrb);
   mrb_icc_init(mrb);
+  mrb_crypto_init(mrb);
 }
 
 void
