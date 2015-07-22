@@ -22,6 +22,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_emv_init(mrb);
   mrb_icc_init(mrb);
   mrb_crypto_init(mrb);
+  mrb_pinpad_init(mrb);
 }
 
 void
