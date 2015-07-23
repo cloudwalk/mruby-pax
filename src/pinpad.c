@@ -142,6 +142,6 @@ mrb_pinpad_init(mrb_state* mrb)
 
   mrb_define_class_method(mrb, pinpad , "load_pin_key", mrb_s_pinpad_load_pin_key, MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb, pinpad , "load_ipek", mrb_s_pinpad_load_ipek, MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb, pinpad , "get_pin", mrb_s_pinpad_get_pin, MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb, pinpad , "get_pin", mrb_s_pinpad_get_pin, MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(2));
 }
