@@ -845,11 +845,10 @@ mrb_s_emv_read_data(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int tag;
-	int dataLength;
+	mrb_int tag, dataLength;
 	char dataOut[1024];
 
-  memset(&dataOut, 0, sizeof(dataOut));
+	memset(dataOut, 0, sizeof(dataOut));
 
   mrb_get_args(mrb, "i", &tag);
 
@@ -861,12 +860,12 @@ mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_emv_set_tlv(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int tag;
+	mrb_int tag, dataLength;
 	unsigned char *dataOut;
 
-  mrb_get_args(mrb, "is", &tag, &dataOut);
+  mrb_get_args(mrb, "is", &tag, &dataOut, &dataLength);
 
-  return mrb_fixnum_value(EMVSetTLVData(tag, dataOut, strlen(dataOut)));
+  return mrb_fixnum_value(EMVSetTLVData(tag, dataOut, dataLength));
 }
 
 static mrb_value
