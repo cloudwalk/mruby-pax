@@ -195,7 +195,7 @@ class PAX
 
       # ForceOnline (bMustConnect ProcessTransaction) - merchant force online
       #  (1 means always online transaction)
-      general["ForceOnline"]     = "\x01"
+      general["ForceOnline"]     = "\x00"
 
       # GetDataPIN (bRequirePIN ProcessTransaction) - read the IC card PIN retry counter before verify the PIN or not
       #  (1 : read, 0 : not read, default : 1)
@@ -324,10 +324,10 @@ class PAX
       pki["KeyID"]       = [row.ca_public_key_index].pack("H*")
 
       # HashInd - HASH arithmetic index (must be 1)
-      pki["HashInd"]     = "1"
+      pki["HashInd"]     = "1".to_i.chr
 
       # ArithInd - RSA arithmetic index (must be 1)
-      pki["ArithInd"]     = "1"
+      pki["ArithInd"]     = "1".to_i.chr
 
       #:ca_public_key_modulus_byte_length=>"176"
       pki["ModulLen"]    = row.ca_public_key_modulus_byte_length.to_i.chr
@@ -336,7 +336,7 @@ class PAX
       pki["Modul"]       = [row.ca_public_key_modulus].pack("H*")
 
       #:ca_public_key_exponent_byte_length=>"3"
-      pki["ExponentLen"] = row.ca_public_key_exponent_byte_length
+      pki["ExponentLen"] = row.ca_public_key_exponent_byte_length.to_i.chr
 
       #:ca_public_key_exponent=>"010001"
       pki["Exponent"]    = [row.ca_public_key_exponent].pack("H*")
@@ -367,4 +367,3 @@ class PAX
     end
   end
 end
-
