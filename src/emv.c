@@ -32,7 +32,51 @@
 */
 int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
 {
-	return 0;
+	int iRet;
+	int iPinX = 0, iPinY = 0;
+
+	OsSleep(50);
+	OsScrGetSize(&iPinX, &iPinY);
+	iPinX /= 3;
+	iPinY -= iPinY / 4;
+	display("Enter pin (plain) ...");
+	iRet = OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+
+	if (iRet != 0)
+	{
+		return iRet;
+	}
+	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
+
+	if(RET_OK == iRet)
+	{
+		return PED_RET_OK;
+	}
+	else if(ERR_PED_NO_PIN_INPUT == iRet)
+	{
+		return PED_RET_ERR_NO_PIN_INPUT;
+	}
+	else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
+	{
+		return PED_RET_ERR_INPUT_CANCEL;
+	}
+	else if(ERR_PED_ICC_INIT_ERR == iRet)
+	{
+		return PED_RET_ERR_ICC_NO_INIT;
+	}
+	else if(ERR_PED_NO_ICC == iRet)
+	{
+		return PED_RET_ERR_NO_ICC;
+	}
+	else if(ERR_PED_WAIT_INTERVAL == iRet)
+	{
+		return PED_RET_ERR_WAIT_INTERVAL;
+	}
+	else
+	{
+		return iRet;
+	}
+	return EMV_OK;
 }
 
 /**
@@ -50,6 +94,9 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 */
 int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
 {
+	// debug
+	display("cEMVPedVerifyCipherPin");
+	sleep(2);
 	return 0;
 }
 
@@ -109,16 +156,24 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 // in EMV ver 2.1+, this function is called before GPO
 int cEMVSetParam(void)
 {
+	// debug
+	display("cEMVSetParam");
 	return 0;
 }
 
 unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
 {
+	// debug
+	display("cEMVSM3");
+	sleep(2);
 	return 0;
 }
 
 unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
 {
+	// debug
+	display("cEMVSM2Verify");
+	sleep(2);
 	return 0;
 }
 
@@ -127,7 +182,9 @@ unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn
 // developer customize
 int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 {
-	return 0;
+	// debug
+	display("cEMVInputAmount");
+	return EMV_OK;
 }
 
 // Callback function required by EMV core.
@@ -136,7 +193,80 @@ int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 {
-  return 0;
+	int iResult;
+	int iPinX = 0, iPinY = 0;
+	unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];
+
+	OsSleep(50);
+	OsScrGetSize(&iPinX, &iPinY);
+	iPinX /= 3;
+	iPinY -= iPinY / 4;
+
+	// online PIN
+	if (pszPlainPin == NULL)
+	{
+		display("Enter pin (crypted) ...");
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+
+		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
+
+		if (iResult == 0)
+		{
+			return EMV_OK;
+		}
+		else if (iResult == PED_RET_ERR_INPUT_CANCEL)
+		{
+			return EMV_USER_CANCEL;
+		}
+		else
+		{
+			return EMV_NO_PINPAD;
+		}
+	}
+
+	// Offline plain/enciphered PIN processing below
+	if(iRemainCnt == 1)
+	{
+		// "LAST ENTER PIN"
+	}
+
+	if (iTryFlag == 0)
+	{
+	  //  GetDispAmount(szAmount, szAmount);
+	}
+	else
+	{
+		// "PIN ERR, RETRY"
+	}
+
+	// Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
+	// In this mode, cEMVGetHolderPwd() will be called twice. the first time is to display message to user,
+	// then back to kernel and wait PIN. afterwards kernel call this again and inform the process result.
+	if (pszPlainPin[0] == EMV_PED_TIMEOUT)
+	{
+		// EMV core has processed PIN entry and it's timeout
+		// "PED ERROR"
+		return EMV_TIME_OUT;
+	}
+	else if (pszPlainPin[0] == EMV_PED_WAIT)
+	{
+		// API is called too frequently
+		sleep(1000);
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		return EMV_OK;
+	}
+	else if (pszPlainPin[0] == EMV_PED_FAIL)
+	{
+		// EMV core has processed PIN entry and PED failed.
+		// "PED ERROR"
+		return EMV_NO_PINPAD;
+	}
+	else
+	{
+		// EMV PIN not processed yet. So just display.
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		return EMV_OK;
+	}
 }
 
 // 持卡人认证例程
@@ -144,12 +274,17 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 // Don't need to care about this function
 int cCertVerify(void)
 {
-//	AppSetMckParam(!ChkIssuerOption(ISSUER_EN_EMVPIN_BYPASS));
+	// debug
+	display("cCertVerify");
+	sleep(2);
 	return -1;
 }
 
 unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
 {
+	// debug
+	display("cEMVPiccIsoCommand");
+	sleep(2);
 	return 0;
 }
 
@@ -162,6 +297,8 @@ unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RES
 // if really unable to, just return -1
 int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 {
+	// debug
+	// display("cEMVUnknowTLVData");
 	return 0;
 }
 
@@ -170,6 +307,9 @@ int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 // if there is only one application in the chip, then EMV kernel will not call this callback function
 int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 {
+	// debug
+	display("cEMVWaitAppSel");
+	sleep(2);
 	return 0;
 }
 
@@ -179,6 +319,9 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 void cEMVVerifyPINOK(void)
 {
+	// debug
+	display("cEMVVerifyPINOK");
+	sleep(2);
   return;
 }
 
