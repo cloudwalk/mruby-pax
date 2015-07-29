@@ -567,52 +567,43 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AidLen"));
-  /*memcpy(&parameter.AidLen, RSTRING_PTR(value), 1);*/
-  parameter.AidLen = 7;
+  memcpy(&parameter.AidLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SelFlag"));
-  /*memcpy(&parameter.SelFlag, RSTRING_PTR(value), 1);*/
-  parameter.SelFlag = 0x00;
+  memcpy(&parameter.SelFlag, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Priority"));
-  /*memcpy(&parameter.Priority, RSTRING_PTR(value), 1);*/
-  parameter.Priority = 0;
+  memcpy(&parameter.Priority, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TargetPer"));
-  /*memcpy(&parameter.TargetPer, RSTRING_PTR(value), 1);*/
-  parameter.TargetPer = 0;
+  memcpy(&parameter.TargetPer, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MaxTargetPer"));
-  /*memcpy(&parameter.MaxTargetPer, RSTRING_PTR(value), 1);*/
-  parameter.MaxTargetPer = 0;
+  memcpy(&parameter.MaxTargetPer, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimitCheck"));
-  /*memcpy(&parameter.FloorLimitCheck, RSTRING_PTR(value), 1);*/
-  parameter.FloorLimitCheck = 1;
+  memcpy(&parameter.FloorLimitCheck, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RandTransSel"));
-  /*memcpy(&parameter.RandTransSel, RSTRING_PTR(value), 1);*/
-  parameter.RandTransSel = 1;
+  memcpy(&parameter.RandTransSel, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "VelocityCheck"));
-  /*memcpy(&parameter.VelocityCheck, RSTRING_PTR(value), 1);*/
+  memcpy(&parameter.VelocityCheck, RSTRING_PTR(value), 1);
   parameter.VelocityCheck = 1;
 
   iValue = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimit")));
-  /*parameter.FloorLimit = iValue;*/
-  parameter.FloorLimit = 1000;
+  parameter.FloorLimit = iValue;
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Threshold"));
-  /*memcpy(&parameter.Threshold, RSTRING_PTR(value), 1);*/
-  parameter.Threshold = 0;
+  memcpy(&parameter.Threshold, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACDenial"));
@@ -628,25 +619,23 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AcquierId"));
-  /*memcpy(&parameter.AcquierId, RSTRING_PTR(value), 6);*/
-  /*memcpy(&parameter.AcquierId, "\x00\x00\x00\x00\x00\x04", 6);*/
-  memcpy(&parameter.AcquierId, "\x00\x00\x00\x12\x34\x56", 6);
+  memcpy(&parameter.AcquierId, RSTRING_PTR(value), 6);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "dDOL"));
   memcpy(&parameter.dDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
-  /*memset(&value, 0, sizeof(value));*/
-  /*value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "tDOL"));*/
-  /*memcpy(&parameter.tDOL, RSTRING_PTR(value), RSTRING_LEN(value));*/
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "tDOL"));
+  memcpy(&parameter.tDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Version"));
   memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));
 
-  /*memset(&value, 0, sizeof(value));*/
-  /*value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RiskManData"));*/
-  /*memcpy(&parameter.RiskManData, RSTRING_PTR(value), 10);*/
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RiskManData"));
+  memcpy(&parameter.RiskManData, RSTRING_PTR(value), 10);
 
   return EMVAddApp(&parameter);
 }
@@ -740,37 +729,31 @@ add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "KeyID"));
-  /*parameter.KeyID = (unsigned char)RSTRING_PTR(value);*/
-  /*memcpy(&parameter.KeyID, RSTRING_PTR(value), 1);*/
-  /*parameter.KeyID = "\xF1";*/
-  parameter.KeyID = 0xF1;
+  parameter.KeyID = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.KeyID, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "HashInd"));
-  /*parameter.HashInd = (unsigned char)RSTRING_PTR(value);*/
-  /*memcpy(&parameter.HashInd, RSTRING_PTR(value), 1);*/
-  parameter.HashInd = 0x01;
+  parameter.HashInd = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.HashInd, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ArithInd"));
-  /*parameter.ArithInd = (unsigned char)RSTRING_PTR(value);*/
-  /*memcpy(&parameter.ArithInd, RSTRING_PTR(value), 1);*/
-  parameter.ArithInd = 0x01;
+  parameter.ArithInd = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.ArithInd, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ModulLen"));
-  /*memcpy(&parameter.ModulLen, RSTRING_PTR(value), 1);*/
-  parameter.ModulLen = 176;
+  memcpy(&parameter.ModulLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Modul"));
-  memcpy(&parameter.Modul, RSTRING_PTR(value), 176);
+  memcpy(&parameter.Modul, RSTRING_PTR(value), parameter.ModulLen);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExponentLen"));
-  /*parameter.ExponentLen = (unsigned char)RSTRING_PTR(value);*/
-  /*memcpy(&parameter.ExponentLen, RSTRING_PTR(value), 1);*/
-  parameter.ExponentLen = 3;
+  parameter.ExponentLen = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.ExponentLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Exponent"));
