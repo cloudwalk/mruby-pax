@@ -880,6 +880,39 @@ mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
   return mrb_str_new_cstr(mrb, paucVer);
 }
 
+static mrb_value
+mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(EMVCardAuth());
+}
+
+static mrb_value
+mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int amount, ret;
+	unsigned char ACType;
+
+	mrb_get_args(mrb, "i", &amount);
+
+	ret = EMVStartTrans(amount, 0, &ACType);
+
+	if (ACType == AC_TC)
+	{
+		display("Transaction approved!");
+	}
+	else if (ACType == AC_AAC)
+	{
+		display("Transaction declined!");
+	}
+	else if (ACType == AC_ARQC)
+	{
+		display("Online authorisation requested!");
+	}
+	sleep(5);
+
+  return mrb_fixnum_value(ret);
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -907,5 +940,7 @@ mrb_emv_init(mrb_state* mrb)
 	mrb_define_class_method(mrb, emv, "read_data", mrb_s_emv_read_data , MRB_ARGS_NONE());
 	mrb_define_class_method(mrb, emv, "get_tlv", mrb_s_emv_get_tlv , MRB_ARGS_REQ(1));
 	mrb_define_class_method(mrb, emv, "set_tlv", mrb_s_emv_set_tlv , MRB_ARGS_REQ(2));
+	mrb_define_class_method(mrb, emv, "card_auth", mrb_s_card_auth , MRB_ARGS_NONE());
+	mrb_define_class_method(mrb, emv, "start_transaction", mrb_s_start_transaction , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
 }
