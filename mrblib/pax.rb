@@ -54,6 +54,12 @@ class PAX
   end
 
   def self.setup
+    begin
+      require 'cloudwalk_handshake'
+      CloudwalkHandshake.configure!
+    rescue LoadError
+    rescue NameError
+    end
   end
 end
 
