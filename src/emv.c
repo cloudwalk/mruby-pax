@@ -18,19 +18,312 @@
 
 /*Callbacks*/
 
-int  cEMVSetParam(void) { return EMV_OK; };
-unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut) { return EMV_OK; };
-unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn) { return EMV_OK; };
-int  cEMVInputAmount(unsigned long *AuthAmt, unsigned long *CashBackAmt) { return EMV_OK; };
-int cEMVPedVerifyPlainPin(uchar ucIccSlot, uchar *pucExpPinLenIn, uchar *ucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
-int cEMVPedVerifyCipherPin(uchar ucIccSlot, uchar *pExpPinLenIn, RSA_PINKEY *tRsaPinKeyIn, uchar *pucIccRespOut, uchar ucMode,ulong ulTimeoutMs) { return EMV_OK; };
-int  cEMVGetHolderPwd(int TryFlag, int RemainCnt, unsigned char *pin) { return EMV_OK; };
-int  cCertVerify(void) { return EMV_OK; };
-void cEMVVerifyPINOK(void) { return; };
-unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv) { return EMV_OK; };
-int  cEMVUnknowTLVData(unsigned short Tag, unsigned char *dat, int len) { return EMV_OK; };
-int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum) { return EMV_OK; };
-unsigned char cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv) { return EMV_OK; };
+/**
+*	@fn	int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
+*	@brief	EMV回调函数，实现脱机明文PIN获取及明文PIN的校验功能
+*	@param	[in] IccSlot     卡片所在的卡座号
+*	@param	[in] ExpPinLenIn 可输入的合法密码长度字符串
+*	@param	[in] Mode		 IC卡命令模式
+*	@param	[in] TimeoutMs	 输入PIN的超时时间
+*	@param	[out] IccRespOut 卡片响应的状态码
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
+{
+	int iRet;
+	int iPinX = 0, iPinY = 0;
+
+	OsSleep(50);
+	OsScrGetSize(&iPinX, &iPinY);
+	iPinX /= 3;
+	iPinY -= iPinY / 4;
+	display("Enter pin (plain) ...");
+	iRet = OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+
+	if (iRet != 0)
+	{
+		return iRet;
+	}
+	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
+
+	if(RET_OK == iRet)
+	{
+		return PED_RET_OK;
+	}
+	else if(ERR_PED_NO_PIN_INPUT == iRet)
+	{
+		return PED_RET_ERR_NO_PIN_INPUT;
+	}
+	else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
+	{
+		return PED_RET_ERR_INPUT_CANCEL;
+	}
+	else if(ERR_PED_ICC_INIT_ERR == iRet)
+	{
+		return PED_RET_ERR_ICC_NO_INIT;
+	}
+	else if(ERR_PED_NO_ICC == iRet)
+	{
+		return PED_RET_ERR_NO_ICC;
+	}
+	else if(ERR_PED_WAIT_INTERVAL == iRet)
+	{
+		return PED_RET_ERR_WAIT_INTERVAL;
+	}
+	else
+	{
+		return iRet;
+	}
+	return EMV_OK;
+}
+
+/**
+*	@fn int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
+*	@brief	EMV回调函数，实现脱机密文PIN的获取和密文PIN的校验
+*	@param	[in] IccSlot 卡片所在的卡座号
+*	@param	[in] ExpPinLenIn	可输入的合法密码长度字符串
+*	@param	[in] RsaPinKeyIn	加密所需数据结构
+*	@param	[in] Mode	IC卡命令模式
+*	@param	[in] TimeoutMs	输入PIN的超时时间
+*	@param	[out] IccRespOut 卡片响应的状态码
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
+{
+	// debug
+	display("cEMVPedVerifyCipherPin");
+	sleep(2);
+	return 0;
+}
+
+/**
+*	@fn	int  cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
+*	@brief	EMV回调函数，实现接触式读卡操作
+*	@param	[in] ucslot 卡片逻辑通道号
+*	@param	[in] tApduSend	发送给ICC卡命令数据结构
+*	@param	[out] tApduRecv 从ICC卡返回的数据结构
+*	@return int
+*	@author	Prolin App developer
+*	@date	2013-05-20
+*/
+uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
+{
+	int iRet;
+  int iLogCnt;
+  char szLogBuf[1024];
+
+	iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
+	if(iRet != 0)
+	{
+		return 0x01;
+	}
+
+	for(iLogCnt = 0; iLogCnt < 4; iLogCnt++)
+	{
+		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduSend->Command+iLogCnt));
+	}
+	if (tApduSend->Lc != 0)
+	{
+		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Lc);
+		for(iLogCnt = 0; iLogCnt < tApduSend->Lc; iLogCnt++)
+		{
+			sprintf(szLogBuf+(iLogCnt+5)*3, "%02X ", *(tApduSend->DataIn+iLogCnt));
+		}
+		if (tApduSend->Le != 0)
+		{
+			sprintf(szLogBuf+(5+tApduSend->Lc)*3, "%02X ", (char)tApduSend->Le);
+		}
+	}
+	else
+	{
+		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Le);
+	}
+
+	for(iLogCnt = 0; iLogCnt < tApduRecv->LenOut; iLogCnt++)
+	{
+		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduRecv->DataOut+iLogCnt));
+	}
+	sprintf(szLogBuf+iLogCnt*3, "%02X ", tApduRecv->SWA);
+	sprintf(szLogBuf+(iLogCnt+1)*3, "%02X ", tApduRecv->SWB);
+	return 0;
+}
+
+// Callback function required by EMV core.
+// in EMV ver 2.1+, this function is called before GPO
+int cEMVSetParam(void)
+{
+	// debug
+	display("cEMVSetParam");
+	return 0;
+}
+
+unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
+{
+	// debug
+	display("cEMVSM3");
+	sleep(2);
+	return 0;
+}
+
+unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
+{
+	// debug
+	display("cEMVSM2Verify");
+	sleep(2);
+	return 0;
+}
+
+// it is acallback function for EMV kernel,
+// for displaying a amount input box,
+// developer customize
+int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
+{
+	// debug
+	display("cEMVInputAmount");
+	return EMV_OK;
+}
+
+// Callback function required by EMV core.
+// Wait holder enter PIN.
+// developer customized.
+// Modified by Kim_LinHB 2014-6-8 v1.01.0000
+int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
+{
+	int iResult;
+	int iPinX = 0, iPinY = 0;
+	unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];
+
+	OsSleep(50);
+	OsScrGetSize(&iPinX, &iPinY);
+	iPinX /= 3;
+	iPinY -= iPinY / 4;
+
+	// online PIN
+	if (pszPlainPin == NULL)
+	{
+		display("Enter pin (crypted) ...");
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+
+		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
+
+		if (iResult == 0)
+		{
+			return EMV_OK;
+		}
+		else if (iResult == PED_RET_ERR_INPUT_CANCEL)
+		{
+			return EMV_USER_CANCEL;
+		}
+		else
+		{
+			return EMV_NO_PINPAD;
+		}
+	}
+
+	// Offline plain/enciphered PIN processing below
+	if(iRemainCnt == 1)
+	{
+		// "LAST ENTER PIN"
+	}
+
+	if (iTryFlag == 0)
+	{
+	  //  GetDispAmount(szAmount, szAmount);
+	}
+	else
+	{
+		// "PIN ERR, RETRY"
+	}
+
+	// Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
+	// In this mode, cEMVGetHolderPwd() will be called twice. the first time is to display message to user,
+	// then back to kernel and wait PIN. afterwards kernel call this again and inform the process result.
+	if (pszPlainPin[0] == EMV_PED_TIMEOUT)
+	{
+		// EMV core has processed PIN entry and it's timeout
+		// "PED ERROR"
+		return EMV_TIME_OUT;
+	}
+	else if (pszPlainPin[0] == EMV_PED_WAIT)
+	{
+		// API is called too frequently
+		sleep(1000);
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		return EMV_OK;
+	}
+	else if (pszPlainPin[0] == EMV_PED_FAIL)
+	{
+		// EMV core has processed PIN entry and PED failed.
+		// "PED ERROR"
+		return EMV_NO_PINPAD;
+	}
+	else
+	{
+		// EMV PIN not processed yet. So just display.
+		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		return EMV_OK;
+	}
+}
+
+// 持卡人认证例程
+// Callback function required by EMV core.
+// Don't need to care about this function
+int cCertVerify(void)
+{
+	// debug
+	display("cCertVerify");
+	sleep(2);
+	return -1;
+}
+
+unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
+{
+	// debug
+	display("cEMVPiccIsoCommand");
+	sleep(2);
+	return 0;
+}
+
+// 处理DOL的过程中，EMV库遇到不识别的TAG时会调用该回调函数，要求应用程序处理
+// 如果应用程序无法处理，则直接返回-1，提供该函数只为解决一些不符合EMV的特殊
+// 应用程序的要求，一般情况下返回-1即可
+// Callback function required by EMV core.
+// When processing DOL, if there is a tag that EMV core doesn't know about, core will call this function.
+// developer should offer processing for proprietary tag.
+// if really unable to, just return -1
+int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
+{
+	// debug
+	// display("cEMVUnknowTLVData");
+	return 0;
+}
+
+// Modified by Kim_LinHB 2014-5-31
+// for displaying a application list to card holder to select
+// if there is only one application in the chip, then EMV kernel will not call this callback function
+int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
+{
+	// debug
+	display("cEMVWaitAppSel");
+	sleep(2);
+	return 0;
+}
+
+// 如果不需要提示密码验证成功，则直接返回就可以了
+// Callback function required by EMV core.
+// Display "EMV PIN OK" info. (plaintext/enciphered PIN)
+// Modified by Kim_LinHB 2014-6-8 v1.01.0000
+void cEMVVerifyPINOK(void)
+{
+	// debug
+	display("cEMVVerifyPINOK");
+	sleep(2);
+  return;
+}
 
 /*Callbacks*/
 
@@ -59,23 +352,23 @@ mrb_s_get_emv_parameter(mrb_state *mrb, mrb_value klass)
   hash = mrb_funcall(mrb, klass, "parameter_default", 0);
 
   /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"), mrb_str_new_static(mrb, &parameter.MerchName, 256));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"), mrb_str_new_static(mrb, &parameter.MerchCateCode, 2));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"), mrb_str_new_static(mrb, &parameter.MerchId, 15));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TermId"), mrb_str_new_static(mrb, &parameter.TermId, 8));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TerminalType"), mrb_str_new_static(mrb, &parameter.TerminalType, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "Capability"), mrb_str_new_static(mrb, &parameter.Capability, 3));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ExCapability"), mrb_str_new_static(mrb, &parameter.ExCapability, 5));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrExp"), mrb_str_new_static(mrb, &parameter.TransCurrExp, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrExp"), mrb_str_new_static(mrb, &parameter.ReferCurrExp, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCode"), mrb_str_new_static(mrb, &parameter.ReferCurrCode, 2));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "CountryCode"), mrb_str_new_static(mrb, &parameter.CountryCode, 2));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrCode"), mrb_str_new_static(mrb, &parameter.TransCurrCode, 2));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCon"), mrb_str_new_static(mrb, &parameter.ReferCurrCon, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "TransType"), mrb_str_new_static(mrb, &parameter.TransType, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ForceOnline"), mrb_str_new_static(mrb, &parameter.ForceOnline, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "GetDataPIN"), mrb_str_new_static(mrb, &parameter.GetDataPIN, 1));
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"), mrb_str_new_static(mrb, &parameter.SurportPSESel, 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchName")     , mrb_str_new(mrb , parameter.MerchName      , 256));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchCateCode") , mrb_str_new(mrb , parameter.MerchCateCode  , 2));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchId")       , mrb_str_new(mrb , &parameter.MerchId       , 15));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TermId")        , mrb_str_new(mrb , &parameter.TermId        , 8));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TerminalType")  , mrb_str_new(mrb , &parameter.TerminalType  , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Capability")    , mrb_str_new(mrb , &parameter.Capability    , 3));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExCapability")  , mrb_str_new(mrb , &parameter.ExCapability  , 5));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TransCurrExp")  , mrb_str_new(mrb , &parameter.TransCurrExp  , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ReferCurrExp")  , mrb_str_new(mrb , &parameter.ReferCurrExp  , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ReferCurrCode") , mrb_str_new(mrb , &parameter.ReferCurrCode , 2));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "CountryCode")   , mrb_str_new(mrb , &parameter.CountryCode   , 2));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TransCurrCode") , mrb_str_new(mrb , &parameter.TransCurrCode , 2));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ReferCurrCon")  , mrb_str_new(mrb , &parameter.ReferCurrCon  , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TransType")     , mrb_str_new(mrb , &parameter.TransType     , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ForceOnline")   , mrb_str_new(mrb , &parameter.ForceOnline   , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "GetDataPIN")    , mrb_str_new(mrb , &parameter.GetDataPIN    , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SurportPSESel") , mrb_str_new(mrb , &parameter.SurportPSESel , 1));
 
   return hash;
 }
@@ -88,74 +381,101 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
   mrb_int iValue;
 
   memset(&parameter, 0, sizeof(parameter));
+  EMVSetParameter(&parameter);
 
-  memset(&value, 0, sizeof(value));
-  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"));
-  strncpy(&parameter.MerchName, RSTRING_PTR(value), 256);
+  memset(&parameter, 0, sizeof(parameter));
 
-  memset(&value, 0, sizeof(value));
-  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"));
-  strncpy(&parameter.MerchCateCode, RSTRING_PTR(value), 2);
+  EMVGetParameter(&parameter);
+
+  /*memset(&value, 0, sizeof(value));*/
+  /*value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchName"));*/
+  /*memcpy(&parameter.MerchName, RSTRING_PTR(value), 256);*/
+
+  /*memset(&value, 0, sizeof(value));*/
+  /*value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchCateCode"));*/
+  /*memcpy(&parameter.MerchCateCode, RSTRING_PTR(value), 2);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MerchId"));
-  strncpy(&parameter.MerchId, RSTRING_PTR(value), 15);
+  memcpy(&parameter.MerchId, RSTRING_PTR(value), 15);
+  /*display("MerchId");*/
+  /*display("[%s]", &parameter.MerchId);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TermId"));
-  strncpy(&parameter.TermId, RSTRING_PTR(value), 8);
+  memcpy(&parameter.TermId, RSTRING_PTR(value), 8);
+  /*display("TermId[%s]", &parameter.TermId);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TerminalType"));
-  parameter.TerminalType = (unsigned char)RSTRING_PTR(value);
+  /*memcpy(&parameter.TerminalType, RSTRING_PTR(value), 1);*/
+  parameter.TerminalType = 0x22;
+  /*display("TermType[%02X]", parameter.TerminalType);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Capability"));
-  strncpy(&parameter.Capability, RSTRING_PTR(value), 3);
+  memcpy(&parameter.Capability, RSTRING_PTR(value), 3);
+  /*display("Cap[%02X-%02X-%02X]", parameter.Capability[0], parameter.Capability[1], parameter.Capability[2]);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExCapability"));
-  strncpy(&parameter.ExCapability, RSTRING_PTR(value), 5);
+  memcpy(&parameter.ExCapability, RSTRING_PTR(value), 5);
+  /*display("ExC[%02X-%02X-%02X-%02X-%02X]", parameter.ExCapability[0], parameter.ExCapability[1], parameter.ExCapability[2], parameter.ExCapability[3], parameter.ExCapability[4]);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrExp"));
-  parameter.TransCurrExp = (unsigned char)RSTRING_PTR(value);
+  /*memcpy(&parameter.TransCurrExp, RSTRING_PTR(value), 1);*/
+  parameter.TransCurrExp = 0x02;
+  /*display("TransCurrExp[%02X]", parameter.TransCurrExp);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrExp"));
-  parameter.ReferCurrExp = (unsigned char)RSTRING_PTR(value);
+  /*memcpy(&parameter.ReferCurrExp, RSTRING_PTR(value), 1);*/
+  parameter.ReferCurrExp = 0x02;
+  /*display("ReferCurrExp[%02X]", parameter.ReferCurrExp);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCode"));
-  strncpy(&parameter.ReferCurrCode, RSTRING_PTR(value), 2);
+  memcpy(&parameter.ReferCurrCode, RSTRING_PTR(value), 2);
+  /*display("ReferCurrCode[%02X-%02X]", parameter.ReferCurrCode[0], parameter.ReferCurrCode[1]);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "CountryCode"));
-  strncpy(&parameter.CountryCode, RSTRING_PTR(value), 2);
+  memcpy(&parameter.CountryCode, RSTRING_PTR(value), 2);
+  /*display("CountryCode[%02X-%02X]", parameter.CountryCode[0], parameter.CountryCode[1]);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransCurrCode"));
-  strncpy(&parameter.TransCurrCode, RSTRING_PTR(value), 2);
+  memcpy(&parameter.TransCurrCode, RSTRING_PTR(value), 2);
+  /*display("TransCurrCode[%02X-%02X]", parameter.TransCurrCode[0], parameter.TransCurrCode[1]);*/
 
   memset(&value, 0, sizeof(value));
   iValue = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ReferCurrCon")));
   parameter.ReferCurrCon = iValue;
+  /*display("ReferCurrCon[%d]", parameter.ReferCurrCon);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TransType"));
-  parameter.TransType = (unsigned char)(*RSTRING_PTR(value));
+  memcpy(&parameter.TransType, RSTRING_PTR(value), 1);
+  parameter.TransType = 0x01;
+  /*display("TransType[%02X]", parameter.TransType);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ForceOnline"));
-  parameter.ForceOnline = (unsigned char)RSTRING_PTR(value);
+  /*memcpy(&parameter.ForceOnline, RSTRING_PTR(value), 1);*/
+  parameter.ForceOnline = 0;
+  /*display("ForceOnline[%02X]", parameter.ForceOnline);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "GetDataPIN"));
-  parameter.GetDataPIN = (unsigned char)RSTRING_PTR(value);
+  parameter.GetDataPIN = 1;
+  /*display("GetDataPIN[%02X]", parameter.GetDataPIN);*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SurportPSESel"));
-  parameter.SurportPSESel = (unsigned char)RSTRING_PTR(value);
+  /*memcpy(&parameter.SurportPSESel, RSTRING_PTR(value), 1);*/
+  parameter.SurportPSESel = 1;
+  /*display("SurportPSESel[%02X]", parameter.SurportPSESel);*/
 
   EMVSetParameter(&parameter);
 }
@@ -199,26 +519,27 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
   {
     hash = mrb_funcall(mrb, klass, "app_default", 0);
     /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AppName")         , mrb_str_new_static(mrb , &parameter.AppName         , 33));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AID")             , mrb_str_new_static(mrb , &parameter.AID             , 17));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AidLen")          , mrb_str_new_static(mrb , &parameter.AidLen          , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SelFlag")         , mrb_str_new_static(mrb , &parameter.SelFlag         , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Priority")        , mrb_str_new_static(mrb , &parameter.Priority        , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TargetPer")       , mrb_str_new_static(mrb , &parameter.TargetPer       , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MaxTargetPer")    , mrb_str_new_static(mrb , &parameter.MaxTargetPer    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimitCheck") , mrb_str_new_static(mrb , &parameter.FloorLimitCheck , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RandTransSel")    , mrb_str_new_static(mrb , &parameter.RandTransSel    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "VelocityCheck")   , mrb_str_new_static(mrb , &parameter.VelocityCheck   , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimit")      , mrb_str_new_static(mrb , &parameter.FloorLimit      , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Threshold")       , mrb_str_new_static(mrb , &parameter.Threshold       , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDenial")       , mrb_str_new_static(mrb , &parameter.TACDenial       , 6));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACOnline")       , mrb_str_new_static(mrb , &parameter.TACOnline       , 6));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDefault")      , mrb_str_new_static(mrb , &parameter.TACDefault      , 6));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AcquierId")       , mrb_str_new_static(mrb , &parameter.AcquierId       , 6));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "dDOL")            , mrb_str_new_static(mrb , &parameter.dDOL            , 256));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "tDOL")            , mrb_str_new_static(mrb , &parameter.tDOL            , 256));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Version")         , mrb_str_new_static(mrb , &parameter.Version         , 3));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new_static(mrb , &parameter.RiskManData     , 10));
+    /*TODO Scalone AppName 16 instead 32 for now*/
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AppName")         , mrb_str_new(mrb      , &parameter.AppName         , 16));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AID")             , mrb_str_new(mrb      , &parameter.AID             , 16));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AidLen")          , mrb_str_new(mrb      , &parameter.AidLen          , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SelFlag")         , mrb_str_new(mrb      , &parameter.SelFlag         , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Priority")        , mrb_str_new(mrb      , &parameter.Priority        , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TargetPer")       , mrb_str_new(mrb      , &parameter.TargetPer       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MaxTargetPer")    , mrb_str_new(mrb      , &parameter.MaxTargetPer    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimitCheck") , mrb_str_new(mrb      , &parameter.FloorLimitCheck , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RandTransSel")    , mrb_str_new(mrb      , &parameter.RandTransSel    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "VelocityCheck")   , mrb_str_new(mrb      , &parameter.VelocityCheck   , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimit")      , mrb_fixnum_value(parameter.FloorLimit));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Threshold")       , mrb_str_new(mrb      , &parameter.Threshold       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDenial")       , mrb_str_new(mrb      , &parameter.TACDenial       , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACOnline")       , mrb_str_new(mrb      , &parameter.TACOnline       , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDefault")      , mrb_str_new(mrb      , &parameter.TACDefault      , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AcquierId")       , mrb_str_new(mrb      , &parameter.AcquierId       , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "dDOL")            , mrb_str_new(mrb      , &parameter.dDOL            , 256));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "tDOL")            , mrb_str_new(mrb      , &parameter.tDOL            , 256));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Version")         , mrb_str_new(mrb      , &parameter.Version         , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new(mrb      , &parameter.RiskManData     , 10));
 
     return hash;
   } else {
@@ -238,87 +559,83 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AppName"));
-  strncpy(&parameter.AppName, RSTRING_PTR(value), 33);
+  memcpy(&parameter.AppName, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AID"));
-  strncpy(&parameter.AppName, RSTRING_PTR(value), 33);
+  memcpy(&parameter.AID, RSTRING_PTR(value), 14);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AidLen"));
-  parameter.AidLen = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.AidLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "SelFlag"));
-  parameter.SelFlag = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.SelFlag, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Priority"));
-  parameter.Priority = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.Priority, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TargetPer"));
-  parameter.TargetPer = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.TargetPer, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "MaxTargetPer"));
-  parameter.MaxTargetPer = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.MaxTargetPer, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimitCheck"));
-  parameter.FloorLimitCheck = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.FloorLimitCheck, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RandTransSel"));
-  parameter.RandTransSel = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.RandTransSel, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "VelocityCheck"));
-  parameter.VelocityCheck = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.VelocityCheck, RSTRING_PTR(value), 1);
+  parameter.VelocityCheck = 1;
 
-  memset(&value, 0, sizeof(value));
-  value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimit"));
-  parameter.FloorLimit = (unsigned char)RSTRING_PTR(value);
-
-  memset(&value, 0, sizeof(value));
   iValue = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "FloorLimit")));
   parameter.FloorLimit = iValue;
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Threshold"));
-  parameter.Threshold = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.Threshold, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACDenial"));
-  strncpy(&parameter.TACDenial, RSTRING_PTR(value), 6);
+  memcpy(&parameter.TACDenial, RSTRING_PTR(value), 5);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACOnline"));
-  strncpy(&parameter.TACOnline, RSTRING_PTR(value), 6);
+  memcpy(&parameter.TACOnline, RSTRING_PTR(value), 5);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "TACDefault"));
-  strncpy(&parameter.TACDefault, RSTRING_PTR(value), 6);
+  memcpy(&parameter.TACDefault, RSTRING_PTR(value), 5);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "AcquierId"));
-  strncpy(&parameter.AcquierId, RSTRING_PTR(value), 6);
+  memcpy(&parameter.AcquierId, RSTRING_PTR(value), 6);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "dDOL"));
-  strncpy(&parameter.dDOL, RSTRING_PTR(value), 256);
+  memcpy(&parameter.dDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "tDOL"));
-  strncpy(&parameter.tDOL, RSTRING_PTR(value), 256);
+  memcpy(&parameter.tDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Version"));
-  strncpy(&parameter.Version, RSTRING_PTR(value), 3);
+  memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RiskManData"));
-  strncpy(&parameter.RiskManData, RSTRING_PTR(value), 10);
+  memcpy(&parameter.RiskManData, RSTRING_PTR(value), 10);
 
   return EMVAddApp(&parameter);
 }
@@ -379,16 +696,16 @@ mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
   {
     hash = mrb_funcall(mrb, klass, "pki_default", 0);
     /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RID")         , mrb_str_new_static(mrb , &parameter.RID         , 5));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "KeyID")       , mrb_str_new_static(mrb , &parameter.KeyID       , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "HashInd")     , mrb_str_new_static(mrb , &parameter.HashInd     , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ArithInd")    , mrb_str_new_static(mrb , &parameter.ArithInd    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ModulLen")    , mrb_str_new_static(mrb , &parameter.ModulLen    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Modul")       , mrb_str_new_static(mrb , &parameter.Modul       , 248));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExponentLen") , mrb_str_new_static(mrb , &parameter.ExponentLen , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Exponent")    , mrb_str_new_static(mrb , &parameter.Exponent    , 3));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExpDate")     , mrb_str_new_static(mrb , &parameter.ExpDate     , 3));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "CheckSum")    , mrb_str_new_static(mrb , &parameter.CheckSum    , 20));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RID")         , mrb_str_new(mrb , &parameter.RID         , 5));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "KeyID")       , mrb_str_new(mrb , &parameter.KeyID       , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "HashInd")     , mrb_str_new(mrb , &parameter.HashInd     , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ArithInd")    , mrb_str_new(mrb , &parameter.ArithInd    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ModulLen")    , mrb_str_new(mrb , &parameter.ModulLen    , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Modul")       , mrb_str_new(mrb , &parameter.Modul       , 248));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExponentLen") , mrb_str_new(mrb , &parameter.ExponentLen , 1));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Exponent")    , mrb_str_new(mrb , &parameter.Exponent    , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "ExpDate")     , mrb_str_new(mrb , &parameter.ExpDate     , 3));
+    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "CheckSum")    , mrb_str_new(mrb , &parameter.CheckSum    , 20));
 
     return hash;
   } else {
@@ -408,43 +725,47 @@ add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "RID"));
-  strncpy(&parameter.RID, RSTRING_PTR(value), 5);
+  memcpy(&parameter.RID, RSTRING_PTR(value), 5);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "KeyID"));
   parameter.KeyID = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.KeyID, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "HashInd"));
   parameter.HashInd = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.HashInd, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ArithInd"));
   parameter.ArithInd = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.ArithInd, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ModulLen"));
-  parameter.ModulLen = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.ModulLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Modul"));
-  strncpy(&parameter.Modul, RSTRING_PTR(value), 248);
+  memcpy(&parameter.Modul, RSTRING_PTR(value), parameter.ModulLen);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExponentLen"));
   parameter.ExponentLen = (unsigned char)RSTRING_PTR(value);
+  memcpy(&parameter.ExponentLen, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "Exponent"));
-  strncpy(&parameter.Exponent, RSTRING_PTR(value), 3);
+  memcpy(&parameter.Exponent, RSTRING_PTR(value), 3);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "ExpDate"));
-  strncpy(&parameter.ExpDate, RSTRING_PTR(value), 3);
+  memcpy(&parameter.ExpDate, RSTRING_PTR(value), 3);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_cstr(mrb, "CheckSum"));
-  strncpy(&parameter.CheckSum, RSTRING_PTR(value), 20);
+  memcpy(&parameter.CheckSum, RSTRING_PTR(value), 20);
 
   return EMVAddCAPK(&parameter);
 }
@@ -497,6 +818,101 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
+/*Check core_init before initialize, system error*/
+static mrb_value
+mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
+{
+  EMVInitTLVData();
+  return mrb_true_value();
+}
+
+static mrb_value
+mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
+{
+  mrb_int slot, number;
+
+  mrb_get_args(mrb, "ii", &slot, &number);
+
+  return mrb_fixnum_value(EMVAppSelect(slot, (unsigned long)number));
+}
+
+static mrb_value
+mrb_s_emv_read_data(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(EMVReadAppData());
+}
+
+static mrb_value
+mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int tag, dataLength;
+	char dataOut[1024];
+
+	memset(dataOut, 0, sizeof(dataOut));
+
+  mrb_get_args(mrb, "i", &tag);
+
+  EMVGetTLVData(tag, dataOut, &dataLength);
+
+  return mrb_str_new(mrb, dataOut, dataLength);
+}
+
+static mrb_value
+mrb_s_emv_set_tlv(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int tag, dataLength;
+	unsigned char *dataOut;
+
+  mrb_get_args(mrb, "is", &tag, &dataOut, &dataLength);
+
+  return mrb_fixnum_value(EMVSetTLVData(tag, dataOut, dataLength));
+}
+
+static mrb_value
+mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
+{
+  char paucVer[20];
+
+  memset(&paucVer, 0, sizeof(paucVer));
+
+  EMVReadVerInfo((char *)&paucVer);
+
+  return mrb_str_new_cstr(mrb, paucVer);
+}
+
+static mrb_value
+mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
+{
+  return mrb_fixnum_value(EMVCardAuth());
+}
+
+static mrb_value
+mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int amount, ret;
+	unsigned char ACType;
+
+	mrb_get_args(mrb, "i", &amount);
+
+	ret = EMVStartTrans(amount, 0, &ACType);
+
+	if (ACType == AC_TC)
+	{
+		display("Transaction approved!");
+	}
+	else if (ACType == AC_AAC)
+	{
+		display("Transaction declined!");
+	}
+	else if (ACType == AC_ARQC)
+	{
+		display("Online authorisation requested!");
+	}
+	sleep(5);
+
+  return mrb_fixnum_value(ret);
+}
+
 void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -519,5 +935,12 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb, emv, "add_pki", mrb_s_add_emv_pki , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb, emv, "del_pki", mrb_s_del_emv_pki , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, emv, "check_pki", mrb_s_check_emv_pki , MRB_ARGS_REQ(2));
-
+  mrb_define_class_method(mrb, emv, "_init", mrb_s_emv__init , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb, emv, "app_select", mrb_s_emv_app_select , MRB_ARGS_REQ(2));
+	mrb_define_class_method(mrb, emv, "read_data", mrb_s_emv_read_data , MRB_ARGS_NONE());
+	mrb_define_class_method(mrb, emv, "get_tlv", mrb_s_emv_get_tlv , MRB_ARGS_REQ(1));
+	mrb_define_class_method(mrb, emv, "set_tlv", mrb_s_emv_set_tlv , MRB_ARGS_REQ(2));
+	mrb_define_class_method(mrb, emv, "card_auth", mrb_s_card_auth , MRB_ARGS_NONE());
+	mrb_define_class_method(mrb, emv, "start_transaction", mrb_s_start_transaction , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
 }
