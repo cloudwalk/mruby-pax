@@ -139,7 +139,7 @@ class PAX
 
     def self.load_apps(table)
       table.apps.each do |app|
-        self.add_app(self.parse_app(app))
+        self.add_app(self.parse_app(app)[1])
       end
     end
 
