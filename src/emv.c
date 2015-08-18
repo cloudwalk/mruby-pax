@@ -894,22 +894,24 @@ mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 
 	mrb_get_args(mrb, "i", &amount);
 
-	ret = EMVStartTrans(amount, 0, &ACType);
+	EMVStartTrans(amount, 0, &ACType);
 
-	if (ACType == AC_TC)
+	if (ACType == AC_AAC)
 	{
-		display("Transaction approved!");
+		ret = 0;
 	}
-	else if (ACType == AC_AAC)
+	else if (ACType == AC_TC)
 	{
-		display("Transaction declined!");
+		ret = 1;
 	}
 	else if (ACType == AC_ARQC)
 	{
-		display("Online authorisation requested!");
+		ret = 2;
 	}
-	sleep(5);
-
+	else if (ACType == AC_AAC_HOST)
+	{
+		ret = 3;
+	}
   return mrb_fixnum_value(ret);
 }
 
