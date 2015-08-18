@@ -95,8 +95,8 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
 {
 	// debug
-	display("cEMVPedVerifyCipherPin");
-	sleep(2);
+	// display("cEMVPedVerifyCipherPin");
+	// sleep(2);
 	return 0;
 }
 
@@ -157,23 +157,23 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 int cEMVSetParam(void)
 {
 	// debug
-	display("cEMVSetParam");
+	// display("cEMVSetParam");
 	return 0;
 }
 
 unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
 {
 	// debug
-	display("cEMVSM3");
-	sleep(2);
+	// display("cEMVSM3");
+	// sleep(2);
 	return 0;
 }
 
 unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
 {
 	// debug
-	display("cEMVSM2Verify");
-	sleep(2);
+	// display("cEMVSM2Verify");
+	// sleep(2);
 	return 0;
 }
 
@@ -183,7 +183,7 @@ unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn
 int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 {
 	// debug
-	display("cEMVInputAmount");
+	// display("cEMVInputAmount");
 	return EMV_OK;
 }
 
@@ -275,16 +275,16 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 int cCertVerify(void)
 {
 	// debug
-	display("cCertVerify");
-	sleep(2);
+	// display("cCertVerify");
+	// sleep(2);
 	return -1;
 }
 
 unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
 {
 	// debug
-	display("cEMVPiccIsoCommand");
-	sleep(2);
+	// display("cEMVPiccIsoCommand");
+	// sleep(2);
 	return 0;
 }
 
@@ -308,8 +308,8 @@ int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 {
 	// debug
-	display("cEMVWaitAppSel");
-	sleep(2);
+	// display("cEMVWaitAppSel");
+	// sleep(2);
 	return 0;
 }
 
@@ -320,8 +320,8 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 void cEMVVerifyPINOK(void)
 {
 	// debug
-	display("cEMVVerifyPINOK");
-	sleep(2);
+	// display("cEMVVerifyPINOK");
+	// sleep(2);
   return;
 }
 
