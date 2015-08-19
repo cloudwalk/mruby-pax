@@ -143,8 +143,8 @@ class PAX
       end
     end
 
-    def self.load_pkis(table)
-      table.pkis.each do |pki|
+    def self.load_pkis(pkis)
+      pkis.each do |pki|
         self.add_pki(self.parse_pki(pki))
       end
     end
