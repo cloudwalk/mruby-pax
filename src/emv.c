@@ -896,23 +896,32 @@ mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 
 	EMVStartTrans(amount, 0, &ACType);
 
-	if (ACType == AC_AAC)
-	{
-		ret = 0;
-	}
-	else if (ACType == AC_TC)
-	{
-		ret = 1;
-	}
-	else if (ACType == AC_ARQC)
-	{
-		ret = 2;
-	}
-	else if (ACType == AC_AAC_HOST)
-	{
-		ret = 3;
-	}
+	if (ACType == AC_AAC)						ret = 0;
+	else if (ACType == AC_TC)				ret = 1;
+	else if (ACType == AC_ARQC)			ret = 2;
+	else if (ACType == AC_AAC_HOST)	ret = 3;
+
   return mrb_fixnum_value(ret);
+}
+
+static mrb_value
+mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
+{
+	mrb_int ret;
+	unsigned char ACType;
+	unsigned char *scripts;
+	int resp_code, sc_len, tag;
+
+	mrb_get_args(mrb, "is", &resp_code, &scripts, &sc_len);
+
+	EMVCompleteTrans(0x00, scripts, &sc_len, &ACType);
+
+	if (ACType == AC_AAC)						ret = 0;
+	else if (ACType == AC_TC)				ret = 1;
+	else if (ACType == AC_ARQC)			ret = 2;
+	else if (ACType == AC_AAC_HOST)	ret = 3;
+
+	return mrb_fixnum_value(ret);
 }
 
 void
@@ -944,5 +953,6 @@ mrb_emv_init(mrb_state* mrb)
 	mrb_define_class_method(mrb, emv, "set_tlv", mrb_s_emv_set_tlv , MRB_ARGS_REQ(2));
 	mrb_define_class_method(mrb, emv, "card_auth", mrb_s_card_auth , MRB_ARGS_NONE());
 	mrb_define_class_method(mrb, emv, "start_transaction", mrb_s_start_transaction , MRB_ARGS_REQ(1));
+	mrb_define_class_method(mrb, emv, "complete_transaction", mrb_s_complete_transaction , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
 }
