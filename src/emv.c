@@ -39,7 +39,7 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 	OsScrGetSize(&iPinX, &iPinY);
 	iPinX /= 3;
 	iPinY -= iPinY / 4;
-	display("Enter pin (plain) ...");
+	display("ENTER PIN: ");
 	iRet = OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 
 	if (iRet != 0)
@@ -205,7 +205,7 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	// online PIN
 	if (pszPlainPin == NULL)
 	{
-		display("Enter pin (crypted) ...");
+		display("ENTER PIN: ");
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 
 		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
