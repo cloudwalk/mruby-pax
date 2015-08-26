@@ -35,17 +35,12 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 	int iRet;
 	int iPinX = 0, iPinY = 0;
 
-	OsSleep(50);
+	// OsSleep(50);
 	OsScrGetSize(&iPinX, &iPinY);
 	iPinX /= 3;
 	iPinY -= iPinY / 4;
+	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 	display("ENTER PIN: ");
-	iRet = OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-
-	if (iRet != 0)
-	{
-		return iRet;
-	}
 	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
 	if(RET_OK == iRet)
@@ -197,7 +192,7 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	int iPinX = 0, iPinY = 0;
 	unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];
 
-	OsSleep(50);
+	// OsSleep(50);
 	OsScrGetSize(&iPinX, &iPinY);
 	iPinX /= 3;
 	iPinY -= iPinY / 4;
@@ -205,9 +200,8 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	// online PIN
 	if (pszPlainPin == NULL)
 	{
-		display("ENTER PIN: ");
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-
+		display("ENTER PIN: ");
 		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
 
 		if (iResult == 0)
@@ -251,7 +245,7 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	else if (pszPlainPin[0] == EMV_PED_WAIT)
 	{
 		// API is called too frequently
-		sleep(1000);
+		// sleep(500);
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 		return EMV_OK;
 	}
@@ -829,11 +823,16 @@ mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 {
+	int ret = -2;
   mrb_int slot, number;
 
   mrb_get_args(mrb, "ii", &slot, &number);
 
-  return mrb_fixnum_value(EMVAppSelect(slot, (unsigned long)number));
+	do
+	{
+		ret = EMVAppSelect(slot, (unsigned long)number);
+	}while(ret == -2);
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
@@ -914,7 +913,7 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 
 	mrb_get_args(mrb, "is", &resp_code, &scripts, &sc_len);
 
-	EMVCompleteTrans(0x00, scripts, &sc_len, &ACType);
+	EMVCompleteTrans(resp_code, scripts, &sc_len, &ACType);
 
 	if (ACType == AC_AAC)						ret = 0;
 	else if (ACType == AC_TC)				ret = 1;
