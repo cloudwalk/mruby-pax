@@ -7,6 +7,7 @@
 #include "mruby/string.h"
 #include "mruby/hash.h"
 
+#include "ui.h"
 #include "osal.h"
 #include "emvlib_Prolin.h"
 
@@ -40,7 +41,9 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 	iPinX /= 3;
 	iPinY -= iPinY / 4;
 	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-	display("ENTER PIN: ");
+	display_clear();
+	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+	sleep(1);
 	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
 	if(RET_OK == iRet)
@@ -201,7 +204,9 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	if (pszPlainPin == NULL)
 	{
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-		display("ENTER PIN: ");
+		display_clear();
+		xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+		sleep(1);
 		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
 
 		if (iResult == 0)
@@ -222,15 +227,22 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	if(iRemainCnt == 1)
 	{
 		// "LAST ENTER PIN"
+		display_clear();
+		xdisplay("LAST CHANCE", strlen("LAST CHANCE"), 4, 3);
+		sleep(2);
 	}
 
 	if (iTryFlag == 0)
 	{
 	  //  GetDispAmount(szAmount, szAmount);
+		// display("Amount x ..");
 	}
 	else
 	{
 		// "PIN ERR, RETRY"
+		display_clear();
+		xdisplay("INCORRECT PIN", strlen("INCORRECT PIN"), 3, 2);
+		sleep(2);
 	}
 
 	// Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
@@ -240,25 +252,27 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	{
 		// EMV core has processed PIN entry and it's timeout
 		// "PED ERROR"
+		// display("EMV_TIME_OUT ..");
 		return EMV_TIME_OUT;
 	}
 	else if (pszPlainPin[0] == EMV_PED_WAIT)
 	{
 		// API is called too frequently
-		// sleep(500);
-		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		sleep(2);
+		// OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 		return EMV_OK;
 	}
 	else if (pszPlainPin[0] == EMV_PED_FAIL)
 	{
 		// EMV core has processed PIN entry and PED failed.
 		// "PED ERROR"
+		// display("EMV_NO_PINPAD ..");
 		return EMV_NO_PINPAD;
 	}
 	else
 	{
 		// EMV PIN not processed yet. So just display.
-		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+		// OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 		return EMV_OK;
 	}
 }
@@ -909,11 +923,16 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 	mrb_int ret;
 	unsigned char ACType;
 	unsigned char *scripts;
-	int resp_code, sc_len, tag;
+	int resp_code, sc_len, tag, arc;
 
 	mrb_get_args(mrb, "is", &resp_code, &scripts, &sc_len);
 
-	EMVCompleteTrans(resp_code, scripts, &sc_len, &ACType);
+	if (resp_code == 00)
+		arc = ONLINE_APPROVE;
+	else
+		arc = ONLINE_DENIAL;
+
+	EMVCompleteTrans(arc, scripts, &sc_len, &ACType);
 
 	if (ACType == AC_AAC)						ret = 0;
 	else if (ACType == AC_TC)				ret = 1;
