@@ -92,10 +92,57 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 */
 int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
 {
-	// debug
-	// display("cEMVPedVerifyCipherPin");
-	// sleep(2);
-	return 0;
+	int iRet, iDataLen;
+	ST_RSA_PINKEY stRSAPINKEY;
+	unsigned char sBuff[100], sData[10];
+
+	OsSleep(50);
+	int iPinX = 0, iPinY = 0;
+	OsScrGetSize(&iPinX, &iPinY);
+	iPinX /= 3;
+	iPinY -= iPinY / 4;
+	memset(&stRSAPINKEY, 0, sizeof(ST_RSA_PINKEY));
+	stRSAPINKEY.ModulusLen = RsaPinKeyIn->modlen;
+	memcpy(stRSAPINKEY.Modulus, RsaPinKeyIn->mod, sizeof(RsaPinKeyIn->mod));
+	memcpy(stRSAPINKEY.Exponent, RsaPinKeyIn->exp, sizeof(RsaPinKeyIn->exp));
+	stRSAPINKEY.IccRandomLen = RsaPinKeyIn->iccrandomlen;
+	memcpy(stRSAPINKEY.IccRandom, RsaPinKeyIn->iccrandom, sizeof(RsaPinKeyIn->iccrandom));
+
+	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+	display_clear();
+	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+	sleep(1);
+	iRet = OsPedVerifyCipherPin(0, &stRSAPINKEY, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
+
+	if(RET_OK == iRet)
+	{
+		return PED_RET_OK;
+	}
+	else if(ERR_PED_NO_PIN_INPUT == iRet)
+	{
+		return PED_RET_ERR_NO_PIN_INPUT;
+	}
+	else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
+	{
+		return PED_RET_ERR_INPUT_CANCEL;
+	}
+	else if(ERR_PED_ICC_INIT_ERR == iRet)
+	{
+		return PED_RET_ERR_ICC_NO_INIT;
+	}
+	else if(ERR_PED_NO_ICC == iRet)
+	{
+		return PED_RET_ERR_NO_ICC;
+	}
+	else if(ERR_PED_WAIT_INTERVAL == iRet)
+	{
+		return PED_RET_ERR_WAIT_INTERVAL;
+	}
+	else
+	{
+		return iRet;
+	}
+	return EMV_OK;
 }
 
 /**
