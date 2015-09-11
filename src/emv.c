@@ -362,52 +362,42 @@ int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 // if there is only one application in the chip, then EMV kernel will not call this callback function
 int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 {
-	int iRet, iCnt, iAppCnt;
-	APPLABEL_LIST	stAppList[MAX_APP_NUM];
+	int iCnt;
 	int iSelected = 0;
-	unsigned char szBuff[200];
+	unsigned char szBuff[20];
 
-	memset(stAppList, 0, sizeof(stAppList));
+	display_clear();
 
 	if (TryCnt != 0)
 	{
-		display_clear();
-		xdisplay("NOT ACCEPT", strlen("NOT ACCEPT"), 5, 2);
+		xdisplay("NOT ACCEPT", strlen("NOT ACCEPT"), 4, 2);
 		xdisplay("PLS TRY AGAIN", strlen("PLS TRY AGAIN"), 3, 3);
 		sleep(3);
-	}
-	iRet = EMVGetLabelList(stAppList, &iAppCnt);
-
-	if (iAppCnt > 1)
-	{
 		display_clear();
-		memset(szBuff, 0, sizeof(szBuff));
-		sprintf(szBuff, "SELECT APP");
-		xdisplay(szBuff, strlen(szBuff), 5, 0);
-
-		for (iCnt = 0; iCnt < iAppCnt && iCnt < MAX_APP_NUM; iCnt++)
-		{
-			memset(szBuff, 0, sizeof(szBuff));
-			sprintf(szBuff, "%d - %s", (iCnt + 1), stAppList[iCnt].aucAppPreName);
-			xdisplay(szBuff, strlen(szBuff), 2, (2 + iCnt));
-		}
-		sleep(1);
-
-		do
-		{
-			iSelected = GetKey();
-		}while ((iSelected - 1) > iAppCnt);
-
-		if ((iSelected - 1) == 18)
-		{
-			return EMV_TIME_OUT;
-		}
-		return (iSelected - 1);
 	}
-	else
+	memset(szBuff, 0, sizeof(szBuff));
+	sprintf(szBuff, "SELECT APP(%d)", AppNum);
+	xdisplay(szBuff, strlen(szBuff), 5, 0);
+
+	for (iCnt = 0; iCnt < AppNum; iCnt++)
 	{
-		return 1;
+		memset(szBuff, 0, sizeof(szBuff));
+		sprintf(szBuff, "%d - %s", (iCnt + 1), List[iCnt].AppName);
+		xdisplay(szBuff, strlen(szBuff), 4, (2 + iCnt));
 	}
+	sleep(1);
+
+	do
+	{
+		iSelected = GetKey();
+	}while ((iSelected - 1) > AppNum);
+
+	if ((iSelected - 1) == 18)
+	{
+		return EMV_TIME_OUT;
+	}
+	// it has to return the number -2 cause the List starts with zero.
+	return (iSelected - 2);
 }
 
 // 如果不需要提示密码验证成功，则直接返回就可以了
