@@ -116,6 +116,11 @@ class PAX
       "CheckSum"    => ""
     }
 
+    SCRIPT_DEFAULT = {
+      "ADVICE"      => "",
+      "ACTYPE"      => ""
+    }
+
     class << self
       attr_accessor :icc
     end
@@ -130,6 +135,10 @@ class PAX
 
     def self.pki_default
       EMV_PKI_DEFAULT.dup
+    end
+
+    def self.script_default
+      SCRIPT_DEFAULT.dup
     end
 
     def self.init
