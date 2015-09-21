@@ -42,7 +42,7 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 	iPinY -= iPinY / 4;
 	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 	display_clear();
-	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2); // PIN OFFLINE
 	sleep(1);
 	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
@@ -238,8 +238,9 @@ int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 {
-	int iResult;
+	int iResult, panLength;
 	int iPinX = 0, iPinY = 0;
+	char *szPan;
 	unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];
 
 	// OsSleep(50);
@@ -250,11 +251,13 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 	// online PIN
 	if (pszPlainPin == NULL)
 	{
+		EMVGetTLVData(0x5A, szPan, &panLength);
+
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 		display_clear();
 		xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
 		sleep(1);
-		iResult = PedGetPinBlock(1, "0,4,5,6,7,8", "05704230890341069", sPinBlock, 0, 30000);
+		iResult = OsPedGetPinBlock(1, szPan, "0,4,5,6,7,8,9,10,11,12", 0, 30000, sPinBlock);
 
 		if (iResult == 0)
 		{
@@ -1000,9 +1003,9 @@ static mrb_value
 mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 {
 	mrb_int ret;
-	unsigned char ACType;
-	unsigned char *scripts;
-	int resp_code, sc_len, tag, arc;
+	mrb_value hash;
+	int resp_code, sc_len, arc, result, sc_result_len;
+	unsigned char ACType, *scripts, *sc_result, szBuff[30];
 
 	mrb_get_args(mrb, "is", &resp_code, &scripts, &sc_len);
 
@@ -1011,12 +1014,23 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 	else
 		arc = ONLINE_DENIAL;
 
-	EMVCompleteTrans(arc, scripts, &sc_len, &ACType);
+	result = EMVCompleteTrans(arc, scripts, &sc_len, &ACType);
 
 	if (ACType == AC_AAC)						ret = 0;
 	else if (ACType == AC_TC)				ret = 1;
 	else if (ACType == AC_ARQC)			ret = 2;
 	else if (ACType == AC_AAC_HOST)	ret = 3;
+
+	if (result != EMV_OK)
+	{
+		result = EMVGetScriptResult(sc_result, &sc_result_len);
+
+		hash = mrb_funcall(mrb, klass, "script_default", 0);
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, sc_result, 100));
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_str_new(mrb, ret, 1));
+
+    return hash;
+	}
 
 	return mrb_fixnum_value(ret);
 }
