@@ -43,7 +43,7 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
 	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 	display_clear();
 	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2); // PIN OFFLINE
-	sleep(1);
+	OsSleep(50);
 	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
 	if(RET_OK == iRet)
@@ -96,7 +96,7 @@ int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinK
 	ST_RSA_PINKEY stRSAPINKEY;
 	unsigned char sBuff[100], sData[10];
 
-	OsSleep(50);
+	// OsSleep(50);
 	int iPinX = 0, iPinY = 0;
 	OsScrGetSize(&iPinX, &iPinY);
 	iPinX /= 3;
@@ -111,7 +111,7 @@ int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinK
 	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 	display_clear();
 	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
-	sleep(1);
+	OsSleep(50);
 	iRet = OsPedVerifyCipherPin(0, &stRSAPINKEY, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
 	if(RET_OK == iRet)
@@ -256,7 +256,7 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
 		display_clear();
 		xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
-		sleep(1);
+		OsSleep(50);
 		iResult = OsPedGetPinBlock(1, szPan, "0,4,5,6,7,8,9,10,11,12", 0, 30000, sPinBlock);
 
 		if (iResult == 0)
