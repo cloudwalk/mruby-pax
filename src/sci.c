@@ -43,7 +43,6 @@ mrb_icc_init(mrb_state* mrb)
 {
   struct RClass *pax;
   struct RClass *icc;
-  struct RClass *error;
 
   pax = mrb_class_get(mrb, "PAX");
   icc = mrb_define_class_under(mrb, pax, "ICCard",  mrb->object_class);
