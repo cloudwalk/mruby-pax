@@ -13,6 +13,7 @@
 
 #define DONE mrb_gc_arena_restore(mrb, 0)
 
+void mrb_printer_init(mrb_state* mrb);
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
@@ -23,6 +24,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_icc_init(mrb);
   mrb_crypto_init(mrb);
   mrb_pinpad_init(mrb);
+  mrb_printer_init(mrb); DONE;
 }
 
 void
