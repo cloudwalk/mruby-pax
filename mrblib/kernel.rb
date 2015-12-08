@@ -81,10 +81,6 @@ module Kernel
     end
   end
 
-  def gets(separator = 0x0D.chr, limit = Screen::SCREEN_X_SIZE, mode = IO_INPUT_LETTERS)
-    Device::IO.get_string(1, limit, mode).split(separator).first
-  end
-
   def getc(timeout_io = nil)
     timeout_io ||= IO.timeout
     convert_key(PAX._getc(timeout_io))
