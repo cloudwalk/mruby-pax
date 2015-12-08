@@ -42,21 +42,6 @@ mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
 }
 
 mrb_value
-mrb_pax_s__gets(mrb_state *mrb, mrb_value self)
-{
-  unsigned char sValue[128];
-  mrb_int min, max, mode, x, y;
-
-  memset(&sValue, 0, sizeof(sValue));
-
-  mrb_get_args(mrb, "iiiii", &min, &max, &mode, &y, &x);
-
-  get_string(&sValue, min, max, mode, y, x);
-
-  return mrb_str_new_cstr(mrb, sValue);
-}
-
-mrb_value
 mrb_pax_s_display_clear(mrb_state *mrb, mrb_value self)
 {
   display_clear();
@@ -102,7 +87,6 @@ mrb_display_init(mrb_state* mrb)
 
   mrb_define_method(mrb       , krn , "_printstr__"        , mrb__printstr__              , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pax , "_gets"              , mrb_pax_s__gets              , MRB_ARGS_REQ(5));
   mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
