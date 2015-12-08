@@ -13,17 +13,26 @@
 
 #define DONE mrb_gc_arena_restore(mrb, 0)
 
+void mrb_system_init(mrb_state* mrb);
+void mrb_display_init(mrb_state* mrb);
+void mrb_magnetic_init(mrb_state* mrb);
+void mrb_emv_init(mrb_state* mrb);
+void mrb_icc_init(mrb_state* mrb);
+void mrb_crypto_init(mrb_state* mrb);
+void mrb_pinpad_init(mrb_state* mrb);
 void mrb_printer_init(mrb_state* mrb);
+
+
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {
-  mrb_system_init(mrb);
-  mrb_display_init(mrb);
-  mrb_magnetic_init(mrb);
-  mrb_emv_init(mrb);
-  mrb_icc_init(mrb);
-  mrb_crypto_init(mrb);
-  mrb_pinpad_init(mrb);
+  mrb_system_init(mrb); DONE;
+  mrb_display_init(mrb); DONE;
+  mrb_magnetic_init(mrb); DONE;
+  mrb_emv_init(mrb); DONE;
+  mrb_icc_init(mrb); DONE;
+  mrb_crypto_init(mrb); DONE;
+  mrb_pinpad_init(mrb); DONE;
   mrb_printer_init(mrb); DONE;
 }
 
