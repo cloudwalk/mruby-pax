@@ -59,28 +59,6 @@ module Kernel
     PAX_KEYCANCEL  => 0x1B.chr
   }
 
-  # TODO Refactor needed
-  def __printstr__(str, y = nil, x = nil)
-    Screen.y = (y || Screen.y || 0)
-    Screen.x = (x || Screen.x || 0)
-
-    Screen.add_y(1) if str == "\n"
-
-    str.split("\n").each_with_index do |string,index|
-      Screen.add_y(1) if index > 0
-
-      if (Screen.x + string.size) < Screen::SCREEN_X_SIZE
-        _printstr__(string, Screen.y, Screen.x)
-        Screen.x += string.size
-      else
-        space = Screen::SCREEN_X_SIZE - Screen.x
-        _printstr__("#{string[0..(space - 1)]}", Screen.y, Screen.x)
-        Screen.add_y(1)
-        __printstr__("#{string[(space)..-1]}")
-      end
-    end
-  end
-
   def getc(timeout_io = nil)
     timeout_io ||= IO.timeout
     convert_key(PAX._getc(timeout_io))

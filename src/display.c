@@ -13,7 +13,7 @@
 #include "keyboard.h"
 
 mrb_value
-mrb__printstr__(mrb_state *mrb, mrb_value self)
+mrb__print__(mrb_state *mrb, mrb_value self)
 {
   mrb_value obj;
   mrb_int x, y;
@@ -85,7 +85,7 @@ mrb_display_init(mrb_state* mrb)
   krn = mrb->kernel_module;
   pax = mrb_class_get(mrb, "PAX");
 
-  mrb_define_method(mrb       , krn , "_printstr__"        , mrb__printstr__              , MRB_ARGS_REQ(3));
+  mrb_define_method(mrb       , krn , "__print__"          , mrb__print__                 , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear      , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line , MRB_ARGS_REQ(1));

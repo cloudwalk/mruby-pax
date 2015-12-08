@@ -20,8 +20,8 @@ class PAX
       PAX.print_bitmap(path, row, column)
     end
 
-    def self.print_in_line(buf, row=nil, column=nil)
-      __printstr__(buf, row, column)
+    def self.print_in_line(buf, row=0, column=0)
+      __print__(buf, row, column)
     end
   end
 
