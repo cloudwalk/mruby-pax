@@ -51,7 +51,7 @@ static mrb_value
 mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
 {
   mrb_value host;
-  mrb_int ret;
+  mrb_int ret=-1;
   char dnsAddr[50]="\0";
 
   mrb_get_args(mrb, "o", &host);
