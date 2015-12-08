@@ -14,7 +14,7 @@
 static mrb_value
 mrb_s__serial(mrb_state *mrb, mrb_value self)
 {
-  char serial[128];
+  char serial[10];
 
   memset(&serial, 0, sizeof(serial));
 
