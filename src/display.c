@@ -15,21 +15,25 @@
 mrb_value
 mrb__print__(mrb_state *mrb, mrb_value self)
 {
-  mrb_value obj;
-  mrb_int x, y;
+  mrb_value obj, x, y;
+  mrb_int row = 0, column = 0;
   mrb_int len;
   char *s;
 
-  mrb_get_args(mrb, "oii", &obj, &y, &x);
+  mrb_get_args(mrb, "ooo", &obj, &y, &x);
+
+  if (mrb_fixnum_p(y)) row    = mrb_fixnum(y);
+  if (mrb_fixnum_p(x)) column = mrb_fixnum(x);
 
   if (mrb_string_p(obj)) {
     s = RSTRING_PTR(obj);
     len = RSTRING_LEN(obj);
-    xdisplay(s, len, x, y);
+    xdisplay(s, len, column, row);
   }
 
   return obj;
 }
+
 
 mrb_value
 mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
@@ -62,15 +66,18 @@ mrb_pax_s_display_clear_line(mrb_state *mrb, mrb_value self)
 mrb_value
 mrb_pax_s_print_bitmap(mrb_state *mrb, mrb_value self)
 {
-  mrb_value path;
-  mrb_int x, y;
+  mrb_value path, x, y;
+  mrb_int row = 0, column = 0;
   char *sPath;
 
-  mrb_get_args(mrb, "oii", &path, &y, &x);
+  mrb_get_args(mrb, "ooo", &path, &y, &x);
+
+  if (mrb_fixnum_p(y)) row    = mrb_fixnum(y);
+  if (mrb_fixnum_p(x)) column = mrb_fixnum(x);
 
   if (mrb_string_p(path)) {
     sPath = RSTRING_PTR(path);
-    display_bitmap(sPath, y, x);
+    display_bitmap(sPath, row, column);
   }
 
   return mrb_nil_value();
