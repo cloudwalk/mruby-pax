@@ -51,3 +51,4 @@ mrb_icc_init(mrb_state* mrb)
   mrb_define_class_method(mrb , icc , "close"  , mrb_s_icc_close  , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , icc , "detect" , mrb_s_icc_detect , MRB_ARGS_REQ(1));
 }
+
