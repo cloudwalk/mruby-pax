@@ -34,13 +34,15 @@ mrb__print__(mrb_state *mrb, mrb_value self)
   return obj;
 }
 
-
 mrb_value
 mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
 {
+  mrb_value obj;
   mrb_int timeout=0;
 
-  mrb_get_args(mrb, "i", &timeout);
+  mrb_get_args(mrb, "o", &obj);
+
+  if (mrb_fixnum_p(obj)) timeout = mrb_fixnum(obj);
 
   return mrb_fixnum_value(GetKey(timeout));
 }
