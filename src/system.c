@@ -100,19 +100,59 @@ mrb_pax_s_hwclock(mrb_state *mrb, mrb_value self)
   mrb_fixnum_value(OsSetTime(&t));
 }
 
+static mrb_value
+mrb_pax_s__os_version(mrb_state *mrb, mrb_value self)
+{
+  char version[32]="\0";
+
+  memset(&version, 0, sizeof(version));
+
+  OsGetSysVer("TYPE_OS_VER", version);
+
+  return mrb_str_new_cstr(mrb, version);
+}
+
+static mrb_value
+mrb_pax_s__osal_version(mrb_state *mrb, mrb_value self)
+{
+  char version[32]="\0";
+
+  memset(&version, 0, sizeof(version));
+
+  OsGetSysVer("TYPE_OSAL_VERAPI", version);
+
+  return mrb_str_new_cstr(mrb, version);
+}
+
+static mrb_value
+mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
+{
+  char version[32]="\0";
+
+  memset(&version, 0, sizeof(version));
+
+  OsGetSysVer("TYPE_PED_VER", version);
+
+  return mrb_str_new_cstr(mrb, version);
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
-  struct RClass *pax;
+  struct RClass *pax, *system;
 
-  pax = mrb_define_class(mrb, "PAX", mrb->object_class);
+  pax    = mrb_define_class(mrb, "PAX", mrb->object_class);
+  system = mrb_define_class_under(mrb, pax, "System", mrb->object_class);
 
-  mrb_define_class_method(mrb , pax , "_serial"            , mrb_s__serial                , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "_backlight="        , mrb_s__set_backlight         , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pax , "_battery"           , mrb_s__battery               , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "_ip"                , mrb_addrinfo_s__ip           , MRB_ARGS_OPT(1));
-  mrb_define_class_method(mrb , pax , "beep"               , mrb_pax_s_beep               , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb , pax , "_reboot"            , mrb_pax_s_reboot             , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "hwclock"            , mrb_pax_s_hwclock            , MRB_ARGS_REQ(6));
+  mrb_define_class_method(mrb , system , "_serial"         , mrb_s__serial             , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_backlight="     , mrb_s__set_backlight      , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , system , "_battery"        , mrb_s__battery            , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_ip"             , mrb_addrinfo_s__ip        , MRB_ARGS_OPT(1));
+  mrb_define_class_method(mrb , system , "beep"            , mrb_pax_s_beep            , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , system , "_reboot"         , mrb_pax_s_reboot          , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "hwclock"         , mrb_pax_s_hwclock         , MRB_ARGS_REQ(6));
+  mrb_define_class_method(mrb , system , "_os_version"     , mrb_pax_s__os_version     , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_osal_version"   , mrb_pax_s__osal_version   , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_pinpad_version" , mrb_pax_s__pinpad_version , MRB_ARGS_NONE());
 }
 

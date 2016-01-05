@@ -25,33 +25,6 @@ class PAX
     end
   end
 
-  class System
-    DEFAULT_BACKLIGHT = 1
-    def self.serial
-      PAX._serial
-    end
-
-    def self.backlight=(level)
-      PAX._backlight = level
-    end
-
-    def self.backlight
-      DEFAULT_BACKLIGHT
-    end
-
-    def self.battery
-      PAX._battery
-    end
-
-    def self.reboot
-      PAX._reboot
-    end
-
-    class << self
-      alias_method :restart, :reboot
-    end
-  end
-
   def self.setup
     Screen.setup(20, 7)
     begin
