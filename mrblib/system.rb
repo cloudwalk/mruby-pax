@@ -32,7 +32,7 @@ class PAX
 
     def self.versions
       {
-        "OS"     => self._os_version
+        "OS"     => self._os_version,
         "SDK"    => self._osal_version,
         "EMV"    => PAX::EMV.version,
         "Pinpad" => self._pinpad_version
