@@ -26,7 +26,7 @@ class PAX
   end
 
   def self.setup
-    Screen.setup(20, 7)
+    Screen.setup(21, 7)
     begin
       require 'cloudwalk_handshake'
       CloudwalkHandshake.configure!
