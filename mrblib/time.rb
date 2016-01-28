@@ -1,6 +1,6 @@
 class Time
   def hwclock(timezone = nil)
-    PAX.hwclock(self.year, self.month, self.day, self.hour, self.min, self.sec)
+    PAX::System.hwclock(self.year, self.month, self.day, self.hour, self.min, self.sec)
   end
 end
 
