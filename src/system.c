@@ -107,7 +107,7 @@ mrb_pax_s__os_version(mrb_state *mrb, mrb_value self)
 
   memset(&version, 0, sizeof(version));
 
-  OsGetSysVer("TYPE_OS_VER", version);
+  OsGetSysVer(TYPE_OS_VER, version);
 
   return mrb_str_new_cstr(mrb, version);
 }
@@ -119,7 +119,7 @@ mrb_pax_s__osal_version(mrb_state *mrb, mrb_value self)
 
   memset(&version, 0, sizeof(version));
 
-  OsGetSysVer("TYPE_OSAL_VERAPI", version);
+  OsGetSysVer(TYPE_OSAL_VER, version);
 
   return mrb_str_new_cstr(mrb, version);
 }
@@ -131,7 +131,7 @@ mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
 
   memset(&version, 0, sizeof(version));
 
-  OsGetSysVer("TYPE_PED_VER", version);
+  OsGetSysVer(TYPE_PED_VER, version);
 
   return mrb_str_new_cstr(mrb, version);
 }
