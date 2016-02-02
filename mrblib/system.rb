@@ -31,12 +31,12 @@ class PAX
     end
 
     def self.versions
-      {
-        "OS"     => self._os_version,
-        "SDK"    => self._osal_version,
-        "EMV"    => PAX::EMV.version,
-        "Pinpad" => self._pinpad_version
-      }
+      hash = Hash.new
+      hash["OS"]     = self._os_version
+      hash["SDK"]    = self._osal_version
+      hash["EMV"]    = PAX::EMV.version
+      hash["Pinpad"] = self._pinpad_version
+      hash
     end
 
     class << self
