@@ -108,10 +108,8 @@ void
 mrb_printer_init(mrb_state* mrb)
 {
   struct RClass *pax;
-  /*struct RClass *krn;*/
   struct RClass *printer;
 
-  /*krn   = mrb->kernel_module;*/
   pax   = mrb_class_get(mrb, "PAX");
   printer = mrb_define_class_under(mrb, pax, "Printer", mrb->object_class);
 
