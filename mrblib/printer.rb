@@ -21,6 +21,10 @@ class PAX
       attr_accessor :single_width, :single_height, :multi_width, :multi_height
     end
 
+    def self.allow?
+      System.model != "D200"
+    end
+
     # @brief Initialize Printer device.
     #
     # @param singlecode_width [Fixnum] The width control of single code font.
@@ -59,21 +63,21 @@ class PAX
     #
     # @return [Fixnum] Return number.
     def self.open
-      self._open
+      self._open if self.allow?
     end
 
     # @brief Restore the printer default settings and clear the print buffer data.
     #
     # @return [NilClass] Allways returns nil.
     def self.reset
-      self._reset
+      self._reset if self.allow?
     end
 
     # @brief Closes the printer.
     #
     # @return [NilClass] Allways returns nil.
     def self.close
-      self._close
+      self._close if self.allow?
     end
 
     # @brief Selects print font.
@@ -84,7 +88,7 @@ class PAX
     # @retval ERR_FONT_NOT_EXIST Font does not exist.
     # @retval ERR_INVALID_PARAM Invalid parameter.
     def self.font=(filename)
-      self._font = filename
+      self._font = filename if self.allow?
     end
 
     # @brief Sets printing gray level.
@@ -101,7 +105,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.level=(value)
-      self._level = value
+      self._level = value if self.allow?
     end
 
     # @brief Define size, in pixel, of printing
@@ -118,16 +122,17 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.size(singlecode_width=DEFAULT_SINGLE_WIDTH,
-                   singlecode_height=DEFAULT_SINGLE_HEIGHT,
-                   multicode_width=DEFAULT_MULTI_WIDTH,
-                   multicode_height=DEFAULT_MULTI_HEIGHT)
+                  singlecode_height=DEFAULT_SINGLE_HEIGHT,
+                  multicode_width=DEFAULT_MULTI_WIDTH,
+                  multicode_height=DEFAULT_MULTI_HEIGHT)
+      if self.allow?
+        self.single_width  = singlecode_width
+        self.single_height = singlecode_height
+        self.multi_width   = multicode_width
+        self.multi_height  = multicode_height
 
-      self.single_width  = singlecode_width
-      self.single_height = singlecode_height
-      self.multi_width   = multicode_width
-      self.multi_height  = multicode_height
-
-      self._size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+        self._size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+      end
     end
 
     # @brief Feeds printing paper “pixel” pixels in print buffer.
@@ -136,7 +141,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.feed(pixels = self.single_height)
-      self._feed(pixels)
+      self._feed(pixels) if self.allow?
     end
 
     # @brief Write text on print buffer.
@@ -145,7 +150,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print(string)
-      self._print(string)
+      self._print(string) if self.allow?
     end
 
     # @brief Write text on print buffer.
@@ -154,7 +159,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.puts(string)
-      self.print(string)
+      self.print(string) if self.allow?
     end
 
     # @brief Print bmp file.
@@ -169,7 +174,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print_bmp(path)
-      self._print_bmp(path)
+      self._print_bmp(path) if self.allow?
     end
 
     # @brief Check printer status, useful for paper check.
@@ -181,7 +186,7 @@ class PAX
     # @retval ERR_PRN_PAPEROUT Out of paper.
     # @retval ERR_PRN_OVERHEAT Printer overheating.
     def self.check
-      self._check
+      self._check if self.allow?
     end
   end
 end
