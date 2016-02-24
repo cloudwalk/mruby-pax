@@ -85,19 +85,41 @@ mrb_pax_s_print_bitmap(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+mrb_value
+mrb_display_s_print_status_bar(mrb_state *mrb, mrb_value self)
+{
+  mrb_value path;
+  mrb_int slot = 0;
+
+  mrb_get_args(mrb, "io", &slot, &path);
+
+  if (mrb_string_p(path)) {
+    if (XuiSetStatusbarIcon(slot, RSTRING_PTR(path)) == 0)
+      return mrb_true_value();
+    else
+      return mrb_nil_value();
+  } else {
+    if (XuiSetStatusbarIcon(slot, NULL) == 0)
+      return mrb_true_value();
+    else
+      return mrb_nil_value();
+  }
+}
+
 void
 mrb_display_init(mrb_state* mrb)
 {
-  struct RClass *pax;
-  struct RClass *krn;
+  struct RClass *pax, *krn, *dsp;
 
   krn = mrb->kernel_module;
   pax = mrb_class_get(mrb, "PAX");
+  dsp = mrb_define_class_under(mrb, pax, "Display", mrb->object_class);
 
-  mrb_define_method(mrb       , krn , "__print__"          , mrb__print__                 , MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc              , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear      , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap       , MRB_ARGS_REQ(3));
+  mrb_define_method(mrb       , krn , "__print__"          , mrb__print__                   , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc                , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line   , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap         , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , dsp , "print_status_bar"   , mrb_display_s_print_status_bar , MRB_ARGS_REQ(2));
 }
 
