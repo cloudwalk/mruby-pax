@@ -13,10 +13,6 @@ class PAX
       DEFAULT_BACKLIGHT
     end
 
-    def self.battery
-      PAX::System._battery
-    end
-
     def self.reboot
       PAX::System._reboot
     end
