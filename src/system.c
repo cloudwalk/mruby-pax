@@ -51,7 +51,7 @@ mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "o", &host);
 
   if (mrb_string_p(host)) {
-    ret = OsNetDns(RSTRING_PTR(host), &dnsAddr, 5000);
+    ret = OsNetDns(RSTRING_PTR(host), (char *)&dnsAddr, 5000);
   }
 
   if (ret == RET_OK)
@@ -66,8 +66,9 @@ mrb_pax_s_beep(mrb_state *mrb, mrb_value self)
   mrb_int tone, milliseconds;
 
   mrb_get_args(mrb, "ii", &tone, &milliseconds);
-
   OsBeep(tone, milliseconds);
+
+  return mrb_nil_value();
 }
 
 static mrb_value
@@ -91,7 +92,7 @@ mrb_pax_s_hwclock(mrb_state *mrb, mrb_value self)
   t.Minute = minute;
   t.Second = second;
 
-  mrb_fixnum_value(OsSetTime(&t));
+  return mrb_fixnum_value(OsSetTime(&t));
 }
 
 static mrb_value
