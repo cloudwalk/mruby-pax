@@ -8,6 +8,7 @@ class PAX
   end
 
   class Display
+    SLOTS_AVAILABLES = 8
     def self.clear
       PAX.display_clear
     end
@@ -22,6 +23,10 @@ class PAX
 
     def self.print_in_line(buf, row=0, column=0)
       __print__(buf, row, column)
+    end
+
+    def self.status_bar_slots_available
+      SLOTS_AVAILABLES
     end
   end
 
