@@ -21,11 +21,6 @@ class PAX
       PAX::System._reboot
     end
 
-    # TODO Initially the SDK has no function to get the exactly model
-    def self.model
-      "D200"
-    end
-
     def self.brand
       "pax"
     end

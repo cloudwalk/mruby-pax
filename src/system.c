@@ -136,6 +136,18 @@ mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, version);
 }
 
+static mrb_value
+mrb_system_s_model(mrb_state *mrb, mrb_value self)
+{
+  char model[32]="\0";
+
+  memset(&model, 0, sizeof(model));
+
+	OsRegGetValue("ro.fac.mach", model);
+
+  return mrb_str_new_cstr(mrb, model);
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -154,5 +166,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "_os_version"     , mrb_pax_s__os_version     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_osal_version"   , mrb_pax_s__osal_version   , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_pinpad_version" , mrb_pax_s__pinpad_version , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "model"           , mrb_system_s_model        , MRB_ARGS_NONE());
 }
 
