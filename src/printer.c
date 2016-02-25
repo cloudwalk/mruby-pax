@@ -93,8 +93,7 @@ mrb_pax_printer_s__print_bmp(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "s", &path);
 
-  OsPrnPutImage(RSTRING_PTR(path));
-
+  OsPrnPutImage((const unsigned char *)RSTRING_PTR(path));
   return mrb_nil_value();
 }
 

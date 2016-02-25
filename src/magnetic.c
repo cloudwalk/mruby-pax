@@ -58,9 +58,9 @@ mrb_magnetic_s_tracks(mrb_state *mrb, mrb_value self)
   OsMsrRead(&track1, &track2, &track3);
 
   hash = mrb_hash_new(mrb);
-  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track1")), mrb_str_new_cstr(mrb, track1.TrackData));
-  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track2")), mrb_str_new_cstr(mrb, track2.TrackData));
-  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track3")), mrb_str_new_cstr(mrb, track3.TrackData));
+  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track1")), mrb_str_new_cstr(mrb, (const char *)&track1.TrackData));
+  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track2")), mrb_str_new_cstr(mrb, (const char *)&track2.TrackData));
+  mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track3")), mrb_str_new_cstr(mrb, (const char *)&track3.TrackData));
 
   return hash;
 }
