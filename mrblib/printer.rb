@@ -22,7 +22,7 @@ class PAX
     end
 
     def self.allow?
-      System.model != "D200"
+      System.model != "d200"
     end
 
     # @brief Initialize Printer device.
