@@ -28,6 +28,10 @@ class PAX
     def self.status_bar_slots_available
       SLOTS_AVAILABLES
     end
+
+    def self.main_image
+      "walk_paxd200.bmp"
+    end
   end
 
   def self.setup
