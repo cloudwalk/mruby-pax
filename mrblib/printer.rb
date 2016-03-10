@@ -130,12 +130,12 @@ class PAX
                   singlecode_height=DEFAULT_SINGLE_HEIGHT,
                   multicode_width=DEFAULT_MULTI_WIDTH,
                   multicode_height=DEFAULT_MULTI_HEIGHT)
-      if self.allow?
         self.single_width  = singlecode_width
         self.single_height = singlecode_height
         self.multi_width   = multicode_width
         self.multi_height  = multicode_height
 
+      if self.allow?
         self._size(singlecode_width, singlecode_height, multicode_width, multicode_height)
       end
     end
