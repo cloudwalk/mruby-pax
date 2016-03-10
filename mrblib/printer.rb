@@ -25,6 +25,11 @@ class PAX
       System.model != "d200"
     end
 
+    self.single_width  = DEFAULT_SINGLE_WIDTH
+    self.single_height = DEFAULT_SINGLE_HEIGHT
+    self.multi_width   = DEFAULT_MULTI_WIDTH
+    self.multi_height  = DEFAULT_MULTI_HEIGHT
+
     # @brief Initialize Printer device.
     #
     # @param singlecode_width [Fixnum] The width control of single code font.
