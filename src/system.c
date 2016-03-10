@@ -143,6 +143,35 @@ mrb_system_s_model(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, model);
 }
 
+static mrb_value
+mrb_system_s_os_set_value(mrb_state *mrb, mrb_value self)
+{
+  mrb_value key, value;
+  mrb_int ret;
+
+  mrb_get_args(mrb, "SS", &key, &value);
+
+  ret = OsRegSetValue((char *)RSTRING_PTR(key), (char *)RSTRING_PTR(value));
+
+  if (ret == RET_OK)
+    return mrb_true_value();
+  else
+    return mrb_false_value();
+}
+
+static mrb_value
+mrb_system_s_os_get_value(mrb_state *mrb, mrb_value self)
+{
+  char value[1024]="\0";
+  mrb_value key;
+
+  mrb_get_args(mrb, "S", &key);
+
+  OsRegGetValue((char *)RSTRING_PTR(key), &value);
+
+  return mrb_str_new_cstr(mrb, value);
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -163,5 +192,7 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "_osal_version"   , mrb_pax_s__osal_version   , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_pinpad_version" , mrb_pax_s__pinpad_version , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "model"           , mrb_system_s_model        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_os_set_value"   , mrb_system_s_os_set_value , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , system , "_os_get_value"   , mrb_system_s_os_get_value , MRB_ARGS_REQ(1));
 }
 
