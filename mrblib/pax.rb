@@ -1,12 +1,6 @@
 class PAX
   Network = ::Network
 
-  class Audio
-    def self.beep(tone, milliseconds)
-      PAX.beep(tone, milliseconds)
-    end
-  end
-
   class Display
     SLOTS_AVAILABLES = 8
     def self.clear

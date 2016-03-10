@@ -61,7 +61,7 @@ mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_pax_s_beep(mrb_state *mrb, mrb_value self)
+mrb_pax_audio_s_beep(mrb_state *mrb, mrb_value self)
 {
   mrb_int tone, milliseconds;
 
@@ -146,16 +146,17 @@ mrb_system_s_model(mrb_state *mrb, mrb_value self)
 void
 mrb_system_init(mrb_state* mrb)
 {
-  struct RClass *pax, *system;
+  struct RClass *pax, *system, *audio;
 
   pax    = mrb_define_class(mrb, "PAX", mrb->object_class);
   system = mrb_define_class_under(mrb, pax, "System", mrb->object_class);
+  audio  = mrb_define_class_under(mrb, pax, "Audio", mrb->object_class);
 
+  mrb_define_class_method(mrb , audio  , "beep"            , mrb_pax_audio_s_beep      , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_serial"         , mrb_s__serial             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_backlight="     , mrb_s__set_backlight      , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , system , "battery"         , mrb_s_battery             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_ip"             , mrb_addrinfo_s__ip        , MRB_ARGS_OPT(1));
-  mrb_define_class_method(mrb , system , "beep"            , mrb_pax_s_beep            , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_reboot"         , mrb_pax_s_reboot          , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "hwclock"         , mrb_pax_s_hwclock         , MRB_ARGS_REQ(6));
   mrb_define_class_method(mrb , system , "_os_version"     , mrb_pax_s__os_version     , MRB_ARGS_NONE());
