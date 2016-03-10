@@ -28,12 +28,18 @@ class PAX
     end
   end
 
+  def self.set_os_values
+    PAX::System._os_set_value("persist.sys.sound.enable", "true")
+    PAX::Audio.volume = 5
+  end
+
   def self.setup
     Screen.setup(21, 7)
     begin
       require 'posxml_parser'
       require 'cloudwalk_handshake'
       CloudwalkHandshake.configure!
+      self.set_os_values
     rescue LoadError
     rescue NameError
     end
