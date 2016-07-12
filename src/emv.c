@@ -14,6 +14,9 @@
 #include "osal.h"
 #include "emvlib_Prolin.h"
 
+mrb_state *current_mrb;
+mrb_value current_klass;
+
 /*#define E_EMV_ERROR (mrb_class_get_under(mrb,mrb_class_get_under(mrb,mrb_class_get(mrb,"PAX"),"EMV"),"EMVError"))*/
 
 /*#include "CLEntryAPI_Prolin.h"*/
@@ -371,42 +374,25 @@ int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 // if there is only one application in the chip, then EMV kernel will not call this callback function
 int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 {
-	int iCnt;
-	int iSelected = 0;
-	char szBuff[20];
+  int iCnt, iAppCnt;
+  /*EMV_APPLIST parameter;*/
+  mrb_value hash, array, labels;
+  APPLABEL_LIST stAppList[MAX_APP_NUM];
 
-	display_clear();
+  /*display("cEMVWaitAppSel");*/
 
-	if (TryCnt != 0)
-	{
-		xdisplay("NOT ACCEPT", strlen("NOT ACCEPT"), 4, 2);
-		xdisplay("PLS TRY AGAIN", strlen("PLS TRY AGAIN"), 3, 3);
-		sleep(3);
-		display_clear();
-	}
-	memset(&szBuff, 0, sizeof(szBuff));
-	sprintf((char *)&szBuff, "SELECT APP(%d)", AppNum);
-	xdisplay(szBuff, strlen(szBuff), 5, 0);
+  array  = mrb_ary_new(current_mrb);
+  labels = mrb_ary_new(current_mrb);
+  EMVGetLabelList(stAppList, &iAppCnt);
 
-	for (iCnt = 0; iCnt < AppNum; iCnt++)
-	{
-		memset(&szBuff, 0, sizeof(szBuff));
-		sprintf((char *)&szBuff, "%d - %s", (iCnt + 1), List[iCnt].AppName);
-		xdisplay(szBuff, strlen(szBuff), 4, (2 + iCnt));
-	}
-	sleep(1);
+  for (iCnt = 0; iCnt < iAppCnt && iCnt<MAX_APP_NUM; iCnt++) {
+    hash = mrb_funcall(current_mrb, current_klass, "app_default", 0);
+    copy_applist_values(current_mrb, hash, List[iCnt]);
+    mrb_ary_push(current_mrb, array, hash);
+    mrb_ary_push(current_mrb, labels, mrb_str_new_cstr(current_mrb, stAppList[iCnt].aucAppLabel));
+  }
 
-	do
-	{
-		iSelected = GetKey(30000);
-	}while ((iSelected - 1) > AppNum);
-
-	if ((iSelected - 1) == 18)
-	{
-		return EMV_TIME_OUT;
-	}
-	// it has to return the number -2 cause the List starts with zero.
-	return (iSelected - 2);
+  return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 3, array, mrb_fixnum_value(TryCnt), labels));
 }
 
 // 如果不需要提示密码验证成功，则直接返回就可以了
@@ -924,13 +910,18 @@ mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 {
 	int ret = -2;
   mrb_int slot, number;
+  /*int pnErrorCode;*/
+
+  current_mrb = mrb;
+  current_klass = klass;
 
   mrb_get_args(mrb, "ii", &slot, &number);
 
-	do
-	{
-		ret = EMVAppSelect(slot, (unsigned long)number);
-	}while(ret == -2);
+  while(ret == -2) ret = EMVAppSelect(slot, (unsigned long)number);
+
+  /*DEBUG*/
+  /*EMVGetDebugInfo(NULL, NULL, &pnErrorCode);*/
+  /*display("DEBUG %d", pnErrorCode);*/
   return mrb_fixnum_value(ret);
 }
 
