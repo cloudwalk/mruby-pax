@@ -116,7 +116,7 @@ class PAX
       "CheckSum"    => ""
     }
 
-    SCRIPT_DEFAULT = {
+    EMV_SCRIPT_DEFAULT = {
       "ADVICE"      => "",
       "ACTYPE"      => ""
     }
@@ -138,7 +138,7 @@ class PAX
     end
 
     def self.script_default
-      SCRIPT_DEFAULT.dup
+      EMV_SCRIPT_DEFAULT.dup
     end
 
     def self.init
