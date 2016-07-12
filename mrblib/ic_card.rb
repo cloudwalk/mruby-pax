@@ -61,6 +61,11 @@ class PAX
       @ret == SCI_TO_WARNING
     end
 
+    def removed?
+      @ret = PAX::ICCard.detect(@slot)
+      @ret == SCI_IDLE
+    end
+
     def open?
       @status == STATUS_OPEN
     end
