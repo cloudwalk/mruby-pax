@@ -17,6 +17,8 @@
 mrb_state *current_mrb;
 mrb_value current_klass;
 
+void emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter);
+
 /*#define E_EMV_ERROR (mrb_class_get_under(mrb,mrb_class_get_under(mrb,mrb_class_get(mrb,"PAX"),"EMV"),"EMVError"))*/
 
 /*#include "CLEntryAPI_Prolin.h"*/
@@ -359,7 +361,7 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 
   for (iCnt = 0; iCnt < iAppCnt && iCnt<MAX_APP_NUM; iCnt++) {
     hash = mrb_funcall(current_mrb, current_klass, "app_default", 0);
-    copy_applist_values(current_mrb, hash, List[iCnt]);
+    emv_applist_to_hash(current_mrb, hash, List[iCnt]);
     mrb_ary_push(current_mrb, array, hash);
     mrb_ary_push(current_mrb, labels, mrb_str_new_cstr(current_mrb, stAppList[iCnt].aucAppLabel));
   }
@@ -555,6 +557,33 @@ mrb_s_set_emv_parameter(mrb_state *mrb, mrb_value klass)
   return mrb_nil_value();
 }
 
+void
+emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter)
+{
+  /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
+  /*TODO Scalone AppName 16 instead 32 for now*/
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AppName")         , mrb_str_new(mrb      , (const char *)&parameter.AppName         , 16));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AID")             , mrb_str_new(mrb      , (const char *)&parameter.AID             , 16));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AidLen")          , mrb_str_new(mrb      , (const char *)&parameter.AidLen          , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SelFlag")         , mrb_str_new(mrb      , (const char *)&parameter.SelFlag         , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Priority")        , mrb_str_new(mrb      , (const char *)&parameter.Priority        , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TargetPer")       , mrb_str_new(mrb      , (const char *)&parameter.TargetPer       , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MaxTargetPer")    , mrb_str_new(mrb      , (const char *)&parameter.MaxTargetPer    , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimitCheck") , mrb_str_new(mrb      , (const char *)&parameter.FloorLimitCheck , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RandTransSel")    , mrb_str_new(mrb      , (const char *)&parameter.RandTransSel    , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "VelocityCheck")   , mrb_str_new(mrb      , (const char *)&parameter.VelocityCheck   , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimit")      , mrb_fixnum_value(parameter.FloorLimit));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Threshold")       , mrb_str_new(mrb      , (const char *)&parameter.Threshold       , 1));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDenial")       , mrb_str_new(mrb      , (const char *)&parameter.TACDenial       , 5));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACOnline")       , mrb_str_new(mrb      , (const char *)&parameter.TACOnline       , 5));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDefault")      , mrb_str_new(mrb      , (const char *)&parameter.TACDefault      , 5));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AcquierId")       , mrb_str_new(mrb      , (const char *)&parameter.AcquierId       , 5));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "dDOL")            , mrb_str_new(mrb      , (const char *)&parameter.dDOL            , 256));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "tDOL")            , mrb_str_new(mrb      , (const char *)&parameter.tDOL            , 256));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Version")         , mrb_str_new(mrb      , (const char *)&parameter.Version         , 3));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new(mrb      , (const char *)&parameter.RiskManData     , 10));
+}
+
 static mrb_value
 mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
 {
@@ -572,28 +601,7 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
   if (ret == EMV_OK)
   {
     hash = mrb_funcall(mrb, klass, "app_default", 0);
-    /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-    /*TODO Scalone AppName 16 instead 32 for now*/
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AppName")         , mrb_str_new(mrb      , (const char *)&parameter.AppName         , 16));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AID")             , mrb_str_new(mrb      , (const char *)&parameter.AID             , 16));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AidLen")          , mrb_str_new(mrb      , (const char *)&parameter.AidLen          , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "SelFlag")         , mrb_str_new(mrb      , (const char *)&parameter.SelFlag         , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Priority")        , mrb_str_new(mrb      , (const char *)&parameter.Priority        , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TargetPer")       , mrb_str_new(mrb      , (const char *)&parameter.TargetPer       , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MaxTargetPer")    , mrb_str_new(mrb      , (const char *)&parameter.MaxTargetPer    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimitCheck") , mrb_str_new(mrb      , (const char *)&parameter.FloorLimitCheck , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RandTransSel")    , mrb_str_new(mrb      , (const char *)&parameter.RandTransSel    , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "VelocityCheck")   , mrb_str_new(mrb      , (const char *)&parameter.VelocityCheck   , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "FloorLimit")      , mrb_fixnum_value(parameter.FloorLimit));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Threshold")       , mrb_str_new(mrb      , (const char *)&parameter.Threshold       , 1));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDenial")       , mrb_str_new(mrb      , (const char *)&parameter.TACDenial       , 5));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACOnline")       , mrb_str_new(mrb      , (const char *)&parameter.TACOnline       , 5));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TACDefault")      , mrb_str_new(mrb      , (const char *)&parameter.TACDefault      , 5));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "AcquierId")       , mrb_str_new(mrb      , (const char *)&parameter.AcquierId       , 5));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "dDOL")            , mrb_str_new(mrb      , (const char *)&parameter.dDOL            , 256));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "tDOL")            , mrb_str_new(mrb      , (const char *)&parameter.tDOL            , 256));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "Version")         , mrb_str_new(mrb      , (const char *)&parameter.Version         , 3));
-    mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new(mrb      , (const char *)&parameter.RiskManData     , 10));
+    emv_applist_to_hash(mrb, hash, parameter);
 
     return hash;
   } else {
