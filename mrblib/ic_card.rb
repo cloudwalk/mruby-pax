@@ -8,7 +8,7 @@ class PAX
     ICC_SAM3_SLOT  = 4
     ICC_SAM4_SLOT  = 5
 
-    SCI_T0_WARNING = 1
+    SCI_TO_WARNING = 1
     SCI_IDLE       = 0
     SCI_SUCCESS    = 0
 
@@ -56,11 +56,7 @@ class PAX
 
     def detected?
       @ret = PAX::ICCard.detect(@slot)
-      if (@ret == SCI_T0_WARNING)
-        true
-      else
-        false
-      end
+      @ret == SCI_TO_WARNING
     end
 
     def open?
