@@ -363,7 +363,7 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
     hash = mrb_funcall(current_mrb, current_klass, "app_default", 0);
     emv_applist_to_hash(current_mrb, hash, List[iCnt]);
     mrb_ary_push(current_mrb, array, hash);
-    mrb_ary_push(current_mrb, labels, mrb_str_new_cstr(current_mrb, stAppList[iCnt].aucAppLabel));
+    mrb_ary_push(current_mrb, labels, mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));
   }
 
   return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 3, array, mrb_fixnum_value(TryCnt), labels));
@@ -958,56 +958,42 @@ mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int amount, ret;
+	mrb_int amount;
 	unsigned char ACType;
 
 	mrb_get_args(mrb, "i", &amount);
 
 	EMVStartTrans(amount, 0, &ACType);
 
-	if (ACType == AC_AAC)						ret = 0;
-	else if (ACType == AC_TC)				ret = 1;
-	else if (ACType == AC_ARQC)			ret = 2;
-	else if (ACType == AC_AAC_HOST)	ret = 3;
-
-  return mrb_fixnum_value(ret);
+  return mrb_fixnum_value((int)ACType);
 }
 
 static mrb_value
 mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int ret;
-	mrb_value hash;
-	int resp_code, sc_len, arc, result, sc_result_len;
-	/*unsigned char ACType, *scripts, *sc_result, szBuff[30];*/
-	unsigned char ACType, *scripts, sc_result;
+  mrb_int code;
+	mrb_value hash, scripts;
+	int result, script_result_len, script_len;
+	unsigned char script_result, ACType;
 
-	mrb_get_args(mrb, "is", &resp_code, &scripts, &sc_len);
+	mrb_get_args(mrb, "is", &code, &scripts);
 
-	if (resp_code == 00)
-		arc = ONLINE_APPROVE;
-	else
-		arc = ONLINE_DENIAL;
+  script_len = RSTRING_LEN(scripts);
+	result     = EMVCompleteTrans(code, (unsigned char *)RSTRING_PTR(scripts), &script_len, &ACType);
+	hash       = mrb_funcall(mrb, klass, "script_default", 0);
 
-	result = EMVCompleteTrans(arc, scripts, &sc_len, &ACType);
+	if (result != EMV_OK) {
+		result = EMVGetScriptResult(&script_result, &script_result_len);
 
-	if (ACType == AC_AAC)						ret = 0;
-	else if (ACType == AC_TC)				ret = 1;
-	else if (ACType == AC_ARQC)			ret = 2;
-	else if (ACType == AC_AAC_HOST)	ret = 3;
-
-	if (result != EMV_OK)
-	{
-		result = EMVGetScriptResult(&sc_result, &sc_result_len);
-
-		hash = mrb_funcall(mrb, klass, "script_default", 0);
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, (const char *)&sc_result, 100));
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value(ret));
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, (const char *)&script_result, script_result_len));
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
 
     return hash;
 	}
 
-	return mrb_fixnum_value(ret);
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(result));
+
+	return hash;
 }
 
 void
