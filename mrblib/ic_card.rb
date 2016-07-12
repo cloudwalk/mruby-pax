@@ -32,8 +32,10 @@ class PAX
     end
 
     def initialize(slot)
-      @slot   = slot
-      #self.open
+      @slot = slot
+      # During the EMV process we should avoid open because the handle managed
+      # by EMV Kernel.
+      # self.open
     end
 
     def open
