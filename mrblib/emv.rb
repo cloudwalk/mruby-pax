@@ -248,7 +248,7 @@ class PAX
       #
       # SelFlag - Application selection flag (partial matching PART_MATCH or full matching FULL_MATCH)
       #  (Refer to the macro definition in appendix A.)
-      app["SelFlag"]         = "\x01"
+      app["SelFlag"]         = "#{PART_MATCH.chr}"
       #
       # RandTransSel (maybe if bTargetPercentage was set) - For the online only or offline only terminal,
       #  perform random transaction selection or not (1: perform, 0 : not perform, default : 1)
