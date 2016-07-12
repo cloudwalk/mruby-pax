@@ -122,7 +122,7 @@ class PAX
     }
 
     class << self
-      attr_accessor :icc
+      attr_accessor :icc, :select_block
     end
 
     def self.parameter_default
@@ -382,6 +382,34 @@ class PAX
       # [:status_check_sum                                 , 1],
       # [:reserved                                         , 2],
       pki
+    end
+
+    def self.internal_app_select(list, tries, labels)
+      if self.select_block
+        self.select_block.call(list, tries, labels)
+      else
+        return 0 if list.size == 1
+
+        PAX::Display.clear
+        if tries != 0
+          puts "\nNOT ACCEPT\n"
+          puts "PLEASE TRY AGAIN"
+          getc(2000)
+        end
+
+        puts "SELECT APLICATION"
+        list.each_with_index do |app, index|
+          puts "#{index+1} #{labels[index] || app["AppName"]}"
+        end
+
+        if (ret = getc(30_000)) == 0x1B.chr
+          EMV_USER_CANCEL
+        elsif ret == 0x12.chr
+          EMV_TIME_OUT
+        else
+          ret.to_i
+        end
+      end
     end
   end
 end
