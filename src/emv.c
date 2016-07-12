@@ -166,43 +166,15 @@ int IccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv);
 uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
 {
 	int iRet;
-  int iLogCnt;
-  char szLogBuf[1024];
+  /*DEBUG*/
+  /*display("cEMVIccIsoCommand");*/
 
 	iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
-	if(iRet != 0)
-	{
+	if(iRet != 0) {
 		return 0x01;
-	}
-
-	for(iLogCnt = 0; iLogCnt < 4; iLogCnt++)
-	{
-		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduSend->Command+iLogCnt));
-	}
-	if (tApduSend->Lc != 0)
-	{
-		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Lc);
-		for(iLogCnt = 0; iLogCnt < tApduSend->Lc; iLogCnt++)
-		{
-			sprintf(szLogBuf+(iLogCnt+5)*3, "%02X ", *(tApduSend->DataIn+iLogCnt));
-		}
-		if (tApduSend->Le != 0)
-		{
-			sprintf(szLogBuf+(5+tApduSend->Lc)*3, "%02X ", (char)tApduSend->Le);
-		}
-	}
-	else
-	{
-		sprintf(szLogBuf+4*3, "%02X ", (char)tApduSend->Le);
-	}
-
-	for(iLogCnt = 0; iLogCnt < tApduRecv->LenOut; iLogCnt++)
-	{
-		sprintf(szLogBuf+iLogCnt*3, "%02X ", *(tApduRecv->DataOut+iLogCnt));
-	}
-	sprintf(szLogBuf+iLogCnt*3, "%02X ", tApduRecv->SWA);
-	sprintf(szLogBuf+(iLogCnt+1)*3, "%02X ", tApduRecv->SWB);
-	return 0;
+	} else {
+    return EMV_OK;
+  }
 }
 
 // Callback function required by EMV core.
