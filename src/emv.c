@@ -28,153 +28,154 @@ void emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter);
 /*Callbacks*/
 
 /**
-*	@fn	int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
-*	@brief	EMV回调函数，实现脱机明文PIN获取及明文PIN的校验功能
-*	@param	[in] IccSlot     卡片所在的卡座号
-*	@param	[in] ExpPinLenIn 可输入的合法密码长度字符串
-*	@param	[in] Mode		 IC卡命令模式
-*	@param	[in] TimeoutMs	 输入PIN的超时时间
-*	@param	[out] IccRespOut 卡片响应的状态码
-*	@return int
-*	@author	Prolin App developer
-*	@date	2013-05-20
-*/
+ *	@fn	int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
+ *	@brief	EMV回调函数，实现脱机明文PIN获取及明文PIN的校验功能
+ *	@param	[in] IccSlot     卡片所在的卡座号
+ *	@param	[in] ExpPinLenIn 可输入的合法密码长度字符串
+ *	@param	[in] Mode		 IC卡命令模式
+ *	@param	[in] TimeoutMs	 输入PIN的超时时间
+ *	@param	[out] IccRespOut 卡片响应的状态码
+ *	@return int
+ *	@author	Prolin App developer
+ *	@date	2013-05-20
+ */
 int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
 {
-	int iRet;
-	int iPinX = 0, iPinY = 0;
+  int iRet;
+  int iPinX = 0, iPinY = 0;
 
-	// OsSleep(50);
-	OsScrGetSize(&iPinX, &iPinY);
-	iPinX /= 3;
-	iPinY -= iPinY / 4;
-	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-	display_clear();
-	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2); // PIN OFFLINE
-	OsSleep(50);
-	iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
+  /*display("cEMVPedVerifyPlainPin");*/
+  OsScrGetSize(&iPinX, &iPinY);
+  iPinX /= 3;
+  iPinY -= iPinY / 4;
+  OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+  display_clear();
+  xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2); // PIN OFFLINE
+  OsSleep(50);
+  iRet = OsPedVerifyPlainPin(0, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
-	if(RET_OK == iRet)
-	{
-		return PED_RET_OK;
-	}
-	else if(ERR_PED_NO_PIN_INPUT == iRet)
-	{
-		return PED_RET_ERR_NO_PIN_INPUT;
-	}
-	else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
-	{
-		return PED_RET_ERR_INPUT_CANCEL;
-	}
-	else if(ERR_PED_ICC_INIT_ERR == iRet)
-	{
-		return PED_RET_ERR_ICC_NO_INIT;
-	}
-	else if(ERR_PED_NO_ICC == iRet)
-	{
-		return PED_RET_ERR_NO_ICC;
-	}
-	else if(ERR_PED_WAIT_INTERVAL == iRet)
-	{
-		return PED_RET_ERR_WAIT_INTERVAL;
-	}
-	else
-	{
-		return iRet;
-	}
-	return EMV_OK;
+  if(RET_OK == iRet)
+  {
+    return PED_RET_OK;
+  }
+  else if(ERR_PED_NO_PIN_INPUT == iRet)
+  {
+    return PED_RET_ERR_NO_PIN_INPUT;
+  }
+  else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
+  {
+    return PED_RET_ERR_INPUT_CANCEL;
+  }
+  else if(ERR_PED_ICC_INIT_ERR == iRet)
+  {
+    return PED_RET_ERR_ICC_NO_INIT;
+  }
+  else if(ERR_PED_NO_ICC == iRet)
+  {
+    return PED_RET_ERR_NO_ICC;
+  }
+  else if(ERR_PED_WAIT_INTERVAL == iRet)
+  {
+    return PED_RET_ERR_WAIT_INTERVAL;
+  }
+  else
+  {
+    return iRet;
+  }
+  return EMV_OK;
 }
 
 /**
-*	@fn int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
-*	@brief	EMV回调函数，实现脱机密文PIN的获取和密文PIN的校验
-*	@param	[in] IccSlot 卡片所在的卡座号
-*	@param	[in] ExpPinLenIn	可输入的合法密码长度字符串
-*	@param	[in] RsaPinKeyIn	加密所需数据结构
-*	@param	[in] Mode	IC卡命令模式
-*	@param	[in] TimeoutMs	输入PIN的超时时间
-*	@param	[out] IccRespOut 卡片响应的状态码
-*	@return int
-*	@author	Prolin App developer
-*	@date	2013-05-20
-*/
+ *	@fn int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
+ *	@brief	EMV回调函数，实现脱机密文PIN的获取和密文PIN的校验
+ *	@param	[in] IccSlot 卡片所在的卡座号
+ *	@param	[in] ExpPinLenIn	可输入的合法密码长度字符串
+ *	@param	[in] RsaPinKeyIn	加密所需数据结构
+ *	@param	[in] Mode	IC卡命令模式
+ *	@param	[in] TimeoutMs	输入PIN的超时时间
+ *	@param	[out] IccRespOut 卡片响应的状态码
+ *	@return int
+ *	@author	Prolin App developer
+ *	@date	2013-05-20
+ */
 int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
 {
-	/*int iRet, iDataLen;*/
-	int iRet;
-	ST_RSA_PINKEY stRSAPINKEY;
+  /*int iRet, iDataLen;*/
+  int iRet;
+  ST_RSA_PINKEY stRSAPINKEY;
   /*unsigned char sBuff[100], sData[10];*/
 
-	// OsSleep(50);
-	int iPinX = 0, iPinY = 0;
-	OsScrGetSize(&iPinX, &iPinY);
-	iPinX /= 3;
-	iPinY -= iPinY / 4;
-	memset(&stRSAPINKEY, 0, sizeof(ST_RSA_PINKEY));
-	stRSAPINKEY.ModulusLen = RsaPinKeyIn->modlen;
-	memcpy(stRSAPINKEY.Modulus, RsaPinKeyIn->mod, sizeof(RsaPinKeyIn->mod));
-	memcpy(stRSAPINKEY.Exponent, RsaPinKeyIn->exp, sizeof(RsaPinKeyIn->exp));
-	stRSAPINKEY.IccRandomLen = RsaPinKeyIn->iccrandomlen;
-	memcpy(stRSAPINKEY.IccRandom, RsaPinKeyIn->iccrandom, sizeof(RsaPinKeyIn->iccrandom));
+  // OsSleep(50);
+  int iPinX = 0, iPinY = 0;
+  OsScrGetSize(&iPinX, &iPinY);
+  iPinX /= 3;
+  iPinY -= iPinY / 4;
+  memset(&stRSAPINKEY, 0, sizeof(ST_RSA_PINKEY));
+  stRSAPINKEY.ModulusLen = RsaPinKeyIn->modlen;
+  memcpy(stRSAPINKEY.Modulus, RsaPinKeyIn->mod, sizeof(RsaPinKeyIn->mod));
+  memcpy(stRSAPINKEY.Exponent, RsaPinKeyIn->exp, sizeof(RsaPinKeyIn->exp));
+  stRSAPINKEY.IccRandomLen = RsaPinKeyIn->iccrandomlen;
+  memcpy(stRSAPINKEY.IccRandom, RsaPinKeyIn->iccrandom, sizeof(RsaPinKeyIn->iccrandom));
 
-	OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-	display_clear();
-	xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
-	OsSleep(50);
-	iRet = OsPedVerifyCipherPin(0, &stRSAPINKEY, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
+  /*display("cEMVPedVerifyCipherPin");*/
+  OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+  display_clear();
+  xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+  OsSleep(50);
+  iRet = OsPedVerifyCipherPin(0, &stRSAPINKEY, "0,4,5,6,7,8,9,10,11,12", 0x00, 30000, IccRespOut);
 
-	if(RET_OK == iRet)
-	{
-		return PED_RET_OK;
-	}
-	else if(ERR_PED_NO_PIN_INPUT == iRet)
-	{
-		return PED_RET_ERR_NO_PIN_INPUT;
-	}
-	else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
-	{
-		return PED_RET_ERR_INPUT_CANCEL;
-	}
-	else if(ERR_PED_ICC_INIT_ERR == iRet)
-	{
-		return PED_RET_ERR_ICC_NO_INIT;
-	}
-	else if(ERR_PED_NO_ICC == iRet)
-	{
-		return PED_RET_ERR_NO_ICC;
-	}
-	else if(ERR_PED_WAIT_INTERVAL == iRet)
-	{
-		return PED_RET_ERR_WAIT_INTERVAL;
-	}
-	else
-	{
-		return iRet;
-	}
-	return EMV_OK;
+  if(RET_OK == iRet)
+  {
+    return PED_RET_OK;
+  }
+  else if(ERR_PED_NO_PIN_INPUT == iRet)
+  {
+    return PED_RET_ERR_NO_PIN_INPUT;
+  }
+  else if(ERR_PED_PIN_INPUT_CANCEL == iRet)
+  {
+    return PED_RET_ERR_INPUT_CANCEL;
+  }
+  else if(ERR_PED_ICC_INIT_ERR == iRet)
+  {
+    return PED_RET_ERR_ICC_NO_INIT;
+  }
+  else if(ERR_PED_NO_ICC == iRet)
+  {
+    return PED_RET_ERR_NO_ICC;
+  }
+  else if(ERR_PED_WAIT_INTERVAL == iRet)
+  {
+    return PED_RET_ERR_WAIT_INTERVAL;
+  }
+  else
+  {
+    return iRet;
+  }
+  return EMV_OK;
 }
 
 int IccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv);
 /**
-*	@fn	int  cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
-*	@brief	EMV回调函数，实现接触式读卡操作
-*	@param	[in] ucslot 卡片逻辑通道号
-*	@param	[in] tApduSend	发送给ICC卡命令数据结构
-*	@param	[out] tApduRecv 从ICC卡返回的数据结构
-*	@return int
-*	@author	Prolin App developer
-*	@date	2013-05-20
-*/
+ *	@fn	int  cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
+ *	@brief	EMV回调函数，实现接触式读卡操作
+ *	@param	[in] ucslot 卡片逻辑通道号
+ *	@param	[in] tApduSend	发送给ICC卡命令数据结构
+ *	@param	[out] tApduRecv 从ICC卡返回的数据结构
+ *	@return int
+ *	@author	Prolin App developer
+ *	@date	2013-05-20
+ */
 uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
 {
-	int iRet;
+  int iRet;
   /*DEBUG*/
   /*display("cEMVIccIsoCommand");*/
 
-	iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
-	if(iRet != 0) {
-		return 0x01;
-	} else {
+  iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
+  if(iRet != 0) {
+    return 0x01;
+  } else {
     return EMV_OK;
   }
 }
@@ -183,25 +184,25 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 // in EMV ver 2.1+, this function is called before GPO
 int cEMVSetParam(void)
 {
-	// debug
-	// display("cEMVSetParam");
-	return 0;
+  // debug
+  // display("cEMVSetParam");
+  return 0;
 }
 
 unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
 {
-	// debug
-	// display("cEMVSM3");
-	// sleep(2);
-	return 0;
+  // debug
+  // display("cEMVSM3");
+  // sleep(2);
+  return 0;
 }
 
 unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
 {
-	// debug
-	// display("cEMVSM2Verify");
-	// sleep(2);
-	return 0;
+  // debug
+  // display("cEMVSM2Verify");
+  // sleep(2);
+  return 0;
 }
 
 // it is acallback function for EMV kernel,
@@ -209,9 +210,9 @@ unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn
 // developer customize
 int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 {
-	// debug
-	// display("cEMVInputAmount");
-	return EMV_OK;
+  // debug
+  // display("cEMVInputAmount");
+  return EMV_OK;
 }
 
 // Callback function required by EMV core.
@@ -220,94 +221,95 @@ int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 {
-	int iResult, panLength;
-	int iPinX = 0, iPinY = 0;
-	uchar szPan;
-	/*unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];*/
-	unsigned char	sPinBlock[8];
+  int iResult, panLength;
+  int iPinX = 0, iPinY = 0;
+  uchar szPan;
+  /*unsigned char	ucRet, szBuff[30], szAmount[15], sPinBlock[8];*/
+  unsigned char	sPinBlock[8];
 
-	// OsSleep(50);
-	OsScrGetSize(&iPinX, &iPinY);
-	iPinX /= 3;
-	iPinY -= iPinY / 4;
+  /*display("cEMVGetHolderPwd");*/
+  // OsSleep(50);
+  OsScrGetSize(&iPinX, &iPinY);
+  iPinX /= 3;
+  iPinY -= iPinY / 4;
 
-	// online PIN
-	if (pszPlainPin == NULL)
-	{
-		EMVGetTLVData(0x5A, &szPan, &panLength);
+  // online PIN
+  if (pszPlainPin == NULL)
+  {
+    EMVGetTLVData(0x5A, &szPan, &panLength);
 
-		OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-		display_clear();
-		xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
-		OsSleep(50);
-		iResult = OsPedGetPinBlock(1, &szPan, "0,4,5,6,7,8,9,10,11,12", 0, 30000, sPinBlock);
+    OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+    display_clear();
+    xdisplay("ENTER PIN: ", strlen("ENTER PIN: "), 4, 2);
+    OsSleep(50);
+    iResult = OsPedGetPinBlock(1, &szPan, "0,4,5,6,7,8,9,10,11,12", 0, 30000, sPinBlock);
 
-		if (iResult == 0)
-		{
-			return EMV_OK;
-		}
-		else if (iResult == PED_RET_ERR_INPUT_CANCEL)
-		{
-			return EMV_USER_CANCEL;
-		}
-		else
-		{
-			return EMV_NO_PINPAD;
-		}
-	}
+    if (iResult == 0)
+    {
+      return EMV_OK;
+    }
+    else if (iResult == PED_RET_ERR_INPUT_CANCEL)
+    {
+      return EMV_USER_CANCEL;
+    }
+    else
+    {
+      return EMV_NO_PINPAD;
+    }
+  }
 
-	// Offline plain/enciphered PIN processing below
-	if(iRemainCnt == 1)
-	{
-		// "LAST ENTER PIN"
-		display_clear();
-		xdisplay("LAST CHANCE", strlen("LAST CHANCE"), 4, 3);
-		sleep(2);
-	}
+  // Offline plain/enciphered PIN processing below
+  if(iRemainCnt == 1)
+  {
+    // "LAST ENTER PIN"
+    display_clear();
+    xdisplay("LAST CHANCE", strlen("LAST CHANCE"), 4, 3);
+    sleep(2);
+  }
 
-	if (iTryFlag == 0)
-	{
-	  //  GetDispAmount(szAmount, szAmount);
-		// display("Amount x ..");
-	}
-	else
-	{
-		// "PIN ERR, RETRY"
-		display_clear();
-		xdisplay("INCORRECT PIN", strlen("INCORRECT PIN"), 3, 2);
-		sleep(2);
-	}
+  if (iTryFlag == 0)
+  {
+    //  GetDispAmount(szAmount, szAmount);
+    // display("Amount x ..");
+  }
+  else
+  {
+    // "PIN ERR, RETRY"
+    display_clear();
+    xdisplay("INCORRECT PIN", strlen("INCORRECT PIN"), 3, 2);
+    sleep(2);
+  }
 
-	// Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
-	// In this mode, cEMVGetHolderPwd() will be called twice. the first time is to display message to user,
-	// then back to kernel and wait PIN. afterwards kernel call this again and inform the process result.
-	if (pszPlainPin[0] == EMV_PED_TIMEOUT)
-	{
-		// EMV core has processed PIN entry and it's timeout
-		// "PED ERROR"
-		// display("EMV_TIME_OUT ..");
-		return EMV_TIME_OUT;
-	}
-	else if (pszPlainPin[0] == EMV_PED_WAIT)
-	{
-		// API is called too frequently
-		sleep(2);
-		// OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-		return EMV_OK;
-	}
-	else if (pszPlainPin[0] == EMV_PED_FAIL)
-	{
-		// EMV core has processed PIN entry and PED failed.
-		// "PED ERROR"
-		// display("EMV_NO_PINPAD ..");
-		return EMV_NO_PINPAD;
-	}
-	else
-	{
-		// EMV PIN not processed yet. So just display.
-		// OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
-		return EMV_OK;
-	}
+  // Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
+  // In this mode, cEMVGetHolderPwd() will be called twice. the first time is to display message to user,
+  // then back to kernel and wait PIN. afterwards kernel call this again and inform the process result.
+  if (pszPlainPin[0] == EMV_PED_TIMEOUT)
+  {
+    // EMV core has processed PIN entry and it's timeout
+    // "PED ERROR"
+    // display("EMV_TIME_OUT ..");
+    return EMV_TIME_OUT;
+  }
+  else if (pszPlainPin[0] == EMV_PED_WAIT)
+  {
+    // API is called too frequently
+    sleep(2);
+    // OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+    return EMV_OK;
+  }
+  else if (pszPlainPin[0] == EMV_PED_FAIL)
+  {
+    // EMV core has processed PIN entry and PED failed.
+    // "PED ERROR"
+    // display("EMV_NO_PINPAD ..");
+    return EMV_NO_PINPAD;
+  }
+  else
+  {
+    // EMV PIN not processed yet. So just display.
+    // OsPedSetAsteriskLayout(iPinX, iPinY, 24, RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+    return EMV_OK;
+  }
 }
 
 // 持卡人认证例程
@@ -315,18 +317,16 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 // Don't need to care about this function
 int cCertVerify(void)
 {
-	// debug
-	// display("cCertVerify");
-	// sleep(2);
-	return -1;
+  /*debug*/
+  /*display("cCertVerify");*/
+  return -1;
 }
 
-unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
+unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
 {
-	// debug
-	// display("cEMVPiccIsoCommand");
-	// sleep(2);
-	return 0;
+  /*debug*/
+  /*display("cEMVPiccIsoCommand");*/
+  return 0;
 }
 
 // 处理DOL的过程中，EMV库遇到不识别的TAG时会调用该回调函数，要求应用程序处理
@@ -338,9 +338,9 @@ unsigned char  cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RES
 // if really unable to, just return -1
 int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
 {
-	// debug
-	// display("cEMVUnknowTLVData");
-	return 0;
+  /*debug*/
+  /*display("cEMVUnknowTLVData");*/
+  return 0;
 }
 
 // Modified by Kim_LinHB 2014-5-31
@@ -375,9 +375,8 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 void cEMVVerifyPINOK(void)
 {
-	// debug
-	// display("cEMVVerifyPINOK");
-	// sleep(2);
+  /*debug*/
+  /*display("cEMVVerifyPINOK");*/
   return;
 }
 
@@ -396,7 +395,7 @@ void cEMVVerifyPINOK(void)
 /*uchar cPiccIsoCommand_Wave(uchar cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv) { return EMV_OK; };*/
 /*[>CTLS Callbacks<]*/
 
-static mrb_value
+  static mrb_value
 mrb_s_get_emv_parameter(mrb_state *mrb, mrb_value klass)
 {
   EMV_PARAM parameter;
@@ -429,7 +428,7 @@ mrb_s_get_emv_parameter(mrb_state *mrb, mrb_value klass)
   return hash;
 }
 
-static void
+  static void
 set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_PARAM parameter;
@@ -536,13 +535,13 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
   EMVSetParameter(&parameter);
 }
 
-mrb_value
+  mrb_value
 mrb_s_core_init(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVCoreInit());
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_set_emv_parameter(mrb_state *mrb, mrb_value klass)
 {
   mrb_value hash;
@@ -557,7 +556,7 @@ mrb_s_set_emv_parameter(mrb_state *mrb, mrb_value klass)
   return mrb_nil_value();
 }
 
-void
+  void
 emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter)
 {
   /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
@@ -584,7 +583,7 @@ emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter)
   mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "RiskManData")     , mrb_str_new(mrb      , (const char *)&parameter.RiskManData     , 10));
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
 {
   EMV_APPLIST parameter;
@@ -610,7 +609,7 @@ mrb_s_get_emv_app(mrb_state *mrb, mrb_value klass)
   }
 }
 
-static int
+  static int
 add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_APPLIST parameter;
@@ -702,7 +701,7 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
   return EMVAddApp(&parameter);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_add_emv_app(mrb_state *mrb, mrb_value klass)
 {
   mrb_value hash;
@@ -718,7 +717,7 @@ mrb_s_add_emv_app(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_del_emv_app(mrb_state *mrb, mrb_value klass)
 {
   mrb_value aid;
@@ -734,13 +733,13 @@ mrb_s_del_emv_app(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_del_emv_apps(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVDelAllApp());
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   EMV_CAPK parameter;
@@ -776,7 +775,7 @@ mrb_s_get_emv_pki(mrb_state *mrb, mrb_value klass)
   }
 }
 
-static int
+  static int
 add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 {
   EMV_CAPK parameter;
@@ -827,7 +826,7 @@ add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
   return EMVAddCAPK(&parameter);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_add_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value hash;
@@ -843,7 +842,7 @@ mrb_s_add_emv_pki(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_del_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value keyID, rid;
@@ -861,7 +860,7 @@ mrb_s_del_emv_pki(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value keyID, rid;
@@ -878,17 +877,17 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
 }
 
 /*Check core_init before initialize, system error*/
-static mrb_value
+  static mrb_value
 mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
 {
   EMVInitTLVData();
   return mrb_true_value();
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 {
-	int ret = -2;
+  int ret = -2;
   mrb_int slot, number;
   /*int pnErrorCode;*/
 
@@ -905,19 +904,19 @@ mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_emv_read_data(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVReadAppData());
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int tag, dataLength;
-	unsigned char dataOut[2048];
+  mrb_int tag, dataLength;
+  unsigned char dataOut[2048];
 
-	memset(dataOut, 0, sizeof(dataOut));
+  memset(dataOut, 0, sizeof(dataOut));
 
   mrb_get_args(mrb, "i", &tag);
 
@@ -926,18 +925,18 @@ mrb_s_emv_get_tlv(mrb_state *mrb, mrb_value klass)
   return mrb_str_new(mrb, (const char *)&dataOut, dataLength);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_emv_set_tlv(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int tag, dataLength;
-	unsigned char *dataOut;
+  mrb_int tag, dataLength;
+  unsigned char *dataOut;
 
   mrb_get_args(mrb, "is", &tag, &dataOut, &dataLength);
 
   return mrb_fixnum_value(EMVSetTLVData(tag, dataOut, dataLength));
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
 {
   char paucVer[20];
@@ -949,54 +948,54 @@ mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
   return mrb_str_new_cstr(mrb, paucVer);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
 {
   return mrb_fixnum_value(EMVCardAuth());
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 {
-	mrb_int amount;
-	unsigned char ACType;
+  mrb_int amount;
+  unsigned char ACType;
 
-	mrb_get_args(mrb, "i", &amount);
+  mrb_get_args(mrb, "i", &amount);
 
-	EMVStartTrans(amount, 0, &ACType);
+  EMVStartTrans(amount, 0, &ACType);
 
   return mrb_fixnum_value((int)ACType);
 }
 
-static mrb_value
+  static mrb_value
 mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 {
   mrb_int code;
-	mrb_value hash, scripts;
-	int result, script_result_len, script_len;
-	unsigned char script_result, ACType;
+  mrb_value hash, scripts;
+  int result, script_result_len, script_len;
+  unsigned char script_result, ACType;
 
-	mrb_get_args(mrb, "is", &code, &scripts);
+  mrb_get_args(mrb, "is", &code, &scripts);
 
   script_len = RSTRING_LEN(scripts);
-	result     = EMVCompleteTrans(code, (unsigned char *)RSTRING_PTR(scripts), &script_len, &ACType);
-	hash       = mrb_funcall(mrb, klass, "script_default", 0);
+  result     = EMVCompleteTrans(code, (unsigned char *)RSTRING_PTR(scripts), &script_len, &ACType);
+  hash       = mrb_funcall(mrb, klass, "script_default", 0);
 
-	if (result != EMV_OK) {
-		result = EMVGetScriptResult(&script_result, &script_result_len);
+  if (result != EMV_OK) {
+    result = EMVGetScriptResult(&script_result, &script_result_len);
 
     mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, (const char *)&script_result, script_result_len));
     mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
 
     return hash;
-	}
+  }
 
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(result));
 
-	return hash;
+  return hash;
 }
 
-void
+  void
 mrb_emv_init(mrb_state* mrb)
 {
   struct RClass *pax;
@@ -1007,24 +1006,24 @@ mrb_emv_init(mrb_state* mrb)
   emv = mrb_define_class_under(mrb, pax, "EMV",  mrb->object_class);
   /*error = mrb_define_class_under(mrb, pax, "EMVError", mrb->eStandardError_class);*/
 
-  mrb_define_class_method(mrb, emv, "core_init", mrb_s_core_init , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, emv, "get_parameter", mrb_s_get_emv_parameter , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, emv, "set_parameter", mrb_s_set_emv_parameter , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "get_app", mrb_s_get_emv_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "add_app", mrb_s_add_emv_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_app", mrb_s_del_emv_app , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_apps", mrb_s_del_emv_apps , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, emv, "get_pki", mrb_s_get_emv_pki , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "add_pki", mrb_s_add_emv_pki , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb, emv, "del_pki", mrb_s_del_emv_pki , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, emv, "check_pki", mrb_s_check_emv_pki , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, emv, "_init", mrb_s_emv__init , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb, emv, "app_select", mrb_s_emv_app_select , MRB_ARGS_REQ(2));
-	mrb_define_class_method(mrb, emv, "read_data", mrb_s_emv_read_data , MRB_ARGS_NONE());
-	mrb_define_class_method(mrb, emv, "get_tlv", mrb_s_emv_get_tlv , MRB_ARGS_REQ(1));
-	mrb_define_class_method(mrb, emv, "set_tlv", mrb_s_emv_set_tlv , MRB_ARGS_REQ(2));
-	mrb_define_class_method(mrb, emv, "card_auth", mrb_s_card_auth , MRB_ARGS_NONE());
-	mrb_define_class_method(mrb, emv, "start_transaction", mrb_s_start_transaction , MRB_ARGS_REQ(1));
-	mrb_define_class_method(mrb, emv, "complete_transaction", mrb_s_complete_transaction , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, emv, "version", mrb_s_emv_version , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "core_init"            , mrb_s_core_init            , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "get_parameter"        , mrb_s_get_emv_parameter    , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "set_parameter"        , mrb_s_set_emv_parameter    , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "get_app"              , mrb_s_get_emv_app          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "add_app"              , mrb_s_add_emv_app          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "del_app"              , mrb_s_del_emv_app          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "del_apps"             , mrb_s_del_emv_apps         , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "get_pki"              , mrb_s_get_emv_pki          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "add_pki"              , mrb_s_add_emv_pki          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "del_pki"              , mrb_s_del_emv_pki          , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "check_pki"            , mrb_s_check_emv_pki        , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "_init"                , mrb_s_emv__init            , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "app_select"           , mrb_s_emv_app_select       , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "read_data"            , mrb_s_emv_read_data        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "get_tlv"              , mrb_s_emv_get_tlv          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "set_tlv"              , mrb_s_emv_set_tlv          , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "card_auth"            , mrb_s_card_auth            , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "start_transaction"    , mrb_s_start_transaction    , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "complete_transaction" , mrb_s_complete_transaction , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
 }
