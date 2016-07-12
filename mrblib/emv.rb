@@ -142,8 +142,11 @@ class PAX
     end
 
     def self.init
-      self.icc = PAX::ICCard.smart_card_init
       self._init
+    end
+
+    def self.icc_init
+      self.icc = PAX::ICCard.smart_card_init
     end
 
     def self.load_apps(apps)
