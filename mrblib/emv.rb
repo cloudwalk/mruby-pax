@@ -158,61 +158,8 @@ class PAX
       end
     end
 
-    def self.parse_app(row)
-      general = EMV_PARAMETER_DEFAULT.dup
-      app     = EMV_APP_DEFAULT.dup
-
-      # EMV Parameter
-      #:merchant_identifier=>"000000000000001"
-      general["MerchId"]       = row.merchant_identifier
-
-      #general["MerchCateCode"] = [row.merchant_category_code].pack("H*")
-
-      #:terminal_identification=>"49000076"
-      general["TermId"]        = row.terminal_identification
-
-      #:terminal_type=>"22"
-      general["TerminalType"]  = [row.terminal_type].pack("H*")
-
-      #:terminal_capabilities=>"E0E8C0"
-      general["Capability"]    = [row.terminal_capabilities].pack("H*")
-
-      #:terminal_additional_capabilities=>"6000F0F000"
-      general["ExCapability"]  = [row.terminal_additional_capabilities].pack("H*")
-
-      #:terminal_country_code=>"0" + "076"
-      general["CountryCode"]   = ["0" + row.terminal_country_code].pack("H*")
-
-      #:transaction_currency_code=>"0" + "986"
-      general["TransCurrCode"] = ["0" + row.transaction_currency_code].pack("H*")
-
-      #:transaction_currency_exponent=>"0" + "2"
-      general["TransCurrExp"]  = ["0" + row.transaction_currency_exponent].pack("H*")
-
-      # ReferCurrCode - reference currency code (default: “\x08\x40”)
-      general["ReferCurrCode"]  = "\x08\x40"
-
-      # ReferCurrExp - reference currency exponent (default: “0x02”)
-      general["ReferCurrExp"]  = "\x02"
-
-      general["ReferCurrCon"]   = 1000
-
-      # TransType - set current transaction type
-      #  EMV_CASH or EMV_GOODS or EMV_SERVICE or EMV_GOODS& EMV_CASHBACK or EMV_SERVICE& EMV_CASHBACK
-      #  (refer to appendix A for macro definitions)
-      general["TransType"]       = "\x40"
-
-      # ForceOnline (bMustConnect ProcessTransaction) - merchant force online
-      #  (1 means always online transaction)
-      general["ForceOnline"]     = "\x00"
-
-      # GetDataPIN (bRequirePIN ProcessTransaction) - read the IC card PIN retry counter before verify the PIN or not
-      #  (1 : read, 0 : not read, default : 1)
-      general["GetDataPIN"]      = "\x01"
-
-      # SurportPSESel (CTLS) - support PSE selection mode or not
-      #  (1 : support, 0 : not support, default : 1)
-      general["SurportPSESel"]   = "\x01"
+    def self.row_to_app(row)
+      app = EMV_APP_DEFAULT.dup
 
       # APP Parameter
       # :label=>"SMARTCON iEMV ON",
@@ -319,7 +266,69 @@ class PAX
       # authorization_code_offline_declined              , 2],
       # authorization_code_unable_online_offline_approved, 2],
       # authorization_code_unable_online_offline_declined, 2]
-      [general, app]
+      app
+    end
+
+    def self.row_to_general(row)
+      general = EMV_PARAMETER_DEFAULT.dup
+
+      # EMV Parameter
+      #:merchant_identifier=>"000000000000001"
+      general["MerchId"]       = row.merchant_identifier
+
+      #general["MerchCateCode"] = [row.merchant_category_code].pack("H*")
+
+      #:terminal_identification=>"49000076"
+      general["TermId"]        = row.terminal_identification
+
+      #:terminal_type=>"22"
+      general["TerminalType"]  = [row.terminal_type].pack("H*")
+
+      #:terminal_capabilities=>"E0E8C0"
+      general["Capability"]    = [row.terminal_capabilities].pack("H*")
+
+      #:terminal_additional_capabilities=>"6000F0F000"
+      general["ExCapability"]  = [row.terminal_additional_capabilities].pack("H*")
+
+      #:terminal_country_code=>"0" + "076"
+      general["CountryCode"]   = ["0" + row.terminal_country_code].pack("H*")
+
+      #:transaction_currency_code=>"0" + "986"
+      general["TransCurrCode"] = ["0" + row.transaction_currency_code].pack("H*")
+
+      #:transaction_currency_exponent=>"0" + "2"
+      general["TransCurrExp"]  = ["0" + row.transaction_currency_exponent].pack("H*")
+
+      # ReferCurrCode - reference currency code (default: “\x08\x40”)
+      general["ReferCurrCode"]  = "\x08\x40"
+
+      # ReferCurrExp - reference currency exponent (default: “0x02”)
+      general["ReferCurrExp"]  = "\x02"
+
+      general["ReferCurrCon"]   = 1000
+
+      # TransType - set current transaction type
+      #  EMV_CASH or EMV_GOODS or EMV_SERVICE or EMV_GOODS& EMV_CASHBACK or EMV_SERVICE& EMV_CASHBACK
+      #  (refer to appendix A for macro definitions)
+      general["TransType"]       = "#{EMV_PAYMENT.chr}"
+
+      # ForceOnline (bMustConnect ProcessTransaction) - merchant force online
+      #  (1 means always online transaction)
+      general["ForceOnline"]     = "\x00"
+
+      # GetDataPIN (bRequirePIN ProcessTransaction) - read the IC card PIN retry counter before verify the PIN or not
+      #  (1 : read, 0 : not read, default : 1)
+      general["GetDataPIN"]      = "\x01"
+
+      # SurportPSESel (CTLS) - support PSE selection mode or not
+      #  (1 : support, 0 : not support, default : 1)
+      general["SurportPSESel"]   = "\x01"
+
+      general
+    end
+
+    def self.parse_app(row)
+      [self.row_to_general(row), self.row_to_app(row)]
     end
 
     def self.parse_pki(row)
