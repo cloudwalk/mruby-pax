@@ -359,8 +359,8 @@ class PAX
       #:ca_public_key_exponent=>"010001"
       pki["Exponent"]    = [row.ca_public_key_exponent].pack("H*")
 
-      # ExpDate (baExpirationDate ProcessTransaction)
-      pki["ExpDate"]    = ["160410"].pack("H*")
+      # ExpDate (CTLS only)
+      #pki["ExpDate"]    = ["160410"].pack("H*")
 
       #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af00000000"
       pki["CheckSum"]    = [row.ca_public_key_check_sum].pack("H*")
