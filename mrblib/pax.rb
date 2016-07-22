@@ -33,8 +33,19 @@ class PAX
     PAX::Audio.volume = 5
   end
 
+  def self.screen_definition
+    case PAX::System.model
+    when "d200"
+      [21, 7]
+    when "s920"
+      [21, 15]
+    else
+      [21, 7]
+    end
+  end
+
   def self.setup
-    Screen.setup(21, 7)
+    Screen.setup(*screen_definition)
     begin
       require 'posxml_parser'
       require 'cloudwalk_handshake'
