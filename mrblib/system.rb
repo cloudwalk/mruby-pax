@@ -22,12 +22,14 @@ class PAX
     end
 
     def self.versions
-      hash = Hash.new
-      hash["OS"]     = self._os_version
-      hash["SDK"]    = self._osal_version
-      hash["EMV"]    = PAX::EMV.version
-      hash["Pinpad"] = self._pinpad_version
-      hash
+      unless @versions
+        @versions = Hash.new
+        @versions["OS"]     = self._os_version
+        @versions["SDK"]    = self._osal_version
+        @versions["EMV"]    = PAX::EMV.version
+        @versions["Pinpad"] = self._pinpad_version
+      end
+      @versions
     end
 
     class << self
