@@ -45,5 +45,19 @@ class PAX
     def self.des_default
       DES_DEFAULT.dup
     end
+
+    def self.load_tdk(slot_mk, wk, slot_tdk = 1)
+      value = "\x03" + PAX::Pinpad::PED_TMK + slot_mk.chr + slot_tdk.chr + "0000000" +
+        PAX::Pinpad::PED_TDK + wk.size.chr + wk + "00000000" + "\x00" +
+        ("0" * 128) + "00000000" + "0000000000"
+
+      ret = PAX::Pinpad.load_key(value)
+      ContextLog.info "TDK #{ret.inspect}"
+      #ret = PAX::Pinpad.derive(PAX::Pinpad::PED_TMK, 17, PAX::Pinpad::PED_TDK, 1, 2)
+      #ret = PAX::Pinpad.derive(2, 17, 5, 1, 2, 0)
+      #ContextLog.info "TWK #{ret.inspect}"
+      ret
+    end
+
   end
 end
