@@ -5,8 +5,8 @@ class PAX
     LOADKEY_3DES        = 1
 
     DUKPT_DEFAULT = {
-      "KSN"         => "",
-      "PINBLOCK"    => ""
+      "KSN"      => "",
+      "PINBLOCK" => ""
     }
 
     class << self
