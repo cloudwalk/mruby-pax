@@ -971,23 +971,23 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
   int result, script_result_len, script_len;
   unsigned char script_result, ACType;
 
-  mrb_get_args(mrb, "is", &code, &scripts);
+  mrb_get_args(mrb, "iS", &code, &scripts);
 
   script_len = RSTRING_LEN(scripts);
   result     = EMVCompleteTrans(code, (unsigned char *)RSTRING_PTR(scripts), &script_len, &ACType);
   hash       = mrb_funcall(mrb, klass, "script_default", 0);
 
   if (result != EMV_OK) {
-    result = EMVGetScriptResult(&script_result, &script_result_len);
-
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, (const char *)&script_result, script_result_len));
+    if (script_len > 0) {
+      result = EMVGetScriptResult(&script_result, &script_result_len);
+      mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new(mrb, (const char *)&script_result, script_result_len));
+    } else {
+      mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new_cstr(mrb, ""));
+    }
     mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
-
-    return hash;
   }
 
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(result));
-
   return hash;
 }
 
