@@ -59,5 +59,35 @@ class PAX
       ret
     end
 
+    #options[:slot_mk]
+    #options[:data]
+    #options[:wk]
+    def self.encrypt(options)
+      ret = self.load_tdk(options[:slot_mk], options[:wk])
+      if ret == PAX::Pinpad::RET_OK
+        PAX::Pinpad.des(PAX::Pinpad::TDK_SLOT, PAX::Pinpad::MODE_CBC_ENCRYPTION,
+                        options[:data])
+      else
+        des = DES_DEFAULT
+        des["RETURN"] = ret
+        des
+      end
+    end
+
+    #options[:slot_mk]
+    #options[:data]
+    #options[:wk]
+    def self.decrypt(options)
+      ret = self.load_tdk(options[:slot_mk], options[:wk])
+      if ret == PAX::Pinpad::RET_OK
+        PAX::Pinpad.des(PAX::Pinpad::TWK_SLOT, PAX::Pinpad::MODE_INT_DECRYPTION,
+                        options[:data])
+      else
+        des = DES_DEFAULT
+        des["RETURN"] = ret
+        des
+      end
+    end
   end
 end
+
