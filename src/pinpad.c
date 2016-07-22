@@ -166,6 +166,17 @@ mrb_s_pinpad_derive(mrb_state *mrb, mrb_value klass)
 
   return mrb_fixnum_value(ret);
 }
+
+static mrb_value
+mrb_s_pinpad_load_key(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value data;
+
+  mrb_get_args(mrb, "S", &data);
+  OsPedOpen();
+  return mrb_fixnum_value(OsPedWriteKey((unsigned char *)RSTRING_PTR(data)));
+}
+
 void
 mrb_pinpad_init(mrb_state* mrb)
 {
@@ -181,4 +192,5 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, pinpad , "des", mrb_s_pinpad_des, MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb, pinpad , "derive", mrb_s_pinpad_derive, MRB_ARGS_REQ(6));
+  mrb_define_class_method(mrb, pinpad , "load_key", mrb_s_pinpad_load_key, MRB_ARGS_REQ(1));
 }
