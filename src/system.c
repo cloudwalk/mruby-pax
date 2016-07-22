@@ -167,7 +167,7 @@ mrb_system_s_os_get_value(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "S", &key);
 
-  OsRegGetValue((char *)RSTRING_PTR(key), &value);
+  OsRegGetValue((const char *)RSTRING_PTR(key), &value);
 
   return mrb_str_new_cstr(mrb, value);
 }
