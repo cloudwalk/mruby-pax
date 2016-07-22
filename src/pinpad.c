@@ -152,6 +152,20 @@ mrb_s_pinpad_des(mrb_state *mrb, mrb_value klass)
   return hash;
 }
 
+static mrb_value
+mrb_s_pinpad_derive(mrb_state *mrb, mrb_value klass)
+{
+  mrb_int ret, key_source_type, key_source_index, key_destination_type,
+          key_destination_source_index, key_destination_index, mode;
+
+  mrb_get_args(mrb, "iiiiii", &key_source_type, &key_source_index, &key_destination_type,
+      &key_destination_source_index, &key_destination_index, &mode);
+
+  ret = OsPedDeriveKey(key_source_type, key_source_index, key_destination_type,
+      key_destination_source_index, key_destination_index, 3);
+
+  return mrb_fixnum_value(ret);
+}
 void
 mrb_pinpad_init(mrb_state* mrb)
 {
@@ -166,4 +180,5 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb, pinpad , "get_pin", mrb_s_pinpad_get_pin, MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, pinpad , "des", mrb_s_pinpad_des, MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb, pinpad , "derive", mrb_s_pinpad_derive, MRB_ARGS_REQ(6));
 }
