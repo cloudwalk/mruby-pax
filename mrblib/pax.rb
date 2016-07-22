@@ -24,7 +24,7 @@ class PAX
     end
 
     def self.main_image
-      "walk_paxd200.bmp"
+      "main_#{PAX::System.model}.bmp"
     end
   end
 
