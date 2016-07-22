@@ -210,8 +210,6 @@ unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn
 // developer customize
 int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 {
-  // debug
-  // display("cEMVInputAmount");
   return EMV_OK;
 }
 
@@ -896,12 +894,10 @@ mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "ii", &slot, &number);
 
-  while(ret == -2) ret = EMVAppSelect(slot, (unsigned long)number);
-
   /*DEBUG*/
   /*EMVGetDebugInfo(NULL, NULL, &pnErrorCode);*/
   /*display("DEBUG %d", pnErrorCode);*/
-  return mrb_fixnum_value(ret);
+  return mrb_fixnum_value(EMVAppSelect(slot, (unsigned long)number));
 }
 
   static mrb_value
