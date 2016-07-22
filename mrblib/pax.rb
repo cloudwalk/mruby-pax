@@ -57,8 +57,10 @@ class PAX
       require 'cloudwalk_handshake'
       CloudwalkHandshake.configure!
       self.set_os_values
-    rescue LoadError
-    rescue NameError
+    rescue LoadError => e
+      ContextLog.error(e, e.backtrace)
+    rescue NameError => e
+      ContextLog.error(e, e.backtrace)
     end
   end
 end
