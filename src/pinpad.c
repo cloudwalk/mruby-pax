@@ -128,6 +128,28 @@ mrb_s_pinpad_get_pin_dukpt(mrb_state *mrb, mrb_value klass)
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(ret));
   return hash;
 }
+
+static mrb_value
+mrb_s_pinpad_des(mrb_state *mrb, mrb_value klass)
+{
+  mrb_int index, mode, ret;
+  mrb_value data, hash;
+  unsigned char out[2048];
+
+  memset(out, 0, sizeof(out));
+
+  mrb_get_args(mrb, "iiS", &index, &mode, &data);
+
+  ret = OsPedDes(index, NULL, (const unsigned char *)RSTRING_PTR(data),
+      RSTRING_LEN(data), (unsigned char *)&out, 3);
+
+  hash = mrb_funcall(mrb, klass, "des_default", 0);
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "BLOCK"),
+      mrb_str_new(mrb, (char *)&out, 8));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"),
+      mrb_fixnum_value(ret));
+
+  return hash;
 }
 
 void
@@ -143,4 +165,5 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb, pinpad , "load_ipek", mrb_s_pinpad_load_ipek, MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb, pinpad , "get_pin", mrb_s_pinpad_get_pin, MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb, pinpad , "des", mrb_s_pinpad_des, MRB_ARGS_REQ(3));
 }
