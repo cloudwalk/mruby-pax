@@ -33,6 +33,11 @@ class PAX
     PAX::Audio.volume = 5
   end
 
+  def self.define_device_modules
+    Device.const_set(:Pinpad, PAX::Pinpad)
+    Device.const_set(:EMV, PAX::EMV)
+  end
+
   def self.screen_definition
     case PAX::System.model
     when "d200"
@@ -47,6 +52,7 @@ class PAX
   def self.setup
     Screen.setup(*screen_definition)
     begin
+      define_device_modules
       require 'posxml_parser'
       require 'cloudwalk_handshake'
       CloudwalkHandshake.configure!
