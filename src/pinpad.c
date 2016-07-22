@@ -104,30 +104,30 @@ mrb_s_pinpad_get_pin_dukpt(mrb_state *mrb, mrb_value klass)
   unsigned char dataOut[64];
   char maxlen[] = "0,1,2,3,4,5,6,7,8,9,10,11,12";
   mrb_value pan;
-  mrb_int key_index, pan_length, ret;
+  mrb_int key_index, ret;
   mrb_value hash;
 
   memset(ksn, 0, sizeof(ksn));
   memset(dataIn, 0, sizeof(dataIn));
   memset(dataOut, 0, sizeof(dataOut));
 
-  mrb_get_args(mrb, "is", &key_index, &pan, &pan_length);
+  mrb_get_args(mrb, "iS", &key_index, &pan);
 
   ret = OsPedGetPinDukpt(key_index, (const unsigned char *)RSTRING_PTR(pan),
       maxlen, 0x20, 30000, (unsigned char *)&ksn, (unsigned char *)&dataOut);
 
+  hash = mrb_funcall(mrb, klass, "dukpt_default", 0);
   if (ret == 0)
   {
-    OsPedIncreaseKsnDukpt(key_index);
-
-    hash = mrb_funcall(mrb, klass, "dukpt_default", 0);
+    ret = OsPedIncreaseKsnDukpt(key_index);
     mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "KSN"), mrb_str_new(mrb, (char *)&ksn, 10));
     mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "PINBLOCK"), mrb_str_new(mrb, (char *)&dataOut, 8));
-
-    return hash;
-  } else {
-    return mrb_fixnum_value(ret);
+  } else if (ret == ERR_PED_DUKPT_NEED_INC_KSN || ret == ERR_PED_NO_PIN_INPUT) {
+    OsPedIncreaseKsnDukpt(key_index);
   }
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(ret));
+  return hash;
+}
 }
 
 void
