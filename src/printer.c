@@ -78,12 +78,15 @@ mrb_pax_printer_s__feed(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
 {
+  mrb_int ret;
   mrb_value buf;
 
   mrb_get_args(mrb, "S", &buf);
   OsPrnPrintf(RSTRING_PTR(buf));
+  ret = OsPrnStart();
+  OsPrnReset();
 
-  return mrb_nil_value();
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
