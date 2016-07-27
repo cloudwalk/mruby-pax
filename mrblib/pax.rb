@@ -49,6 +49,11 @@ class PAX
     end
   end
 
+  def self.printer_start
+    ret = Device::Printer.start
+    ContextLog.info("Error Printer start [#{ret}]") if ret != PAX::Printer::RET_OK
+  end
+
   def self.setup
     Screen.setup(*screen_definition)
     begin
@@ -57,6 +62,7 @@ class PAX
       require 'cloudwalk_handshake'
       CloudwalkHandshake.configure!
       self.set_os_values
+      self.printer_start
     rescue LoadError => e
       ContextLog.error(e, e.backtrace)
     rescue NameError => e
