@@ -126,17 +126,18 @@ class PAX
     #  The value ranges from 12 to 64.
     #
     # @return [NilClass] Allways returns nil.
-    def self.size(singlecode_width=DEFAULT_SINGLE_WIDTH,
-                  singlecode_height=DEFAULT_SINGLE_HEIGHT,
-                  multicode_width=DEFAULT_MULTI_WIDTH,
-                  multicode_height=DEFAULT_MULTI_HEIGHT)
-        self.single_width  = singlecode_width
-        self.single_height = singlecode_height
-        self.multi_width   = multicode_width
-        self.multi_height  = multicode_height
+    def self.size(singlecode_width = self.single_width,
+                 singlecode_height = self.single_height,
+                 multicode_width   = self.multi_width,
+                 multicode_height  = self.multi_height)
+        self.single_width  = singlecode_width  || self.single_width
+        self.single_height = singlecode_height || self.single_height
+        self.multi_width   = multicode_width   || self.multi_width
+        self.multi_height  = multicode_height  || self.multi_height
 
       if self.allow?
-        self._size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+        self._size(self.single_width, self.single_height, self.multi_width,
+                   self.multi_height)
       end
     end
 
@@ -155,7 +156,10 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print(string)
-      self._print(string) if self.allow?
+      if self.allow?
+        self.size
+        self._print(string)
+      end
     end
 
     # @brief Write text on print buffer.
