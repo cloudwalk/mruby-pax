@@ -15,7 +15,7 @@
 static mrb_value
 mrb_pax_printer_s__open(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value(OsPrnOpen(PRN_REAL, "\0"));
+  return mrb_fixnum_value(OsPrnOpen(PRN_REAL, NULL));
 }
 
 static mrb_value
