@@ -43,7 +43,7 @@ class PAX
     when "d200"
       [21, 7]
     when "s920"
-      [21, 15]
+      [21, 14]
     else
       [21, 7]
     end

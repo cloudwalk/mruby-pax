@@ -172,6 +172,17 @@ mrb_system_s_os_get_value(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, value);
 }
 
+static mrb_value
+mrb_system_s_install(mrb_state *mrb, mrb_value self)
+{
+  mrb_int type;
+  mrb_value path, name;
+
+  mrb_get_args(mrb, "SSi", &name, &path, &type);
+
+  return mrb_fixnum_value(OsInstallFile(RSTRING_PTR(name), RSTRING_PTR(path), type));
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -194,5 +205,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "model"           , mrb_system_s_model        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_os_set_value"   , mrb_system_s_os_set_value , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_os_get_value"   , mrb_system_s_os_get_value , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , system , "install"         , mrb_system_s_install      , MRB_ARGS_REQ(3));
 }
 
