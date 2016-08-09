@@ -92,11 +92,13 @@ mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_printer_s__print_bmp(mrb_state *mrb, mrb_value self)
 {
-  mrb_value path;
+  mrb_value image;
 
-  mrb_get_args(mrb, "s", &path);
+  mrb_get_args(mrb, "S", &image);
 
-  OsPrnPutImage((const unsigned char *)RSTRING_PTR(path));
+  OsPrnPutImage((const unsigned char *)RSTRING_PTR(image));
+  OsPrnStart();
+  OsPrnReset();
   return mrb_nil_value();
 }
 
