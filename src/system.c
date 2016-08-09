@@ -42,6 +42,12 @@ mrb_s_battery(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
+mrb_s__power_supply(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(OsCheckPowerSupply());
+}
+
+static mrb_value
 mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
 {
   mrb_value host;
@@ -195,7 +201,8 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , audio  , "beep"            , mrb_pax_audio_s_beep      , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_serial"         , mrb_s__serial             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_backlight="     , mrb_s__set_backlight      , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , system , "battery"         , mrb_s_battery             , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_battery"        , mrb_s_battery             , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_power_supply"   , mrb_s__power_supply        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_ip"             , mrb_addrinfo_s__ip        , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , system , "_reboot"         , mrb_pax_s_reboot          , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "hwclock"         , mrb_pax_s_hwclock         , MRB_ARGS_REQ(6));

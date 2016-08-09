@@ -19,6 +19,37 @@ class PAX
       PAX::System._reboot
     end
 
+    POWER_ADAPTER = 1
+    POWER_USB     = 2
+    POWER_BATTERY = 3
+
+    def self.power_supply
+      power_type = PAX::System._power_supply
+      power_type == POWER_ADAPTER || power_supply == POWER_USB
+    end
+
+    BATTERY_LEVEL_0        = 0	# Power  0~20%
+    BATTERY_LEVEL_1        = 1	# Power 20~40%
+    BATTERY_LEVEL_2        = 2	# Power 40~60%
+    BATTERY_LEVEL_3        = 3	# Power 60~80%
+    BATTERY_LEVEL_4        = 4	# Power 80~100%
+    BATTERY_LEVEL_CHARGE   = 5	# Battery is being charged
+    BATTERY_LEVEL_COMPLETE = 6	# Battery charge complete
+    BATTERY_LEVEL_ABSENT   = 7	# Battery is absent
+
+    def self.battery
+      case value = self._battery
+      when 0..4
+        value * 25
+      when 5
+        50
+      when 6
+        100
+      else
+        -1
+      end
+    end
+
     def self.brand
       "pax"
     end
