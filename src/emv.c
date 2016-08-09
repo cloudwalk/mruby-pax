@@ -953,14 +953,19 @@ mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
   static mrb_value
 mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 {
-  mrb_int amount;
+  mrb_value hash;
+  mrb_int amount, cash, ret;
   unsigned char ACType;
 
-  mrb_get_args(mrb, "i", &amount);
+  mrb_get_args(mrb, "ii", &amount, &cash);
 
-  EMVStartTrans(amount, 0, &ACType);
+  ret = EMVStartTrans(amount, cash, &ACType);
+  hash = mrb_funcall(mrb, klass, "script_default", 0);
 
-  return mrb_fixnum_value((int)ACType);
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((mrb_int)ACType));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(ret));
+
+  return hash;
 }
 
   static mrb_value
@@ -1019,7 +1024,7 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "get_tlv"              , mrb_s_emv_get_tlv          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "set_tlv"              , mrb_s_emv_set_tlv          , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "card_auth"            , mrb_s_card_auth            , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , emv , "start_transaction"    , mrb_s_start_transaction    , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "start_transaction"    , mrb_s_start_transaction    , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "complete_transaction" , mrb_s_complete_transaction , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
 }
