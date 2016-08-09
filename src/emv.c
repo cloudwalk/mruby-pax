@@ -885,18 +885,13 @@ mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
   static mrb_value
 mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 {
-  int ret = -2;
   mrb_int slot, number;
-  /*int pnErrorCode;*/
 
   current_mrb = mrb;
   current_klass = klass;
 
   mrb_get_args(mrb, "ii", &slot, &number);
 
-  /*DEBUG*/
-  /*EMVGetDebugInfo(NULL, NULL, &pnErrorCode);*/
-  /*display("DEBUG %d", pnErrorCode);*/
   return mrb_fixnum_value(EMVAppSelect(slot, (unsigned long)number));
 }
 
