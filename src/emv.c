@@ -405,8 +405,8 @@ mrb_s_get_emv_parameter(mrb_state *mrb, mrb_value klass)
   hash = mrb_funcall(mrb, klass, "parameter_default", 0);
 
   /*TODO Scalone: loss data is posible in conversation from unsigned char to const char*/
-  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchName")     , mrb_str_new(mrb , (const char *)&parameter.MerchName      , 256));
-  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchCateCode") , mrb_str_new(mrb , (const char *)&parameter.MerchCateCode  , 2));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchName")     , mrb_str_new(mrb , (const char *)&parameter.MerchName     , 256));
+  mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchCateCode") , mrb_str_new(mrb , (const char *)&parameter.MerchCateCode , 2));
   mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "MerchId")       , mrb_str_new(mrb , (const char *)&parameter.MerchId       , 15));
   mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TermId")        , mrb_str_new(mrb , (const char *)&parameter.TermId        , 8));
   mrb_hash_set(mrb , hash , mrb_str_new_cstr(mrb , "TerminalType")  , mrb_str_new(mrb , (const char *)&parameter.TerminalType  , 1));
