@@ -984,9 +984,9 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
     } else {
       mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ADVICE"), mrb_str_new_cstr(mrb, ""));
     }
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
   }
 
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
   mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(result));
   return hash;
 }
