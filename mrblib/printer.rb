@@ -183,7 +183,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print_bmp(path)
-      self._print_bmp(path) if self.allow?
+      self._print_bmp(path) if self.allow? && File.exists?(path)
     end
 
     # @brief Check printer status, useful for paper check.
