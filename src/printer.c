@@ -1,5 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include "mruby.h"
 #include "mruby/compile.h"
 #include "mruby/value.h"
@@ -11,6 +18,196 @@
 #include "xui.h"
 #include "ui.h"
 #include "keyboard.h"
+
+struct tagBITMAPFILEHEADER {
+  unsigned short bfType;
+  unsigned int bfSize;
+  unsigned short bfReserved1;
+  unsigned short bfReserved2;
+  unsigned int bfOffBits;
+} __attribute__ ((__packed__));
+
+typedef struct tagBITMAPFILEHEADER BITMAPFILEHEADER;
+
+struct tagBITMAPINFOHEADER {
+  unsigned int biSize;
+  unsigned int biWidth;
+  unsigned int biHeight;
+  unsigned short biPlanes;
+  unsigned short biBitCount;
+  unsigned int biCompression;
+  unsigned int biSizeImage;
+  unsigned int biXPelsPerMeter;
+  unsigned int biYPelsPerMeter;
+  unsigned int biClrUsed;
+  unsigned int biClrImportant;
+} __attribute__ ((__packed__));
+
+typedef struct tagBITMAPINFOHEADER BITMAPINFOHEADER;
+
+/*
+ *
+ *  0 - Success
+ * -1 - Open BMP file error
+ * -2 - Problem reading file
+ * -3 - Bmp not monochrome
+ * -4 - The width of bitmap must <= 192
+ * -5 - Lseek to current position failed
+ *
+ */
+static int
+bmp_convert(char *file, unsigned char *logo)
+{
+  int i, j, k, m, bFlag, ibit;
+  int fh;
+  int iLcdLines, nMaxByte;
+  BITMAPFILEHEADER tBmFileHeader;
+  BITMAPINFOHEADER tBmInfoHeader;
+  unsigned char bLogo, bTemp, bData, temp[8];
+  unsigned long DataSizePerLine;
+  char sBuf[100];
+  unsigned char b, ss, pMem[524000];
+  unsigned char *tlogo;
+
+  fh = open(file, O_RDONLY);
+  if (fh == -1) {
+    /*DEBUG*/
+    /*display("open bmp file err!");*/
+    return -1;
+  }
+
+  if (read(fh, &tBmFileHeader, sizeof(BITMAPFILEHEADER)) == -1) {
+    /*DEBUG*/
+    /*display("Problem reading file");*/
+    close(fh);
+    return -2;
+  }
+
+  if (read(fh, &tBmInfoHeader, sizeof(BITMAPINFOHEADER)) == -1) {
+    /*DEBUG*/
+    /*display("Problem reading file");*/
+    close(fh);
+    return -2;
+  }
+
+  if (tBmInfoHeader.biBitCount != 1) {
+    /*DEBUG*/
+    /*display("biBitCount=%x, Must be monochrome bitmap file!!!", tBmInfoHeader.biBitCount);*/
+    close(fh);
+    return -3;
+  }
+
+  if (tBmInfoHeader.biWidth > 576) {
+    /*DEBUG*/
+    /*display("The width of bitmap must <= 192!!!");*/
+    close(fh);
+    return -4;
+  }
+
+  if (read(fh, &temp, 8) == -1) {
+    /*DEBUG*/
+    /*display("Problem reading file");*/
+    close(fh);
+    return -2;
+  }
+
+  if ((temp[0] == 0xFF) && (temp[1] == 0xFF) && (temp[2] == 0xFF)) {
+    bFlag = 1;
+  } else if((temp[0] == 0x00) && (temp[1] == 0x00) && (temp[2] == 0x00)) {
+    bFlag = 0;
+  }
+
+  ibit = tBmInfoHeader.biWidth%8;
+  if ( 0 == ibit ) {
+    b = 0x00;
+  } else {
+    b = 2^(tBmInfoHeader.biWidth/8);
+  }
+
+  DataSizePerLine= (tBmInfoHeader.biWidth*tBmInfoHeader.biBitCount+31)/8;
+  DataSizePerLine= DataSizePerLine/4*4;
+
+  tlogo=logo;
+  iLcdLines = tBmInfoHeader.biHeight;
+  *tlogo = (unsigned char)iLcdLines;
+  tlogo++;
+
+  memset(pMem, 0xff, iLcdLines*tBmInfoHeader.biWidth);
+  for(i=tBmInfoHeader.biHeight-1,j=0; i>=0; i--,j++) {
+    if (lseek(fh, tBmFileHeader.bfOffBits+i*DataSizePerLine, SEEK_SET) == -1) {
+      /*DEBUG*/
+      /*display("lseek to current position failed");*/
+      close(fh);
+      return -5;
+    }
+
+    if (read(fh, sBuf, DataSizePerLine) == -1) {
+      /*DEBUG*/
+      /*display("Problem reading file");*/
+      close(fh);
+      return -2;
+    }
+
+    if(bFlag) {
+      for (k = 0; k < DataSizePerLine; k++)
+      {
+        if (k < tBmInfoHeader.biWidth/8) {
+          pMem[j*DataSizePerLine+k] = ~(sBuf[k]);
+        } else if(k == tBmInfoHeader.biWidth/8) {
+          pMem[j*DataSizePerLine+k] = ~(sBuf[k] | (0xFF - b));
+        } else {
+          pMem[j*DataSizePerLine+k] = 0x00;
+        }
+      }
+    } else {
+      memcpy(pMem+j*DataSizePerLine, sBuf, DataSizePerLine);
+    }
+  }
+  close(fh);
+
+  for(i=0; i<iLcdLines; i++) {
+    nMaxByte =72;
+    *tlogo = (unsigned char)(nMaxByte/256);
+    tlogo++;
+    *tlogo = (unsigned char)(nMaxByte%256);
+    tlogo++;
+
+    for(j=0; j<(int)DataSizePerLine; j++) {
+      if (j >= 72) break;
+
+      bLogo = 0x00;
+      bData= *(pMem+i*DataSizePerLine+j);
+      for(m=7; m>=0; m--) {
+        bTemp = (bData>>m)&0x01;
+        if (bTemp == 0x00)
+          bLogo |= 0x01<<m;
+      }
+
+      if (j ==tBmInfoHeader.biWidth/8) {
+        ss =0x00;
+        for(m=0; m<tBmInfoHeader.biWidth%8; m++) {
+          ss |=1<<(7-m);
+        }
+        bLogo &=ss;
+      }
+      *tlogo = bLogo;
+      tlogo++;
+
+      if (j ==tBmInfoHeader.biWidth/8) {
+        j++;
+        break;
+      }
+    }
+    if (DataSizePerLine < 72) {
+      memset(sBuf, 0, sizeof(sBuf));
+      for(m=0; j<72; m++,j++) {
+        *tlogo = (unsigned char)sBuf[m];
+        tlogo++;
+      }
+    }
+  }
+  return 0;
+}
 
 static mrb_value
 mrb_pax_printer_s__open(mrb_state *mrb, mrb_value self)
@@ -92,14 +289,26 @@ mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_printer_s__print_bmp(mrb_state *mrb, mrb_value self)
 {
-  mrb_value image;
+  mrb_int ret;
+  mrb_value path;
+  unsigned char *buf;
 
-  mrb_get_args(mrb, "S", &image);
+  mrb_get_args(mrb, "S", &path);
 
-  OsPrnPutImage((const unsigned char *)RSTRING_PTR(image));
-  OsPrnStart();
-  OsPrnReset();
-  return mrb_nil_value();
+  buf = (unsigned char*)mrb_malloc(mrb, sizeof(unsigned char)*20000);
+
+  ret = bmp_convert(RSTRING_PTR(path), buf);
+
+  if (ret == 0) {
+    OsPrnPutImage(buf);
+    OsPrnStart();
+    OsPrnReset();
+    mrb_free(mrb, buf);
+    return mrb_true_value();
+  } else {
+    mrb_free(mrb, buf);
+    return mrb_false_value();
+  }
 }
 
 static mrb_value
