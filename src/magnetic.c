@@ -10,7 +10,7 @@
 #include "osal.h"
 #include "ui.h"
 
-mrb_value
+static mrb_value
 mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
@@ -23,7 +23,7 @@ mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 }
 
 /*TODO Scalone REMOVE ALL MAGNETIC FUNCTIONS FROM HERE USE PURE RUBY IMPLEMENTATION WITH IO*/
-mrb_value
+static mrb_value
 mrb_magnetic_s_read(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
@@ -33,7 +33,7 @@ mrb_magnetic_s_read(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(ret);
 }
 
-mrb_value
+static mrb_value
 mrb_magnetic_s_close(mrb_state *mrb, mrb_value self)
 {
   OsMsrClose();
@@ -42,7 +42,7 @@ mrb_magnetic_s_close(mrb_state *mrb, mrb_value self)
 }
 
 /*{:track1 => "", :track2 => "", :track3 => ""}*/
-mrb_value
+static mrb_value
 mrb_magnetic_s_tracks(mrb_state *mrb, mrb_value self)
 {
   /*char track1[79+1], track2[37+1], track3[107+1];*/
