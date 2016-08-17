@@ -22,7 +22,6 @@ void mrb_crypto_init(mrb_state* mrb);
 void mrb_pinpad_init(mrb_state* mrb);
 void mrb_printer_init(mrb_state* mrb);
 
-
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
 {

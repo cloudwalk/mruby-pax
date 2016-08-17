@@ -14,13 +14,16 @@
 static mrb_value
 mrb_s__serial(mrb_state *mrb, mrb_value self)
 {
-  char serial[10];
+  char serial[64];
+  mrb_int len;
 
   memset(&serial, 0, sizeof(serial));
 
-	OsRegGetValue("ro.fac.sn", serial);
-
-  return mrb_str_new_cstr(mrb, serial);
+	len = OsRegGetValue("ro.fac.sn", serial);
+  if (len > 0)
+    return mrb_str_new(mrb, serial, len);
+  else
+    return mrb_str_new(mrb, 0, 0);
 }
 
 static mrb_value
@@ -61,7 +64,7 @@ mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
   }
 
   if (ret == RET_OK)
-    return mrb_str_new(mrb, (void *)&dnsAddr, strlen(dnsAddr));
+    return mrb_str_new_cstr(mrb, dnsAddr);
   else
     return host;
 }
@@ -104,7 +107,7 @@ mrb_pax_s_hwclock(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_s__os_version(mrb_state *mrb, mrb_value self)
 {
-  char version[32]="\0";
+  char version[31]="\0";
 
   memset(&version, 0, sizeof(version));
 
@@ -116,7 +119,7 @@ mrb_pax_s__os_version(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_s__osal_version(mrb_state *mrb, mrb_value self)
 {
-  char version[32]="\0";
+  char version[31]="\0";
 
   memset(&version, 0, sizeof(version));
 
@@ -128,7 +131,7 @@ mrb_pax_s__osal_version(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
 {
-  char version[32]="\0";
+  char version[31]="\0";
 
   memset(&version, 0, sizeof(version));
 
@@ -140,13 +143,16 @@ mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_system_s_model(mrb_state *mrb, mrb_value self)
 {
-  char model[32]="\0";
+  mrb_int len;
+  char model[64]="\0";
 
   memset(&model, 0, sizeof(model));
 
-	OsRegGetValue("ro.fac.mach", model);
-
-  return mrb_str_new_cstr(mrb, model);
+	len = OsRegGetValue("ro.fac.mach", model);
+  if (len > 0)
+    return mrb_str_new(mrb, model, len);
+  else
+    return mrb_str_new(mrb, 0, 0);
 }
 
 static mrb_value
@@ -170,12 +176,17 @@ mrb_system_s_os_get_value(mrb_state *mrb, mrb_value self)
 {
   char value[1024]="\0";
   mrb_value key;
+  mrb_int len;
+
+  memset(&value, 0, sizeof(value));
 
   mrb_get_args(mrb, "S", &key);
 
-  OsRegGetValue((const char *)RSTRING_PTR(key), &value);
-
-  return mrb_str_new_cstr(mrb, value);
+  len = OsRegGetValue(RSTRING_PTR(key), (char *)&value);
+  if (len > 0)
+    return mrb_str_new(mrb, value, len);
+  else
+    return mrb_str_new(mrb, 0, 0);
 }
 
 static mrb_value

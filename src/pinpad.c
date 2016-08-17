@@ -19,22 +19,22 @@
 static mrb_value
 mrb_s_pinpad_load_pin_key(mrb_state *mrb, mrb_value klass)
 {
-  char *key;
+  mrb_value key;
   char kcvData[8];
   unsigned char dataIn[184];
-  mrb_int key_index, key_type, key_length, ret;
+  mrb_int key_index, key_type, ret;
 
   memset(dataIn, 0, sizeof(dataIn));
   memset(kcvData, 0x00, sizeof(kcvData));
 
-  mrb_get_args(mrb, "iis", &key_index, &key_type, &key, &key_length);
+  mrb_get_args(mrb, "iiS", &key_index, &key_type, &key);
 
   dataIn[0] = 0x03;                                                              // format
   dataIn[2] = 0;                                                                 // source key index, 0 for plaintext
   dataIn[3] = key_index;                                                         // dest key index
   dataIn[11] = PED_TPK;                                                          // dest key type
-  dataIn[12] = key_length;                                                       // dest key size
-  memcpy(dataIn+13, key, key_length);                                            // key
+  dataIn[12] = RSTRING_LEN(key);                                                       // dest key size
+  memcpy(dataIn+13, RSTRING_PTR(key), RSTRING_LEN(key));                         // key
   dataIn[13+24] = 0;                                                             // kcv mode
   memcpy(dataIn+13+24+1+128, kcvData, 8);                                        // kcv result
   memcpy(dataIn+13+24+1+128+8, "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x20", 10);  // random data
@@ -47,26 +47,25 @@ mrb_s_pinpad_load_pin_key(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_pinpad_load_ipek(mrb_state *mrb, mrb_value klass)
 {
-  char *key;
-  char *ksn;
+  mrb_value key, ksn;
   char kcvData[8];
   unsigned char dataIn[184];
-  mrb_int key_index, key_type, key_length, ksn_length, ret;
+  mrb_int key_index, key_type, ret;
 
   memset(dataIn, 0, sizeof(dataIn));
   memset(kcvData, 0x00, sizeof(kcvData));
 
-  mrb_get_args(mrb, "iiss", &key_index, &key_type, &key, &key_length, &ksn, &ksn_length);
+  mrb_get_args(mrb, "iiSS", &key_index, &key_type, &key, &ksn);
 
-  dataIn[0] = 0x03;                               // format
-  dataIn[2] = 0;                                  // source key index, 0 for plaintext
-  dataIn[3] = key_index;                          // dest key index
-  dataIn[11] = PED_TIK;                           // dest key type
-  dataIn[12] = key_length;                        // dest key size
-  memcpy(dataIn+13, key, key_length);             // key
-  dataIn[13+24] = 0;                              // kcv mode
-  memcpy(dataIn+13+24+1+128, kcvData, 8);         // kcv result
-  memcpy(dataIn+13+24+1+128+8, ksn, ksn_length);  // ksn
+  dataIn[0] = 0x03;                                                 // format
+  dataIn[2] = 0;                                                    // source key index, 0 for plaintext
+  dataIn[3] = key_index;                                            // dest key index
+  dataIn[11] = PED_TIK;                                             // dest key type
+  dataIn[12] = RSTRING_LEN(key);                                    // dest key size
+  memcpy(dataIn+13, RSTRING_PTR(key), RSTRING_LEN(key));            // key
+  dataIn[13+24] = 0;                                                // kcv mode
+  memcpy(dataIn+13+24+1+128, kcvData, 8);                           // kcv result
+  memcpy(dataIn+13+24+1+128+8, RSTRING_PTR(ksn), RSTRING_LEN(ksn)); // ksn
 
   ret = OsPedWriteTIK(dataIn);
 
@@ -186,11 +185,11 @@ mrb_pinpad_init(mrb_state* mrb)
   pax      = mrb_class_get(mrb, "PAX");
   pinpad   = mrb_define_class_under(mrb, pax, "Pinpad", mrb->object_class);
 
-  mrb_define_class_method(mrb, pinpad , "load_pin_key", mrb_s_pinpad_load_pin_key, MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb, pinpad , "load_ipek", mrb_s_pinpad_load_ipek, MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb, pinpad , "get_pin", mrb_s_pinpad_get_pin, MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, pinpad , "get_pin_dukpt", mrb_s_pinpad_get_pin_dukpt, MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb, pinpad , "des", mrb_s_pinpad_des, MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb, pinpad , "derive", mrb_s_pinpad_derive, MRB_ARGS_REQ(6));
-  mrb_define_class_method(mrb, pinpad , "load_key", mrb_s_pinpad_load_key, MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pinpad , "load_pin_key"  , mrb_s_pinpad_load_pin_key  , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pinpad , "load_ipek"     , mrb_s_pinpad_load_ipek     , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "get_pin"       , mrb_s_pinpad_get_pin       , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , pinpad , "get_pin_dukpt" , mrb_s_pinpad_get_pin_dukpt , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , pinpad , "des"           , mrb_s_pinpad_des           , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pinpad , "derive"        , mrb_s_pinpad_derive        , MRB_ARGS_REQ(6));
+  mrb_define_class_method(mrb , pinpad , "load_key"      , mrb_s_pinpad_load_key      , MRB_ARGS_REQ(1));
 }
