@@ -846,7 +846,7 @@ mrb_s_del_emv_pki(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "ss", &keyID, &rid);
 
-  if (mrb_string_p(keyID) || mrb_string_p(rid)) {
+  if (mrb_string_p(keyID) && mrb_string_p(rid)) {
     memcpy(&key, RSTRING_PTR(keyID), 1);
     ret = EMVDelCAPK(key, (unsigned char *)RSTRING_PTR(rid));
   } else
@@ -863,7 +863,7 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "ss", &keyID, &rid);
 
-  if (mrb_string_p(keyID) || mrb_string_p(rid))
+  if (mrb_string_p(keyID) && mrb_string_p(rid))
     ret = EMVCheckCAPK((unsigned char *)RSTRING_PTR(keyID), (unsigned char *)RSTRING_PTR(rid));
   else
     mrb_raise(mrb, E_ARGUMENT_ERROR, "object isn't a string");
