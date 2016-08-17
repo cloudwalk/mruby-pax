@@ -70,16 +70,14 @@ mrb_pax_s_print_bitmap(mrb_state *mrb, mrb_value self)
 {
   mrb_value path, x, y;
   mrb_int row = 0, column = 0;
-  char *sPath;
 
-  mrb_get_args(mrb, "ooo", &path, &y, &x);
+  mrb_get_args(mrb, "Soo", &path, &y, &x);
 
   if (mrb_fixnum_p(y)) row    = mrb_fixnum(y);
   if (mrb_fixnum_p(x)) column = mrb_fixnum(x);
 
   if (mrb_string_p(path)) {
-    sPath = RSTRING_PTR(path);
-    display_bitmap(sPath, row, column);
+    display_bitmap(RSTRING_PTR(path), row, column);
   }
 
   return mrb_nil_value();
