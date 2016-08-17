@@ -46,14 +46,12 @@ struct tagBITMAPINFOHEADER {
 typedef struct tagBITMAPINFOHEADER BITMAPINFOHEADER;
 
 /*
- *
  *  0 - Success
  * -1 - Open BMP file error
  * -2 - Problem reading file
  * -3 - Bmp not monochrome
  * -4 - The width of bitmap must <= 192
  * -5 - Lseek to current position failed
- *
  */
 static int
 bmp_convert(char *file, unsigned char *logo)
@@ -303,12 +301,10 @@ mrb_pax_printer_s__print_bmp(mrb_state *mrb, mrb_value self)
     OsPrnPutImage(buf);
     OsPrnStart();
     OsPrnReset();
-    mrb_free(mrb, buf);
-    return mrb_true_value();
-  } else {
-    mrb_free(mrb, buf);
-    return mrb_false_value();
   }
+
+  mrb_free(mrb, buf);
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value

@@ -171,6 +171,12 @@ class PAX
       self.print(string) if self.allow?
     end
 
+    BMP_SUCCESS        = 0
+    BMP_FILE_ERROR     = -1
+    BMP_NOT_MONOCHROME = -3
+    BMP_INVALID_WIDTH  = -4
+    BMP_LSEEK_FAILED   = -5
+
     # @brief Print bmp file.
     #
     # Details:
@@ -183,7 +189,13 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print_bmp(path)
-      self._print_bmp(path) if self.allow? && File.exists?(path)
+      if self.allow?
+        if File.exists?(path)
+          self._print_bmp(path)
+        else
+          BMP_FILE_ERROR
+        end
+      end
     end
 
     # @brief Check printer status, useful for paper check.
