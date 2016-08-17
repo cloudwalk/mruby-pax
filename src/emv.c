@@ -879,6 +879,9 @@ mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
   return mrb_true_value();
 }
 
+
+int already_read = 0;
+
   static mrb_value
 mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 {
@@ -889,13 +892,20 @@ mrb_s_emv_app_select(mrb_state *mrb, mrb_value klass)
 
   mrb_get_args(mrb, "ii", &slot, &number);
 
-  return mrb_fixnum_value(EMVAppSelect(slot, (unsigned long)number));
+  already_read = 0;
+
+  return mrb_fixnum_value(EMVAppSelect(slot, number));
 }
 
   static mrb_value
 mrb_s_emv_read_data(mrb_state *mrb, mrb_value klass)
 {
-  return mrb_fixnum_value(EMVReadAppData());
+  if (already_read == 1)
+    return mrb_fixnum_value(EMV_OK);
+  else {
+    already_read = 1;
+    return mrb_fixnum_value(EMVReadAppData());
+  }
 }
 
   static mrb_value
