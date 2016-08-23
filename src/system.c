@@ -213,7 +213,7 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "_serial"         , mrb_s__serial             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_backlight="     , mrb_s__set_backlight      , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , system , "_battery"        , mrb_s_battery             , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , system , "_power_supply"   , mrb_s__power_supply        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_power_supply"   , mrb_s__power_supply       , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_ip"             , mrb_addrinfo_s__ip        , MRB_ARGS_OPT(1));
   mrb_define_class_method(mrb , system , "_reboot"         , mrb_pax_s_reboot          , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "hwclock"         , mrb_pax_s_hwclock         , MRB_ARGS_REQ(6));
