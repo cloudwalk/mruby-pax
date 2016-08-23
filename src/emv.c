@@ -961,17 +961,18 @@ mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
   unsigned char ACType;
   mrb_value hash, amount, cash, str, str2;
 
-  mrb_get_args(mrb, "oo", &amount, &cash);
+  mrb_get_args(mrb, "SS", &amount, &cash);
 
-  str  = mrb_funcall(mrb, amount, "to_s", 0);
-  str2 = mrb_funcall(mrb, cash, "to_s", 0);
-
-  ret = EMVStartTrans(strtoul(RSTRING_PTR(str), NULL, 10),
-      strtoul(RSTRING_PTR(str2), NULL, 10), &ACType);
+  ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), NULL, 10),
+      strtoul(RSTRING_PTR(cash), NULL, 10), &ACType);
 
   hash = mrb_hash_new(mrb);
 
-  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb, "ACTYPE"), mrb_fixnum_value((mrb_int)ACType));
+  if (ret == EMV_OK)
+    mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb, "ACTYPE"), mrb_fixnum_value((int)ACType));
+  else
+    mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb, "ACTYPE"), mrb_fixnum_value(0));
+
   mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb, "RETURN"), mrb_fixnum_value(ret));
 
   return hash;
