@@ -147,7 +147,7 @@ class PAX
     # @param pixel [Fixnum] Number of pixels.
     #
     # @return [NilClass] Allways returns nil.
-    def self.feed(pixels = self.single_height)
+    def self.feed(pixels = 60)
       self._feed(pixels) if self.allow?
     end
 

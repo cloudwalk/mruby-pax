@@ -266,6 +266,8 @@ mrb_pax_printer_s__feed(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "i", &size);
   OsPrnFeed(size);
+  OsPrnStart();
+  OsPrnReset();
 
   return mrb_nil_value();
 }
