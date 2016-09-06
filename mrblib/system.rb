@@ -24,8 +24,8 @@ class PAX
     POWER_BATTERY = 3
 
     def self.power_supply
-      power_type = PAX::System._power_supply.to_i
-      power_type == POWER_ADAPTER || power_supply == POWER_USB
+      power = self._power_supply
+      power == POWER_ADAPTER || power == POWER_USB
     end
 
     BATTERY_LEVEL_0        = 0	# Power  0~20%
