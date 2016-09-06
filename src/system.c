@@ -47,7 +47,7 @@ mrb_s_battery(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_s__power_supply(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value(OsCheckPowerSupply());
+  return mrb_fixnum_value((int)OsCheckPowerSupply());
 }
 
 static mrb_value
