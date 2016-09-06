@@ -59,6 +59,12 @@ class PAX
     AC_ARQC                  = 0x02
     AC_AAC_HOST              = 0x03
 
+    PED_RET_ERR_NO_PIN_INPUT  = -305
+    PED_RET_ERR_INPUT_CANCEL  = -306
+    PED_RET_ERR_WAIT_INTERVAL = -307
+    PED_RET_ERR_NO_ICC        = -316
+    PED_RET_ERR_ICC_NO_INIT   = -317
+
     # TODO Scalone implement default values
     EMV_PARAMETER_DEFAULT = {
       "MerchName"     => "",
@@ -122,7 +128,8 @@ class PAX
     }
 
     class << self
-      attr_accessor :icc, :select_block
+      attr_accessor :icc, :select_block, :get_pin_plain_block, :verify_cipher_pin_block,
+        :get_pin_block_block
     end
 
     def self.parameter_default
@@ -385,6 +392,117 @@ class PAX
       # [:status_check_sum                                 , 1],
       # [:reserved                                         , 2],
       pki
+    end
+
+    def self.internal_get_pin_block(attempt_flag, attempts_remain, block)
+      if self.get_pin_block_block
+        self.get_pin_block_block.call(attempt_flag, attempts_remain, block)
+      else
+        ContextLog.info "GET PIN BLOCK [#{attempt_flag}] [#{attempts_remain}] [#{block}]"
+        if attempt_flag == 0
+          PAX::Display.clear
+          puts "ENTER PIN: "
+        else
+          PAX::Display.clear
+          puts "INCORRECT PIN"
+          sleep 2
+        end
+
+        #Offline plain/enciphered PIN processing below
+        if attempts_remain == 1
+          PAX::Display.clear
+          puts "LAST CHANCE"
+          sleep 2
+        end
+
+        unless block
+          pan = PAX::EMV.get_tlv(0x5A)
+          len = "0,4,5,6,7,8,9,10,11,12"
+          response = Device::Pinpad.get_pin_block(17, pan, len, Device::IO.timeout)
+          case response["ped"]
+          when PAX::Pinpad::RET_OK
+            response["return"] = PAX::EMV::EMV_OK
+          when PAX::EMV::PED_RET_ERR_INPUT_CANCEL
+            response["return"] = PAX::EMV::EMV_USER_CANCEL
+          else
+            response["return"] = PAX::EMV::EMV_NO_PINPAD
+          end
+          return response
+        end
+
+        #Offline PIN, done by core itself since EMV core V25_T1. Application only needs to display prompt message.
+        #In this mode, cEMVGetHolderPwd() will be called twice. the first time is to display message to user,
+        #then back to kernel and wait PIN. afterwards kernel call this again and inform the process result.
+        case response["block"].to_s[0]
+        when nil
+          PAX::EMV::EMV_OK
+        when PAX::EMV::EMV_PED_TIMEOUT.chr
+          PAX::EMV::EMV_TIME_OUT
+        when PAX::EMV::EMV_PED_WAIT.chr
+          PAX::EMV::EMV_OK
+        when PAX::EMV::EMV_PED_FAIL.chr
+          PAX::EMV::EMV_NO_PINPAD
+        else
+          PAX::EMV::EMV_OK
+        end
+        response
+      end
+    end
+
+    def self.internal_verify_cipher_pin(icc_slot, pin_len, rsa)
+      if self.verify_cipher_pin_block
+        self.verify_cipher_pin_block.call(icc_slot, pin_len, rsa)
+      else
+        ContextLog.info "VERIFY CIPHER PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len} RSA #{rsa.inspect}"
+        PAX::Display.clear
+        puts "ENTER PIN: "
+        response = Device::Pinpad.verify_cipher_pin(icc_slot, pin_len, rsa, Device::IO.timeout)
+        case response["ped"]
+        when PAX::Pinpad::RET_OK
+          response["return"] = PAX::EMV::EMV_OK
+        when PAX::Pinpad::ERR_PED_NO_PIN_INPUT
+          response["return"] = PAX::EMV::PED_RET_ERR_NO_PIN_INPUT
+        when PAX::Pinpad::ERR_PED_PIN_INPUT_CANCEL
+          response["return"] = PAX::EMV::PED_RET_ERR_INPUT_CANCEL
+        when PAX::Pinpad::ERR_PED_ICC_INIT_ERR
+          response["return"] = PAX::EMV::PED_RET_ERR_ICC_NO_INIT
+        when PAX::Pinpad::ERR_PED_NO_ICC
+          response["return"] = PAX::EMV::PED_RET_ERR_NO_ICC
+        when PAX::Pinpad::ERR_PED_WAIT_INTERVAL
+          response["return"] = PAX::EMV::PED_RET_ERR_WAIT_INTERVAL
+        else
+          response["return"] = response["ped"]
+        end
+        response
+      end
+    end
+
+    def self.internal_get_pin_plain(icc_slot, pin_len)
+      if self.get_pin_plain_block
+        self.get_pin_plain_block.call(icc_slot, pin_len)
+      else
+        ContextLog.info "GET PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len}"
+        PAX::Display.clear
+        puts "ENTER PIN: "
+        response = Device::Pinpad.get_pin_plain(icc_slot, pin_len, Device::IO.timeout)
+        case response["ped"]
+        when PAX::Pinpad::RET_OK
+          response["return"] = PAX::EMV::EMV_OK
+        when PAX::Pinpad::ERR_PED_NO_PIN_INPUT
+          response["return"] = PAX::EMV::PED_RET_ERR_NO_PIN_INPUT
+        when PAX::Pinpad::ERR_PED_PIN_INPUT_CANCEL
+          response["return"] = PAX::EMV::PED_RET_ERR_INPUT_CANCEL
+        when PAX::Pinpad::ERR_PED_ICC_INIT_ERR
+          response["return"] = PAX::EMV::PED_RET_ERR_ICC_NO_INIT
+        when PAX::Pinpad::ERR_PED_NO_ICC
+          response["return"] = PAX::EMV::PED_RET_ERR_NO_ICC
+        when PAX::Pinpad::ERR_PED_WAIT_INTERVAL
+          response["return"] = PAX::EMV::PED_RET_ERR_WAIT_INTERVAL
+        else
+          response["return"] = response["ped"]
+        end
+        response
+      end
     end
 
     def self.internal_app_select(list, tries, labels)

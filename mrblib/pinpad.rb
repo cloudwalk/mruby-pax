@@ -23,6 +23,12 @@ class PAX
     MODE_DECRYPTION     = "\x00"
     MODE_ENCRYPTION     = "\x01"
 
+    ERR_PED_NO_PIN_INPUT      = -3805
+    ERR_PED_PIN_INPUT_CANCEL  = -3806
+    ERR_PED_ICC_INIT_ERR      = -3817
+    ERR_PED_NO_ICC            = -3816
+    ERR_PED_WAIT_INTERVAL     = -3807
+
     DUKPT_DEFAULT = {
       "KSN"      => "",
       "PINBLOCK" => ""

@@ -3,6 +3,7 @@
 #include "mruby.h"
 #include "mruby/compile.h"
 #include "mruby/value.h"
+#include "mruby/variable.h"
 #include "mruby/array.h"
 #include "mruby/string.h"
 #include "mruby/hash.h"
@@ -15,6 +16,21 @@
 #define PED_TAK 0x04
 #define PED_TDK 0x05
 #define PED_TIK 0x10
+
+int screen_x;
+int screen_y;
+int line_width;
+int line_height;
+
+static int fix_x(int x)
+{
+  return x * line_width;
+}
+
+static int fix_y(int y)
+{
+  return y * line_height;
+}
 
 static mrb_value
 mrb_s_pinpad_load_pin_key(mrb_state *mrb, mrb_value klass)
@@ -73,26 +89,31 @@ mrb_s_pinpad_load_ipek(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_pinpad_get_pin(mrb_state *mrb, mrb_value klass)
+mrb_s_pinpad_get_pin_block(mrb_state *mrb, mrb_value klass)
 {
-  char ksn[16];
   char pinblock[64];
-  char maxlen[] = "0,1,2,3,4,5,6,7,8,9,10,11,12";
-  mrb_value pan;
-  mrb_int key_index, ret;
+  mrb_value pan, len, hash, screen;
+  mrb_int slot, ret, timeout, column, line;
 
-  memset(ksn, 0, sizeof(ksn));
   memset(pinblock, 0, sizeof(pinblock));
 
-  mrb_get_args(mrb, "is", &key_index, &pan);
+  mrb_get_args(mrb, "iSSi", &slot, &pan, &len, &timeout);
 
-  ret = OsPedGetPinBlock(key_index, (const unsigned char *)RSTRING_PTR(pan), maxlen, 0x00, 30000, (unsigned char *)&pinblock);
+  screen = mrb_const_get(mrb, mrb_obj_value(mrb->object_class), mrb_intern_lit(mrb, "STDOUT"));
+  column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
+  line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
 
-  if (ret == 0) {
-    return mrb_str_new(mrb, pinblock, 8);
-  } else {
-    return mrb_fixnum_value(ret);
-  }
+  OsPedSetAsteriskLayout(fix_x(column), fix_y(line) + line_height, 16,
+      RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+  ret = OsPedGetPinBlock(slot, (const unsigned char *)RSTRING_PTR(pan),
+      RSTRING_PTR(len), 0x00, timeout, (unsigned char *)&pinblock);
+
+  hash = mrb_hash_new(mrb);
+  if (ret == RET_OK)
+    mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "block"), mrb_str_new(mrb, (const char *)&pinblock, 8));
+  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "ped"), mrb_fixnum_value(ret));
+
+  return hash;
 }
 
 static mrb_value
@@ -101,30 +122,33 @@ mrb_s_pinpad_get_pin_dukpt(mrb_state *mrb, mrb_value klass)
   char ksn[16];
   char dataIn[16];
   unsigned char dataOut[64];
-  char maxlen[] = "0,1,2,3,4,5,6,7,8,9,10,11,12";
-  mrb_value pan;
-  mrb_int key_index, ret;
-  mrb_value hash;
+  mrb_value pan, hash, len, screen;
+  mrb_int key_index, ret, timeout, column, line;
 
   memset(ksn, 0, sizeof(ksn));
   memset(dataIn, 0, sizeof(dataIn));
   memset(dataOut, 0, sizeof(dataOut));
 
-  mrb_get_args(mrb, "iS", &key_index, &pan);
+  mrb_get_args(mrb, "iSSi", &key_index, &pan, &len, &timeout);
 
+  screen = mrb_const_get(mrb, mrb_obj_value(mrb->object_class), mrb_intern_lit(mrb, "STDOUT"));
+  column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
+  line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
+
+  OsPedSetAsteriskLayout(fix_x(column), fix_y(line) + line_height, 16,
+      RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
   ret = OsPedGetPinDukpt(key_index, (const unsigned char *)RSTRING_PTR(pan),
-      maxlen, 0x20, 30000, (unsigned char *)&ksn, (unsigned char *)&dataOut);
+      RSTRING_PTR(len), 0x20, timeout, (unsigned char *)&ksn, (unsigned char *)&dataOut);
 
-  hash = mrb_funcall(mrb, klass, "dukpt_default", 0);
-  if (ret == 0)
-  {
+  hash = mrb_hash_new(mrb);
+  if (ret == RET_OK) {
     ret = OsPedIncreaseKsnDukpt(key_index);
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "KSN"), mrb_str_new(mrb, (char *)&ksn, 10));
-    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "PINBLOCK"), mrb_str_new(mrb, (char *)&dataOut, 8));
-  } else if (ret == ERR_PED_DUKPT_NEED_INC_KSN || ret == ERR_PED_NO_PIN_INPUT) {
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ksn"), mrb_str_new(mrb, (char *)&ksn, 10));
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "block"), mrb_str_new(mrb, (char *)&dataOut, 8));
+  } else {
     OsPedIncreaseKsnDukpt(key_index);
   }
-  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "RETURN"), mrb_fixnum_value(ret));
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ped"), mrb_fixnum_value(ret));
   return hash;
 }
 
@@ -176,6 +200,69 @@ mrb_s_pinpad_load_key(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(OsPedWriteKey((unsigned char *)RSTRING_PTR(data)));
 }
 
+static mrb_value
+mrb_s_pinpad_get_pin_plain(mrb_state *mrb, mrb_value klass)
+{
+  unsigned char ucBlock;
+  mrb_value hash, len, screen;
+  mrb_int ret, slot, timeout, column, line;
+
+  mrb_get_args(mrb, "iSi", &slot, &len, &timeout);
+
+  screen = mrb_const_get(mrb, mrb_obj_value(mrb->object_class), mrb_intern_lit(mrb, "STDOUT"));
+  column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
+  line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
+
+  OsPedSetAsteriskLayout(fix_x(column), fix_y(line) + line_height, 16,
+      RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+  ret = OsPedVerifyPlainPin(slot, RSTRING_PTR(len), 0x00, timeout, &ucBlock);
+
+  hash = mrb_hash_new(mrb);
+  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "block"), mrb_str_new(mrb, (const char *)&ucBlock, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "ped"), mrb_fixnum_value(ret));
+
+  return hash;
+}
+
+static mrb_value
+mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
+{
+  unsigned char ucBlock;
+  ST_RSA_PINKEY stRSAPINKEY;
+  mrb_value hash, rsa, modulus, exponent, random, len, screen;
+  mrb_int ret, slot, timeout, modulus_len, random_len, column, line;
+
+  mrb_get_args(mrb, "iSio", &slot, &len, &rsa, &timeout);
+
+  modulus     = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "modulus"));
+  modulus_len = mrb_fixnum(mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "modulus_length")));
+  exponent    = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "exponent"));
+  random      = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "random"));
+  random_len  = mrb_fixnum(mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "random_lenght")));
+
+  memset(&stRSAPINKEY, 0, sizeof(ST_RSA_PINKEY));
+  stRSAPINKEY.ModulusLen = modulus_len;
+  memcpy(stRSAPINKEY.Modulus, RSTRING_PTR(modulus), sizeof(stRSAPINKEY.Modulus));
+  memcpy(stRSAPINKEY.Exponent, RSTRING_PTR(exponent), sizeof(stRSAPINKEY.Exponent));
+  stRSAPINKEY.IccRandomLen = random_len;
+  memcpy(stRSAPINKEY.IccRandom, RSTRING_PTR(random), sizeof(stRSAPINKEY.IccRandom));
+
+  screen = mrb_const_get(mrb, mrb_obj_value(mrb->object_class), mrb_intern_lit(mrb, "STDOUT"));
+  column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
+  line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
+
+  mrb_get_args(mrb, "iSi", &slot, &len, &timeout);
+  OsPedSetAsteriskLayout(fix_x(column), fix_y(line) + line_height, 16,
+      RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_CENTER);
+  ret = OsPedVerifyCipherPin(slot, &stRSAPINKEY, RSTRING_PTR(len), 0x00, timeout, &ucBlock);
+
+  hash = mrb_hash_new(mrb);
+  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "block"), mrb_str_new(mrb, (const char *)&ucBlock, 2));
+  mrb_hash_set(mrb, hash, mrb_str_new_lit(mrb , "ped"), mrb_fixnum_value(ret));
+
+  return hash;
+}
+
 void
 mrb_pinpad_init(mrb_state* mrb)
 {
@@ -185,11 +272,14 @@ mrb_pinpad_init(mrb_state* mrb)
   pax      = mrb_class_get(mrb, "PAX");
   pinpad   = mrb_define_class_under(mrb, pax, "Pinpad", mrb->object_class);
 
-  mrb_define_class_method(mrb , pinpad , "load_pin_key"  , mrb_s_pinpad_load_pin_key  , MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb , pinpad , "load_ipek"     , mrb_s_pinpad_load_ipek     , MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb , pinpad , "get_pin"       , mrb_s_pinpad_get_pin       , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb , pinpad , "get_pin_dukpt" , mrb_s_pinpad_get_pin_dukpt , MRB_ARGS_REQ(2));
-  mrb_define_class_method(mrb , pinpad , "des"           , mrb_s_pinpad_des           , MRB_ARGS_REQ(3));
-  mrb_define_class_method(mrb , pinpad , "derive"        , mrb_s_pinpad_derive        , MRB_ARGS_REQ(6));
-  mrb_define_class_method(mrb , pinpad , "load_key"      , mrb_s_pinpad_load_key      , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pinpad , "load_pin_key"      , mrb_s_pinpad_load_pin_key      , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pinpad , "load_ipek"         , mrb_s_pinpad_load_ipek         , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "get_pin_block"     , mrb_s_pinpad_get_pin_block     , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "get_pin_dukpt"     , mrb_s_pinpad_get_pin_dukpt     , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "get_pin_plain"     , mrb_s_pinpad_get_pin_plain     , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pinpad , "verify_cipher_pin" , mrb_s_pinpad_verify_cipher_pin , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "des"               , mrb_s_pinpad_des               , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , pinpad , "derive"            , mrb_s_pinpad_derive            , MRB_ARGS_REQ(6));
+  mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
 }
