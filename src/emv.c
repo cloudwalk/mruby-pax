@@ -135,12 +135,13 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 // in EMV ver 2.1+, this function is called before GPO
 int cEMVSetParam(void)
 {
-  return 0;
+  return EMV_OK;
 }
 
 unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
 {
   return 0;
+  return EMV_OK;
 }
 
 unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
