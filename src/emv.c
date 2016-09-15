@@ -3,6 +3,7 @@
 #include "mruby.h"
 #include "mruby/compile.h"
 #include "mruby/value.h"
+#include "mruby/variable.h"
 #include "mruby/array.h"
 #include "mruby/string.h"
 #include "mruby/hash.h"
@@ -20,6 +21,26 @@ mrb_value current_klass;
 void emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter);
 int IccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv);
 
+
+void logEMVError(void)
+{
+  mrb_value context;
+  char buf[1024];
+  char paucAssistInfo[1024];
+  mrb_int iRet, pnErrorCode, nExpAssistInfoLen;
+
+  memset(&buf, 0, sizeof(buf));
+  memset(&paucAssistInfo, 0, sizeof(paucAssistInfo));
+
+  iRet = EMVGetDebugInfo(&nExpAssistInfoLen, &paucAssistInfo, &pnErrorCode);
+  display("Debug[%d][%d]", iRet, pnErrorCode);
+
+  if (iRet == EMV_OK) {
+    sprintf(&buf, "EMVGetDebugInfo [%d]", pnErrorCode);
+    context = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "ContextLog"));
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, buf));
+  }
+}
 /*
  *CTLS
  *#include "CLEntryAPI_Prolin.h"
