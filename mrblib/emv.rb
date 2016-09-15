@@ -348,14 +348,14 @@ class PAX
       pki["RID"]         = [row.rid].pack("H*")
 
       # KeyID - key index
-      #pki["KeyID"]       = [row.index].pack("H*")
-      pki["KeyID"]       = [row.ca_public_key_index].pack("H*")
+      # 0x92
+      pki["KeyID"]       = row.ca_public_key_index.to_i
 
       # HashInd - HASH arithmetic index (must be 1)
-      pki["HashInd"]     = "1".to_i.chr
+      pki["HashInd"]     = "\x01"
 
       # ArithInd - RSA arithmetic index (must be 1)
-      pki["ArithInd"]     = "1".to_i.chr
+      pki["ArithInd"]     = "\x01"
 
       #:ca_public_key_modulus_byte_length=>"176"
       pki["ModulLen"]    = row.ca_public_key_modulus_byte_length.to_i.chr
@@ -370,10 +370,14 @@ class PAX
       pki["Exponent"]    = [row.ca_public_key_exponent].pack("H*")
 
       # ExpDate (CTLS only)
-      #pki["ExpDate"]    = ["160410"].pack("H*")
+      pki["ExpDate"]    = "\x00\x00\x00"
 
-      #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af00000000"
-      pki["CheckSum"]    = [row.ca_public_key_check_sum].pack("H*")
+      #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af"
+      if row.ca_public_key_check_sum == "00000000000000000000"
+        pki["CheckSum"] = Digest::SHA1.digest(pki["RID"] + pki["KeyID"] + pki["Modul"] + pki["Exponent"]) 
+      else
+        pki["CheckSum"] = [row.ca_public_key_check_sum].pack("H40")
+      end
 
       # = ProcessTransaction
 
