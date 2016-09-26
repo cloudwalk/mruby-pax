@@ -180,36 +180,27 @@ class PAX
       # APP Parameter
       # :label=>"SMARTCON iEMV ON",
       app["AppName"]         = row.label
-      #Device::Display.clear; p "[#{row.label}]"; getc
 
       # :aid=>"AAA00000010103000000000000000000",
       app["AID"]             = [row.aid].pack("H*")
-      #Device::Display.clear; p "[#{row.aid}]"; getc
 
       # :aid_length=>"07",
       app["AidLen"]          = [row.aid_length].pack("H*")
-      #Device::Display.clear; p "[#{row.aid_length}]"; getc
 
       # :terminal_floor_limit=>"0000C350",
       app["FloorLimit"]      = row.terminal_floor_limit.to_i(16)
-      #Device::Display.clear; p "[#{row.terminal_floor_limit}]"; getc
 
       # :terminal_action_code_default=>"5000000000",
-      app["TACDefault"]      = [row.terminal_action_code_default].pack("H*")
-      #Device::Display.clear; p "[#{row.terminal_action_code_default}]"; getc
+      app["TACDefault"]      = [row.terminal_action_code_default].pack("H*") + "\x00"
 
       # :terminal_action_code_denial=>"0000000000",
-      app["TACDenial"]       = [row.terminal_action_code_denial].pack("H*")
-      #Device::Display.clear; p "[#{row.terminal_action_code_denial}]"; getc
+      app["TACDenial"]       = [row.terminal_action_code_denial].pack("H*") + "\x00"
 
       # :terminal_action_code_online=>"0000000000",
-      app["TACOnline"]       = [row.terminal_action_code_online].pack("H*")
-      #Device::Display.clear; p "[#{row.terminal_action_code_online}]"; getc
+      app["TACOnline"]       = [row.terminal_action_code_online].pack("H*") + "\x00"
 
       # :acquirer_id=>"04",
       app["AcquierId"]       = [("FFFFFFFFFFFF" + row.acquirer_id)[-12..-1]].pack("H*");
-      #app["AcquierId"]       = "0000"
-      #Device::Display.clear; p "[#{row.acquirer_id}]"; getc
 
       # :tdol=>"0000000000000000000000000000000000000000",
       app["tDOL"]            = "#{(row.tdol.size / 2).to_i.chr}#{[row.tdol].pack("H*")}"
@@ -218,11 +209,9 @@ class PAX
       # :ddol=>"9F37049F47018F019F3201000000000000000000",
       ddol = row.ddol.gsub("00", "")
       app["dDOL"]            = "#{(ddol.size / 2).to_i.chr}#{[ddol].pack("H*")}"
-      #Device::Display.clear; p "[#{row.ddol}]"; getc
 
       # :application_version_number_1=>"008C",
-      app["Version"]         = [row.application_version_number_1].pack("H*")
-      #Device::Display.clear; p "[#{row.application_version_number_1}]"; getc
+      #app["Version"]         = [row.application_version_number_1].pack("H*")
 
       # = ProcessTransaction
 
@@ -234,7 +223,7 @@ class PAX
       #
       # TargetPer (bTargetPercentage ProcessTransaction) - Target percent (0 – 99) (provided by acquirer)
       #  (Refer to the risk management in EMV specification.)
-      app["TargetPer"]         = "\x10"
+      app["TargetPer"]         = "\x00"
       #
       # FloorLimitCheck (ProcessTransaction if terminal_floor_limit) - For the online only terminal,
       #  check the floor limit or not (1: check, 0 : not check，default:1)
@@ -247,7 +236,7 @@ class PAX
       # MaxTargetPer (bMaximumTarget ProcessTransaction)
       #  Max target percent(0 – 99) (provided by acquirer)
       #  (Refer to the risk management in EMV specification.)
-      app["MaxTargetPer"]      = "\x10"
+      app["MaxTargetPer"]      = "\x00"
       #
       # = Not Found (contain in emv interface but not in row)
       # VelocityCheck - For the online only terminal,
@@ -264,7 +253,7 @@ class PAX
       #
       # SelFlag - Application selection flag (partial matching PART_MATCH or full matching FULL_MATCH)
       #  (Refer to the macro definition in appendix A.)
-      app["SelFlag"]         = "#{PART_MATCH.chr}"
+      app["SelFlag"]         = PART_MATCH.chr
       #
       # RandTransSel (maybe if bTargetPercentage was set) - For the online only or offline only terminal,
       #  perform random transaction selection or not (1: perform, 0 : not perform, default : 1)
@@ -316,17 +305,20 @@ class PAX
       general["TransCurrExp"]  = ["0" + row.transaction_currency_exponent].pack("H*")
 
       # ReferCurrCode - reference currency code (default: “\x08\x40”)
-      general["ReferCurrCode"]  = "\x08\x40"
+      #:transaction_currency_code=>"0" + "986"
+      general["ReferCurrCode"] = ["0" + row.transaction_currency_code].pack("H*")
 
       # ReferCurrExp - reference currency exponent (default: “0x02”)
-      general["ReferCurrExp"]  = "\x02"
+      #:transaction_currency_exponent=>"0" + "2"
+      general["ReferCurrExp"]  = ["0" + row.transaction_currency_exponent].pack("H*")
 
       general["ReferCurrCon"]   = 1000
 
       # TransType - set current transaction type
-      #  EMV_CASH or EMV_GOODS or EMV_SERVICE or EMV_GOODS& EMV_CASHBACK or EMV_SERVICE& EMV_CASHBACK
-      #  (refer to appendix A for macro definitions)
-      general["TransType"]       = "#{EMV_PAYMENT.chr}"
+      #  EMV_CASH or EMV_GOODS or EMV_SERVICE or EMV_GOODS& EMV_CASHBACK or EMV_SERVICE& EMV_CASHBACK #  (refer to appendix A for macro definitions)
+      general["TransType"]       = EMV_PAYMENT.chr
+      #general["TransType"]       = EMV_GOODS.chr
+      #general["TransType"]       = "\x01"
 
       # ForceOnline (bMustConnect ProcessTransaction) - merchant force online
       #  (1 means always online transaction)
@@ -355,7 +347,7 @@ class PAX
 
       # KeyID - key index
       # 0x92
-      pki["KeyID"]       = row.ca_public_key_index.to_i
+      pki["KeyID"]       = [row.ca_public_key_index].pack("H2")
 
       # HashInd - HASH arithmetic index (must be 1)
       pki["HashInd"]     = "\x01"
@@ -408,7 +400,7 @@ class PAX
       if self.get_pin_block_block
         self.get_pin_block_block.call(attempt_flag, attempts_remain, block)
       else
-        ContextLog.info "GET PIN BLOCK [#{attempt_flag}] [#{attempts_remain}] [#{block}]"
+        ContextLog.info "INTERNAL GET PIN BLOCK [#{attempt_flag}] [#{attempts_remain}] [#{block}]"
         if attempt_flag == 0
           PAX::Display.clear
           puts "ENTER PIN: "
@@ -463,7 +455,7 @@ class PAX
       if self.verify_cipher_pin_block
         self.verify_cipher_pin_block.call(icc_slot, pin_len, rsa)
       else
-        ContextLog.info "VERIFY CIPHER PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len} RSA #{rsa.inspect}"
+        ContextLog.info "INTERNAL VERIFY CIPHER PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len} RSA #{rsa.inspect}"
         PAX::Display.clear
         puts "ENTER PIN: "
         response = Device::Pinpad.verify_cipher_pin(icc_slot, pin_len, rsa, Device::IO.timeout)
@@ -491,7 +483,7 @@ class PAX
       if self.get_pin_plain_block
         self.get_pin_plain_block.call(icc_slot, pin_len)
       else
-        ContextLog.info "GET PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len}"
+        ContextLog.info "INTERNAL GET PIN ICC SLOT #{icc_slot} PIN LEN #{pin_len}"
         PAX::Display.clear
         puts "ENTER PIN: "
         response = Device::Pinpad.get_pin_plain(icc_slot, pin_len, Device::IO.timeout)
@@ -515,9 +507,9 @@ class PAX
       end
     end
 
-    def self.internal_app_select(list, tries, labels)
+    def self.internal_app_select(list, tries)
       if self.select_block
-        self.select_block.call(list, tries, labels)
+        self.select_block.call(list, tries)
       else
         return 0 if list.size == 1
 
@@ -530,7 +522,7 @@ class PAX
 
         puts "SELECT APLICATION"
         list.each_with_index do |app, index|
-          puts "#{index+1} #{labels[index] || app["AppName"]}"
+          puts "#{index+1} #{app["label"] || app["AppName"]}"
         end
 
         if (ret = getc(30_000)) == 0x1B.chr
