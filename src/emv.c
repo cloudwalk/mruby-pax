@@ -854,15 +854,19 @@ mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
 {
   mrb_int ret;
   unsigned char ACType;
-  mrb_value hash, amount, cash;
+  unsigned long ulCashback=0;
+  mrb_value hash, amount, cashback;
 
-  mrb_get_args(mrb, "SS", &amount, &cash);
+  mrb_get_args(mrb, "SS", &amount, &cashback);
 
   current_mrb = mrb;
   current_klass = klass;
 
-  ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), NULL, 10),
-      strtoul(RSTRING_PTR(cash), NULL, 10), &ACType);
+  ulCashback = strtoul(RSTRING_PTR(cashback), NULL, 10);
+  if (ulCashback == 0)
+    ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), NULL, 10), NULL, &ACType);
+  else
+    ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), ulCashback, 10), NULL, &ACType);
 
   hash = mrb_hash_new(mrb);
 
