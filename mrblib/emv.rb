@@ -370,11 +370,14 @@ class PAX
       # ExpDate (CTLS only)
       pki["ExpDate"]    = "\x00\x00\x00"
 
-      #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af"
-      if row.ca_public_key_check_sum == "00000000000000000000"
-        pki["CheckSum"] = Digest::SHA1.digest(pki["RID"] + pki["KeyID"] + pki["Modul"] + pki["Exponent"]) 
+      #:ca_public_key_check_sum=>"4dddd1d9b9a3b2eeace63a5ba9dd6f4441ce10af00000000"
+      if row.status_check_sum == "0"
+        pki["CheckSum"] = self.pki_check_sum(
+          pki["RID"], pki["KeyID"], pki["Modul"], pki["Exponent"],
+          row.ca_public_key_exponent_byte_length.to_i,
+          row.ca_public_key_modulus_byte_length.to_i)
       else
-        pki["CheckSum"] = [row.ca_public_key_check_sum].pack("H40")
+        pki["CheckSum"] = [row.ca_public_key_check_sum].pack("H*")
       end
 
       # = ProcessTransaction
@@ -533,6 +536,14 @@ class PAX
           ret.to_i
         end
       end
+    end
+
+    def self.pki_check_sum(rid, key_id, modulus, exponent, exponent_len, modulus_len)
+      exponent_treated = exponent.to_s[0..(exponent_len - 1)]
+      modulus_treated  = modulus[0..(modulus_len - 1)]
+      value = "#{rid}#{key_id}#{modulus_treated}#{exponent_treated}"
+      value2 = "#{rid}#{key_id}#{exponent_treated}".unpack("H*")
+      Digest::SHA1.digest(value)
     end
   end
 end
