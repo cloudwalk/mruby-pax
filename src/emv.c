@@ -35,7 +35,6 @@ void logEMVError(void)
   memset(&paucAssistInfo, 0, sizeof(paucAssistInfo));
 
   iRet = EMVGetDebugInfo(&nExpAssistInfoLen, &paucAssistInfo, &pnErrorCode);
-  display("Debug[%d][%d]", iRet, pnErrorCode);
 
   if (iRet == EMV_OK) {
     sprintf(&buf, "EMVGetDebugInfo [%d]", pnErrorCode);
@@ -158,13 +157,12 @@ int cEMVSetParam(void)
 
 unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
 {
-  return 0;
   return EMV_OK;
 }
 
 unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
 {
-  return 0;
+  return EMV_OK;
 }
 
 // it is acallback function for EMV kernel,
@@ -181,8 +179,8 @@ int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 {
-  mrb_int iRet;
   mrb_value hash, block;
+  mrb_int iRet=0;
 
   if (pszPlainPin == NULL) {
     hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,
@@ -198,6 +196,7 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
   if (! mrb_nil_p(block)) {
     memcpy(&pszPlainPin, RSTRING_PTR(block), 8);
   }
+
   return mrb_fixnum(mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "return")));
 }
 
@@ -234,8 +233,6 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
   int iCnt, iAppCnt;
   mrb_value hash, array, labels;
   APPLABEL_LIST stAppList[MAX_APP_NUM];
-
-  /*display("cEMVWaitAppSel");*/
 
   array  = mrb_ary_new(current_mrb);
   labels = mrb_ary_new(current_mrb);
@@ -340,9 +337,7 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TerminalType"));
-  /*memcpy(&parameter.TerminalType, RSTRING_PTR(value), 1);*/
-  parameter.TerminalType = 0x22;
-  /*display("TermType[%02X]", parameter.TerminalType);*/
+  memcpy(&parameter.TerminalType, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Capability"));
@@ -354,15 +349,11 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TransCurrExp"));
-  /*memcpy(&parameter.TransCurrExp, RSTRING_PTR(value), 1);*/
-  parameter.TransCurrExp = 0x02;
-  /*display("TransCurrExp[%02X]", parameter.TransCurrExp);*/
+  memcpy(&parameter.TransCurrExp, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ReferCurrExp"));
-  /*memcpy(&parameter.ReferCurrExp, RSTRING_PTR(value), 1);*/
-  parameter.ReferCurrExp = 0x02;
-  /*display("ReferCurrExp[%02X]", parameter.ReferCurrExp);*/
+  memcpy(&parameter.ReferCurrExp, RSTRING_PTR(value), 1);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ReferCurrCode"));
@@ -383,7 +374,6 @@ set_emv_parameter(mrb_state *mrb, mrb_value klass, mrb_value hash)
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TransType"));
   memcpy(&parameter.TransType, RSTRING_PTR(value), 1);
-  parameter.TransType = 0x01;
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ForceOnline"));
@@ -554,9 +544,9 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "tDOL"));
   memcpy(&parameter.tDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
-  memset(&value, 0, sizeof(value));
-  value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Version"));
-  memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));
+  /*memset(&value, 0, sizeof(value));*/
+  /*value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Version"));*/
+  /*memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));*/
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "RiskManData"));
