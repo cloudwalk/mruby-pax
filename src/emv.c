@@ -235,17 +235,20 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
   APPLABEL_LIST stAppList[MAX_APP_NUM];
 
   array  = mrb_ary_new(current_mrb);
-  labels = mrb_ary_new(current_mrb);
   EMVGetLabelList(stAppList, &iAppCnt);
 
   for (iCnt = 0; iCnt < iAppCnt && iCnt<MAX_APP_NUM; iCnt++) {
     hash = mrb_hash_new(current_mrb);
     emv_applist_to_hash(current_mrb, hash, List[iCnt]);
+    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "label"),
+        mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));
+    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "index"), mrb_fixnum_value(iCnt));
     mrb_ary_push(current_mrb, array, hash);
-    mrb_ary_push(current_mrb, labels, mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));
   }
 
-  return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 3, array, mrb_fixnum_value(TryCnt), labels));
+  if (iAppCnt == 1) return 0;
+
+  return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 2, array, mrb_fixnum_value(TryCnt)));
 }
 
 // 如果不需要提示密码验证成功，则直接返回就可以了
