@@ -522,15 +522,15 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TACDenial"));
-  memcpy(&parameter.TACDenial, RSTRING_PTR(value), 5);
+  memcpy(&parameter.TACDenial, RSTRING_PTR(value), 6);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TACOnline"));
-  memcpy(&parameter.TACOnline, RSTRING_PTR(value), 5);
+  memcpy(&parameter.TACOnline, RSTRING_PTR(value), 6);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "TACDefault"));
-  memcpy(&parameter.TACDefault, RSTRING_PTR(value), 5);
+  memcpy(&parameter.TACDefault, RSTRING_PTR(value), 6);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "AcquierId"));
@@ -658,7 +658,7 @@ add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Modul"));
-  memcpy(&parameter.Modul, RSTRING_PTR(value), parameter.ModulLen);
+  memcpy(&parameter.Modul, RSTRING_PTR(value), (int)parameter.ModulLen);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ExponentLen"));
@@ -666,7 +666,7 @@ add_emv_pki(mrb_state *mrb, mrb_value klass, mrb_value hash)
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Exponent"));
-  memcpy(&parameter.Exponent, RSTRING_PTR(value), 3);
+  memcpy(&parameter.Exponent, RSTRING_PTR(value), (int)parameter.ExponentLen);
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ExpDate"));
