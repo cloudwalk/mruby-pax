@@ -753,7 +753,6 @@ mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
   return mrb_true_value();
 }
 
-
 int already_read = 0;
 
   static mrb_value
@@ -820,6 +819,21 @@ mrb_s_emv_version(mrb_state *mrb, mrb_value klass)
     return mrb_str_new_cstr(mrb, paucVer);
   else
     return mrb_str_new(mrb, 0, 0);
+}
+
+  static mrb_value
+mrb_s_emv_random(mrb_state *mrb, mrb_value klass)
+{
+  unsigned char sRandom[4096];
+  mrb_int len=0;
+
+  memset(&sRandom, 0, sizeof(sRandom));
+
+  mrb_get_args(mrb, "i", &len);
+
+  OsGetRandom((unsigned char *)&sRandom, len);
+
+  return mrb_str_new(mrb, (const char*)&sRandom, len);
 }
 
   static mrb_value
@@ -912,5 +926,6 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "card_auth"            , mrb_s_card_auth            , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , emv , "start_transaction"    , mrb_s_start_transaction    , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "complete_transaction" , mrb_s_complete_transaction , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "random"               , mrb_s_emv_random           , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
 }
