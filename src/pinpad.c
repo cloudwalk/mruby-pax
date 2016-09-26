@@ -232,13 +232,13 @@ mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
   mrb_value hash, rsa, modulus, exponent, random, len, screen;
   mrb_int ret, slot, timeout, modulus_len, random_len, column, line;
 
-  mrb_get_args(mrb, "iSio", &slot, &len, &rsa, &timeout);
+  mrb_get_args(mrb, "iSoi", &slot, &len, &rsa, &timeout);
 
   modulus     = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "modulus"));
   modulus_len = mrb_fixnum(mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "modulus_length")));
   exponent    = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "exponent"));
   random      = mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "random"));
-  random_len  = mrb_fixnum(mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "random_lenght")));
+  random_len  = mrb_fixnum(mrb_hash_get(mrb, rsa, mrb_str_new_lit(mrb, "random_length")));
 
   memset(&stRSAPINKEY, 0, sizeof(ST_RSA_PINKEY));
   stRSAPINKEY.ModulusLen = modulus_len;
