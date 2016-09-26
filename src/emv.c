@@ -724,9 +724,7 @@ mrb_emv_s_del_pkis(mrb_state *mrb, mrb_value klass)
 
   for(i=0;i< MAX_KEY_NUM; i ++) {
     memset(&capk, 0, sizeof(capk));
-    if(EMVGetCAPK(i, &capk) == EMV_OK) {
-      display("Delete [%d][%d]", capk.KeyID, EMVDelCAPK(capk.KeyID, capk.RID));
-    }
+    if(EMVGetCAPK(i, &capk) == EMV_OK) EMVDelCAPK(capk.KeyID, capk.RID);
   }
 
   return mrb_nil_value();
