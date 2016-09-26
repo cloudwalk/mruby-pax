@@ -706,6 +706,22 @@ mrb_s_del_emv_pki(mrb_state *mrb, mrb_value klass)
 }
 
   static mrb_value
+mrb_emv_s_del_pkis(mrb_state *mrb, mrb_value klass)
+{
+  mrb_int i;
+  EMV_CAPK capk;
+
+  for(i=0;i< MAX_KEY_NUM; i ++) {
+    memset(&capk, 0, sizeof(capk));
+    if(EMVGetCAPK(i, &capk) == EMV_OK) {
+      display("Delete [%d][%d]", capk.KeyID, EMVDelCAPK(capk.KeyID, capk.RID));
+    }
+  }
+
+  return mrb_nil_value();
+}
+
+  static mrb_value
 mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
 {
   mrb_value keyID, rid;
@@ -878,6 +894,7 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "get_pki"              , mrb_s_get_emv_pki          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "add_pki"              , mrb_s_add_emv_pki          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "del_pki"              , mrb_s_del_emv_pki          , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , emv , "del_pkis"             , mrb_emv_s_del_pkis         , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , emv , "check_pki"            , mrb_s_check_emv_pki        , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "_init"                , mrb_s_emv__init            , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , emv , "app_select"           , mrb_s_emv_app_select       , MRB_ARGS_REQ(2));
