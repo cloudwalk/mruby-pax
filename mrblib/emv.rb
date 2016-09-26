@@ -47,6 +47,7 @@ class PAX
     EMV_PED_TIMEOUT          = 0x01
     EMV_PED_WAIT             = 0x02
     EMV_PED_FAIL             = 0x03
+
     REFER_APPROVE            = 0x01
     REFER_DENIAL             = 0x02
     ONLINE_APPROVE           = 0x00
@@ -129,7 +130,7 @@ class PAX
 
     class << self
       attr_accessor :icc, :select_block, :get_pin_plain_block, :verify_cipher_pin_block,
-        :get_pin_block_block
+        :get_pin_block_block, :pkis
     end
 
     def self.parameter_default
@@ -162,9 +163,14 @@ class PAX
       end
     end
 
-    def self.load_pkis(pkis)
-      pkis.each do |pki|
-        self.add_pki(self.parse_pki(pki))
+    def self.load_pkis(rows)
+      self.pkis = {}
+      logs = Hash.new
+      rows.each do |row|
+        parsed = self.parse_pki(row)
+        rid = parsed["RID"].unpack("H10").first.upcase
+        self.pkis[rid] ||= []
+        self.pkis[rid] << parsed
       end
     end
 
