@@ -24,7 +24,6 @@ mrb_value current_klass;
 void emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter);
 int IccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv);
 
-
 void logEMVError(void)
 {
   mrb_value context;
@@ -732,18 +731,25 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
+int already_config_param = 0;
 /*Check core_init before initialize, system error*/
   static mrb_value
 mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
 {
   EMV_MCKPARAM pMCKParam;
 
-  pMCKParam.ucBypassPin    = 0;
-  pMCKParam.ucBatchCapture = 1;
-
-  EMVSetMCKParam(&pMCKParam);
+  memset(&pMCKParam,0,sizeof(EMV_MCKPARAM));
 
   EMVInitTLVData();
+  if (already_config_param == 0) {
+    already_config_param = 1;
+    EMVGetMCKParam(&pMCKParam);
+    pMCKParam.ucBypassPin    = 0;
+    pMCKParam.ucBatchCapture = 1;
+
+    EMVSetMCKParam(&pMCKParam);
+  }
+
   return mrb_true_value();
 }
 
