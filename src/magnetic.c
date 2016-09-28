@@ -10,12 +10,19 @@
 #include "osal.h"
 #include "ui.h"
 
+mrb_int msr_already_open=0;
+
 static mrb_value
 mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
 
-  ret = OsMsrOpen();
+  if (msr_already_open == 0) {
+    msr_already_open=1;
+    ret = OsMsrOpen();
+  } else {
+    ret = RET_OK;
+  }
 
   OsMsrReset();
 
@@ -37,6 +44,7 @@ static mrb_value
 mrb_magnetic_s_close(mrb_state *mrb, mrb_value self)
 {
   OsMsrClose();
+  msr_already_open=0;
 
   return mrb_nil_value();
 }
