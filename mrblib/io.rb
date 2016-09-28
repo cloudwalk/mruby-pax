@@ -10,5 +10,9 @@ class PAX
 
     # milliseconds
     self.timeout = DEFAULT_TIMEOUT
+
+    def self.getxy
+      PAX::Touch.getxy
+    end
   end
 end
