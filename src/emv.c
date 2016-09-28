@@ -16,6 +16,7 @@
 #include "keyboard.h"
 #include "osal.h"
 #include "emvlib_Prolin.h"
+#include "debugger.h"
 
 mrb_state *current_mrb;
 mrb_value current_klass;
@@ -41,21 +42,6 @@ void logEMVError(void)
     context = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "ContextLog"));
     mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, buf));
   }
-}
-
-void logContext(const char *format, ...)
-{
-  char dest[1024];
-  va_list argptr;
-
-  va_start(argptr, format);
-  vsprintf(dest, format, argptr);
-  va_end(argptr);
-
-  mrb_value msg, context;
-  context = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "ContextLog"));
-  msg = mrb_funcall(current_mrb, mrb_str_new(current_mrb, dest, strlen(dest)), "inspect", 0);
-  mrb_funcall(current_mrb, context, "info", 1, msg);
 }
 
 /*
