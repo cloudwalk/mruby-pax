@@ -859,7 +859,7 @@ mrb_s_start_transaction(mrb_state *mrb, mrb_value klass)
   if (ulCashback == 0)
     ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), NULL, 10), NULL, &ACType);
   else
-    ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), ulCashback, 10), NULL, &ACType);
+    ret = EMVStartTrans(strtoul(RSTRING_PTR(amount), NULL, 10), ulCashback, &ACType);
 
   hash = mrb_hash_new(mrb);
 
