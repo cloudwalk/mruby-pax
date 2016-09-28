@@ -64,9 +64,9 @@ class PAX
       self.set_os_values
       self.printer_start
     rescue LoadError => e
-      ContextLog.error(e, e.backtrace)
+      ContextLog.exception(e, e.backtrace)
     rescue NameError => e
-      ContextLog.error(e, e.backtrace)
+      ContextLog.exception(e, e.backtrace)
     end
   end
 end
