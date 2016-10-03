@@ -901,6 +901,17 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
   return hash;
 }
 
+static mrb_value
+mrb_s_emv_param_flag(mrb_state *mrb, mrb_value klass)
+{
+  mrb_int param, flag=0;
+
+  mrb_get_args(mrb, "i", &param);
+  EMVGetParamFlag((unsigned char)param, &flag);
+
+  mrb_fixnum_value(flag);
+}
+
   void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -932,4 +943,5 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "complete_transaction" , mrb_s_complete_transaction , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , emv , "random"               , mrb_s_emv_random           , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , emv , "param_flag"           , mrb_s_emv_param_flag       , MRB_ARGS_REQ(1));
 }
