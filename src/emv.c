@@ -878,7 +878,7 @@ mrb_s_complete_transaction(mrb_state *mrb, mrb_value klass)
 {
   mrb_int code;
   mrb_value hash, scripts;
-  int result, script_result_len, script_len;
+  int result=0, script_result_len=0, script_len=0;
   unsigned char script_result, ACType;
 
   mrb_get_args(mrb, "iS", &code, &scripts);
