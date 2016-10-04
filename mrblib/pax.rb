@@ -38,6 +38,13 @@ class PAX
     Device.const_set(:EMV, PAX::EMV)
   end
 
+  def self.pagination_keys
+    {
+      "d200" => { :back_key => Device::IO::F1   , :back_key_label => " F1 " , :forward_key => Device::IO::F2    , :forward_key_label => " F2 " },
+      "s920" => { :back_key => Device::IO::FUNC , :back_key_label => "FUNC" , :forward_key => Device::IO::ALPHA , :forward_key_label => "ALPH"}
+    }
+  end
+
   def self.screen_definition
     case PAX::System.model
     when "d200"
@@ -46,6 +53,12 @@ class PAX
       [21, 14]
     else
       [21, 7]
+    end
+  end
+
+  def self.set_keyboard
+    if keys = self.pagination_keys[PAX::System.model]
+      Device::IO.setup_keyboard(Device::IO::KEYBOARD_DEFAULT, keys)
     end
   end
 
@@ -63,6 +76,7 @@ class PAX
       CloudwalkHandshake.configure!
       self.set_os_values
       self.printer_start
+      self.set_keyboard
     rescue LoadError => e
       ContextLog.exception(e, e.backtrace)
     rescue NameError => e
