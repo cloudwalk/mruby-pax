@@ -1,7 +1,7 @@
 MRuby::Gem::Specification.new('mruby-pax') do |spec|
-  spec.license = ''
+  spec.license = 'All rights reserved to CloudWalk Inc.'
   spec.authors = 'CloudWalk Inc.'
-  spec.version = "1.2.0"
+  spec.version = "1.3.0"
 
   spec.cc.include_paths << "#{build.root}/src"
 
