@@ -1,5 +1,8 @@
 # Mruby-pax
 
+### 1.3.1 - 2016-10-28
+- Fixed Magnetic.tracks returns, sometimes it was returning empty.
+
 ### 1.3.0 - 2016-10-06
 
 - Implement custom back and forward keys.
