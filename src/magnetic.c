@@ -11,6 +11,9 @@
 #include "ui.h"
 
 mrb_int msr_already_open=0;
+ST_MSR_DATA track1;
+ST_MSR_DATA track2;
+ST_MSR_DATA track3;
 
 static mrb_value
 mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
@@ -35,9 +38,25 @@ mrb_magnetic_s_read(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
 
+  memset(&track1, 0, sizeof(track1));
+  memset(&track2, 0, sizeof(track2));
+  memset(&track3, 0, sizeof(track3));
+
   ret = OsMsrSwiped();
 
-  return mrb_fixnum_value(ret);
+  if (ret)
+  {
+    ret = OsMsrRead(&track1, &track2, &track3);
+
+    if (ret == 0)
+    {
+      return mrb_fixnum_value(1);
+    }
+    else
+    {
+      return mrb_fixnum_value(0);
+    }
+  }
 }
 
 static mrb_value
@@ -54,16 +73,7 @@ static mrb_value
 mrb_magnetic_s_tracks(mrb_state *mrb, mrb_value self)
 {
   /*char track1[79+1], track2[37+1], track3[107+1];*/
-  ST_MSR_DATA track1;
-  ST_MSR_DATA track2;
-  ST_MSR_DATA track3;
   mrb_value hash;
-
-  memset(&track1, 0, sizeof(track1));
-  memset(&track2, 0, sizeof(track2));
-  memset(&track3, 0, sizeof(track3));
-
-  OsMsrRead(&track1, &track2, &track3);
 
   hash = mrb_hash_new(mrb);
   mrb_hash_set(mrb, hash, mrb_symbol_value(mrb_intern_cstr(mrb, "track1")), mrb_str_new_cstr(mrb, (const char *)&track1.TrackData));
@@ -87,4 +97,3 @@ mrb_magnetic_init(mrb_state* mrb)
   mrb_define_class_method(mrb , magnetic , "close"     , mrb_magnetic_s_close     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , magnetic , "tracks"    , mrb_magnetic_s_tracks    , MRB_ARGS_REQ(1));
 }
-
