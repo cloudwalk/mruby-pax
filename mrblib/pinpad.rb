@@ -39,8 +39,14 @@ class PAX
       "RETURN" => ""
     }
 
+    DEFAULT_TIMEOUT = 30
+
     class << self
-      attr_accessor :pinpad
+      attr_accessor :pinpad, :timeout
+    end
+
+    def self.timeout
+      @timeout || EmvTransaction.timeout || DEFAULT_TIMEOUT
     end
 
     def self.dukpt_default
