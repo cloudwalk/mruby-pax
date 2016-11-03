@@ -94,6 +94,29 @@ class PAX
         des
       end
     end
+
+    def self.pin(index, pan, timeout_seconds = self.timeout, len = "0,4,5,6,7,8,9,10,11,12")
+      response = PAX::Pinpad.get_pin_dukpt(index, pan, len, timeout_seconds * 1000)
+      case response["ped"]
+      when PAX::Pinpad::RET_OK
+        response["return"] = PAX::EMV::EMV_OK
+      when PAX::EMV::PED_RET_ERR_INPUT_CANCEL
+        response["return"] = PAX::EMV::EMV_USER_CANCEL
+      when PAX::Pinpad::ERR_PED_NO_PIN_INPUT
+        response["return"] = PAX::EMV::EMV_NO_PASSWORD
+      when PAX::Pinpad::ERR_PED_PIN_INPUT_CANCEL
+        response["return"] = PAX::EMV::EMV_USER_CANCEL
+      when PAX::Pinpad::ERR_PED_ICC_INIT_ERR
+        response["return"] = PAX::EMV::EMV_NO_PINPAD
+      when PAX::Pinpad::ERR_PED_NO_ICC
+        response["return"] = PAX::EMV::EMV_NO_PINPAD
+      when PAX::Pinpad::ERR_PED_INPUT_PIN_TIMEOUT
+        response["return"] = PAX::EMV::EMV_TIME_OUT
+      else
+        response["return"] = PAX::EMV::EMV_NO_PINPAD
+      end
+      response
+    end
   end
 end
 
