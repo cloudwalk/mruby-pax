@@ -532,9 +532,9 @@ add_emv_app(mrb_state *mrb, mrb_value klass, mrb_value hash)
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "tDOL"));
   memcpy(&parameter.tDOL, RSTRING_PTR(value), RSTRING_LEN(value));
 
-  /*memset(&value, 0, sizeof(value));*/
-  /*value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Version"));*/
-  /*memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));*/
+  memset(&value, 0, sizeof(value));
+  value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "Version"));
+  memcpy(&parameter.Version, RSTRING_PTR(value), RSTRING_LEN(value));
 
   memset(&value, 0, sizeof(value));
   value = mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "RiskManData"));
