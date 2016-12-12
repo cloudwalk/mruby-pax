@@ -211,7 +211,7 @@ class PAX
       app["dDOL"]            = "#{(ddol.size / 2).to_i.chr}#{[ddol].pack("H*")}"
 
       # :application_version_number_1=>"008C",
-      #app["Version"]         = [row.application_version_number_1].pack("H*")
+      app["Version"]         = [row.application_version_number_3].pack("H*")
 
       # = ProcessTransaction
 
