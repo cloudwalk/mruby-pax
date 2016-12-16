@@ -97,6 +97,8 @@ class PAX
 
     def self.pin(index, pan, timeout_seconds = self.timeout, len = "0,4,5,6,7,8,9,10,11,12")
       response = PAX::Pinpad.get_pin_dukpt(index, pan, len, timeout_seconds * 1000)
+      response["block"] = response["block"].unpack("H*")[0] if response["block"]
+      response["ksn"] = response["ksn"].unpack("H*")[0] if response["ksn"]
       case response["ped"]
       when PAX::Pinpad::RET_OK
         response["return"] = PAX::EMV::EMV_OK
