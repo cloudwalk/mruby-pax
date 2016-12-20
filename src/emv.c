@@ -125,7 +125,44 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 {
   int iRet;
 
+  mrb_value context;
+  char debug[1024];
+
+  memset(debug, 0, sizeof(debug));
+  context = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "ContextLog"));
+  mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, "*** cEMVIccIsoCommand"));
+
   iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
+
+  if(tApduRecv->SWA == 0x90 && tApduRecv->SWB == 0x00)
+  {
+    return EMV_OK;
+  }
+  else if(tApduRecv->SWA == 0x63 && (tApduRecv->SWB & 0xc0) == 0xc0)
+  {
+    sprintf(debug, "IccIsoCommand %d", iRet);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+
+    sprintf(debug, "tApduRecv->SWA %02X", tApduRecv->SWA);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+
+    sprintf(debug, "tApduRecv->SWB %02X", tApduRecv->SWB);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+    return ((tApduRecv->SWB & 0x0F) + 1);
+  }
+  else if(tApduRecv->SWA == 0x69 && (tApduRecv->SWB == 0x83 || tApduRecv->SWB == 0x84))
+  {
+    sprintf(debug, "IccIsoCommand %d", iRet);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+
+    sprintf(debug, "tApduRecv->SWA %02X", tApduRecv->SWA);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+
+    sprintf(debug, "tApduRecv->SWB %02X", tApduRecv->SWB);
+    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+    return EMV_RSP_ERR;
+  }
+
   if(iRet != 0) {
     return 0x01;
   } else {
