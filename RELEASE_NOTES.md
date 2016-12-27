@@ -1,6 +1,15 @@
 # Mruby-pax
 
+### 1.4.0 - 2016-12-27
+
+- Add default timeout to Pinpad class.
+- Add Pinpad.pin to capture pin using DUKPT.
+- Changed application version number 1 to 3.
+- Convert block and ksn response to hex in Pinpad.pin.
+- Implemented new returns for cEMVIccIsoCommand.
+
 ### 1.3.1 - 2016-10-28
+
 - Fixed Magnetic.tracks returns, sometimes it was returning empty.
 
 ### 1.3.0 - 2016-10-06
