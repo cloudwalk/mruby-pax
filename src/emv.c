@@ -10,13 +10,14 @@
 #include "mruby/string.h"
 #include "mruby/hash.h"
 
+#include "mruby/ext/context_log.h"
+
 #include <unistd.h>
 
 #include "ui.h"
 #include "keyboard.h"
 #include "osal.h"
 #include "emvlib_Prolin.h"
-#include "debugger.h"
 
 mrb_state *current_mrb;
 mrb_value current_klass;
@@ -125,48 +126,31 @@ uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv
 {
   int iRet;
 
-  mrb_value context;
-  char debug[1024];
-
-  memset(debug, 0, sizeof(debug));
-  context = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "ContextLog"));
-  mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, "*** cEMVIccIsoCommand"));
-
   iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
 
-  if(tApduRecv->SWA == 0x90 && tApduRecv->SWB == 0x00)
-  {
-    return EMV_OK;
-  }
-  else if(tApduRecv->SWA == 0x63 && (tApduRecv->SWB & 0xc0) == 0xc0)
-  {
-    sprintf(debug, "IccIsoCommand %d", iRet);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
+  /*DEBUG*/
+  /*ContextLog(current_mrb, 0, "IccIsoCommand iRet [%d] SWA [%d] SWB [%d]", iRet, tApduRecv->SWA, tApduRecv->SWB);*/
 
-    sprintf(debug, "tApduRecv->SWA %02X", tApduRecv->SWA);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
-
-    sprintf(debug, "tApduRecv->SWB %02X", tApduRecv->SWB);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
-    return ((tApduRecv->SWB & 0x0F) + 1);
-  }
-  else if(tApduRecv->SWA == 0x69 && (tApduRecv->SWB == 0x83 || tApduRecv->SWB == 0x84))
-  {
-    sprintf(debug, "IccIsoCommand %d", iRet);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
-
-    sprintf(debug, "tApduRecv->SWA %02X", tApduRecv->SWA);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
-
-    sprintf(debug, "tApduRecv->SWB %02X", tApduRecv->SWB);
-    mrb_funcall(current_mrb, context, "info", 1, mrb_str_new_cstr(current_mrb, debug));
-    return EMV_RSP_ERR;
-  }
-
-  if(iRet != 0) {
-    return 0x01;
-  } else {
-    return EMV_OK;
+  if (iRet == 0) return EMV_OK;
+  else if(iRet == 1 || iRet == 2) return iRet;
+  else {
+    if(tApduRecv->SWA == 0x90 && tApduRecv->SWB == 0x00) {
+      /*DEBUG*/
+      /*ContextLog(current_mrb, 0, "IccIsoCommand return EMV_OK");*/
+      return EMV_OK;
+    } else if(tApduRecv->SWA == 0x63 && (tApduRecv->SWB & 0xc0) == 0xc0) {
+      /*DEBUG*/
+      /*ContextLog(current_mrb, 0, "IccIsoCommand return [%d]", (tApduRecv->SWB & 0x0F) + 1);*/
+      return ((tApduRecv->SWB & 0x0F) + 1);
+    } else if(tApduRecv->SWA == 0x69 && (tApduRecv->SWB == 0x83 || tApduRecv->SWB == 0x84)) {
+      /*DEBUG*/
+      /*ContextLog(current_mrb, 0, "IccIsoCommand return EMV_RSP_ERR");*/
+      return EMV_RSP_ERR;
+    } else {
+      /*DEBUG*/
+      /*ContextLog(current_mrb, 0, "IccIsoCommand return 0x01");*/
+      return 0x01;
+    }
   }
 }
 
