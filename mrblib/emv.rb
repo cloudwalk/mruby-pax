@@ -174,7 +174,7 @@ class PAX
       end
     end
 
-    def self.row_to_app(row)
+    def self.row_to_app(row, version = 3)
       app = EMV_APP_DEFAULT.dup
 
       # APP Parameter
@@ -211,7 +211,16 @@ class PAX
       app["dDOL"]            = "#{(ddol.size / 2).to_i.chr}#{[ddol].pack("H*")}"
 
       # :application_version_number_1=>"008C",
-      app["Version"]         = [row.application_version_number_3].pack("H*")
+      case version
+      when 1
+        app["Version"]       = [row.application_version_number_1].pack("H*")
+      when 2
+        app["Version"]       = [row.application_version_number_2].pack("H*")
+      when 3
+        app["Version"]       = [row.application_version_number_3].pack("H*")
+      else
+        app["Version"]       = [row.application_version_number_3].pack("H*")
+      end
 
       # = ProcessTransaction
 
@@ -335,8 +344,8 @@ class PAX
       general
     end
 
-    def self.parse_app(row)
-      [self.row_to_general(row), self.row_to_app(row)]
+    def self.parse_app(row, version = 3)
+      [self.row_to_general(row), self.row_to_app(row, version)]
     end
 
     def self.parse_pki(row)
