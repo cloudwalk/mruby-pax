@@ -28,6 +28,7 @@ class PAX
     ERR_PED_ICC_INIT_ERR      = -3817
     ERR_PED_NO_ICC            = -3816
     ERR_PED_WAIT_INTERVAL     = -3807
+    ERR_PED_INPUT_PIN_TIMEOUT = -3815
 
     DUKPT_DEFAULT = {
       "KSN"      => "",
