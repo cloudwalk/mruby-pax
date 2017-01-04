@@ -118,7 +118,7 @@ mrb_s_pinpad_get_pin_block(mrb_state *mrb, mrb_value klass)
   column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
   line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
 
-  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, 24,
+  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedGetPinBlock(slot, (const unsigned char *)RSTRING_PTR(pan),
       RSTRING_PTR(len), 0x00, timeout, (unsigned char *)&pinblock);
@@ -150,7 +150,7 @@ mrb_s_pinpad_get_pin_dukpt(mrb_state *mrb, mrb_value klass)
   column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
   line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
 
-  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, 24,
+  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedGetPinDukpt(key_index, (const unsigned char *)RSTRING_PTR(pan),
       RSTRING_PTR(len), 0x20, timeout, (unsigned char *)&ksn, (unsigned char *)&dataOut);
@@ -228,7 +228,7 @@ mrb_s_pinpad_get_pin_plain(mrb_state *mrb, mrb_value klass)
   column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
   line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
 
-  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, 24,
+  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedVerifyPlainPin(slot, RSTRING_PTR(len), 0x00, timeout, &ucBlock);
 
@@ -266,7 +266,7 @@ mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
   column = mrb_fixnum(mrb_funcall(mrb, screen, "x", 0));
   line   = mrb_fixnum(mrb_funcall(mrb, screen, "y", 0));
 
-  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, 24,
+  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedVerifyCipherPin(slot, &stRSAPINKEY, RSTRING_PTR(len), 0x00, timeout, &ucBlock);
 
