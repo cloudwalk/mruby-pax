@@ -21,6 +21,8 @@ int screen_x;
 int screen_y;
 int line_width;
 int line_height;
+int iAsteriskSize = 0;
+char model[64]="\0";
 
 static int fix_x(int x)
 {
@@ -30,6 +32,19 @@ static int fix_x(int x)
 static int fix_y(int y)
 {
   return y * line_height;
+}
+
+static int
+getAsteriskSize(void)
+{
+  if (iAsteriskSize == 0) {
+    OsRegGetValue("ro.fac.mach", model);
+    if (strcmp(model, "d200") == 0)
+      iAsteriskSize = 24;
+    else
+      iAsteriskSize = 16;
+  }
+  return iAsteriskSize;
 }
 
 static mrb_value
