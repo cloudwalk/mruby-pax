@@ -120,6 +120,11 @@ class PAX
       end
       response
     end
+
+    def self.get_pin_dukpt(index, pan, len, timeout)
+      pan_shifted = "0000" + pan.to_s[-13..-2]
+      self._get_pin_dukpt(index, pan_shifted, len, timeout)
+    end
   end
 end
 

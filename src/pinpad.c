@@ -132,7 +132,7 @@ mrb_s_pinpad_get_pin_block(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_s_pinpad_get_pin_dukpt(mrb_state *mrb, mrb_value klass)
+mrb_s_pinpad__get_pin_dukpt(mrb_state *mrb, mrb_value klass)
 {
   char ksn[16];
   char dataIn[16];
@@ -277,6 +277,24 @@ mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
   return hash;
 }
 
+static mrb_value
+mrb_pinpad_s_key_kcv(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value array;
+  unsigned char kcv[8] = {0x00};
+  mrb_int ret;
+  /*mrb_int type, index;*/
+  /*mrb_get_args(mrb, "ii", &type, &index);*/
+
+  ret = OsPedGetKcv(PED_TIK, 33, 0x00, 0, NULL, &kcv);
+
+  array = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+  if (ret == RET_OK) mrb_ary_push(mrb, array, mrb_str_new(mrb, kcv, 8));
+
+  return array;
+}
+
 void
 mrb_pinpad_init(mrb_state* mrb)
 {
@@ -289,7 +307,7 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pinpad , "load_pin_key"      , mrb_s_pinpad_load_pin_key      , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pinpad , "load_ipek"         , mrb_s_pinpad_load_ipek         , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "get_pin_block"     , mrb_s_pinpad_get_pin_block     , MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb , pinpad , "get_pin_dukpt"     , mrb_s_pinpad_get_pin_dukpt     , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "_get_pin_dukpt"    , mrb_s_pinpad__get_pin_dukpt    , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "get_pin_plain"     , mrb_s_pinpad_get_pin_plain     , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pinpad , "verify_cipher_pin" , mrb_s_pinpad_verify_cipher_pin , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "des"               , mrb_s_pinpad_des               , MRB_ARGS_REQ(3));
