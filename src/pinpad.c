@@ -314,4 +314,5 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pinpad , "derive"            , mrb_s_pinpad_derive            , MRB_ARGS_REQ(6));
   mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pinpad , "key_kcv"           , mrb_pinpad_s_key_kcv           , MRB_ARGS_NONE());
 }
