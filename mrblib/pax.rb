@@ -48,11 +48,11 @@ class PAX
   def self.screen_definition
     case PAX::System.model
     when "d200"
-      [21, 7]
+      [22, 8]
     when "s920"
       [21, 14]
     else
-      [21, 7]
+      [22, 8]
     end
   end
 
