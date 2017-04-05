@@ -210,7 +210,9 @@ bmp_convert(char *file, unsigned char *logo)
 static mrb_value
 mrb_pax_printer_s__open(mrb_state *mrb, mrb_value self)
 {
-  return mrb_fixnum_value(OsPrnOpen(PRN_REAL, NULL));
+  mrb_int ret = OsPrnOpen(PRN_REAL, NULL);
+  OsPrnReset();
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
@@ -277,9 +279,15 @@ mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret;
   mrb_value buf;
+  unsigned char buffer[2048];
+
+  memset(&buffer, 0, sizeof(buffer));
 
   mrb_get_args(mrb, "S", &buf);
-  OsPrnPrintf(RSTRING_PTR(buf));
+
+  strncat(&buffer[0], RSTRING_PTR(buf), RSTRING_LEN(buf));
+
+  OsPrnPrintf(buffer);
   ret = OsPrnStart();
   OsPrnReset();
 
