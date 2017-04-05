@@ -157,7 +157,7 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.print(string)
-      if self.allow?
+      if self.allow? && ! string.to_s.empty?
         self._print(string)
       end
     end
