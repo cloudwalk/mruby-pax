@@ -59,6 +59,7 @@ class PAX
         self.multi_width   = multicode_width
         self.multi_height  = multicode_height
 
+        self.level = 3
         self.size(singlecode_width, singlecode_height, multicode_width, multicode_height)
       end
       ret
