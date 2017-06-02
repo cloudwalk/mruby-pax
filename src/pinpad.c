@@ -168,6 +168,37 @@ mrb_s_pinpad__get_pin_dukpt(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
+mrb_s_pinpad_encrypt_dukpt(mrb_state *mrb, mrb_value klass)
+{
+  char ksn[16];
+  char dataIn[16];
+  unsigned char dataOut[64];
+  mrb_value hash, value;
+  mrb_int key_index, ret;
+
+  memset(ksn, 0, sizeof(ksn));
+  memset(dataIn, 0, sizeof(dataIn));
+  memset(dataOut, 0, sizeof(dataOut));
+
+  mrb_get_args(mrb, "iS", &key_index, &value);
+
+  ret = OsPedDesDukpt(key_index, 0x01, NULL, 8, (const unsigned char *)RSTRING_PTR(value),
+      (unsigned char *)&dataOut, (unsigned char *)&ksn, 0x01);
+
+  hash = mrb_hash_new(mrb);
+  if (ret == RET_OK) {
+    ret = OsPedIncreaseKsnDukpt(key_index);
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "block"), mrb_str_new(mrb, (char *)&dataOut, 8));
+    mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ksn"), mrb_str_new(mrb, (char *)&ksn, 10));
+  } else {
+    OsPedIncreaseKsnDukpt(key_index);
+  }
+
+  mrb_hash_set(mrb, hash, mrb_str_new_cstr(mrb, "ped"), mrb_fixnum_value(ret));
+  return hash;
+}
+
+static mrb_value
 mrb_s_pinpad_des(mrb_state *mrb, mrb_value klass)
 {
   mrb_int index, mode, ret;
@@ -308,6 +339,7 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pinpad , "load_ipek"         , mrb_s_pinpad_load_ipek         , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "get_pin_block"     , mrb_s_pinpad_get_pin_block     , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "_get_pin_dukpt"    , mrb_s_pinpad__get_pin_dukpt    , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , pinpad , "encrypt_dukpt"     , mrb_s_pinpad_encrypt_dukpt     , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , pinpad , "get_pin_plain"     , mrb_s_pinpad_get_pin_plain     , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pinpad , "verify_cipher_pin" , mrb_s_pinpad_verify_cipher_pin , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , pinpad , "des"               , mrb_s_pinpad_des               , MRB_ARGS_REQ(3));
