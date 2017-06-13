@@ -34,8 +34,11 @@ class PAX
   end
 
   def self.define_device_modules
-    Device.const_set(:Pinpad, PAX::Pinpad)
-    Device.const_set(:EMV, PAX::EMV)
+    Device.const_set(:Pinpad            , PAX::Pinpad)
+    Device.const_set(:EMV               , PAX::EMV)
+    Device::Network.const_set(:Gprs     , PAX::Network::Gprs)
+    Device::Network.const_set(:Ethernet , PAX::Network::Ethernet)
+    Device::Network.const_set(:Wifi     , PAX::Network::Wifi)
   end
 
   def self.pagination_keys
