@@ -85,7 +85,6 @@ class PAX
       slot    = str[1..2].to_i
       message = str[35..-1]
       hash = PAX::Pinpad.encrypt_dukpt(slot, [message].pack("H*"))
-      ContextLog.info "[#{slot}][#{message}][#{[message].pack("H*").inspect}] - #{hash}"
       [hash["ped"], hash["block"], hash["ksn"]]
     end
 
