@@ -7,8 +7,20 @@ class PAX
       PAX::System._serial
     end
 
+    def self.kb_backlight=(level)
+      PAX::System._kb_backlight = level
+    end
+
     def self.backlight=(level)
-      PAX::System._backlight = level
+      if level == 0
+        PAX::System._kb_backlight = level
+        PAX::System._sleep_mode   = 1
+        PAX::System._backlight    = level
+      else
+        PAX::System._backlight    = 7
+        PAX::System._kb_backlight = 1
+        PAX::System._sleep_mode   = 0
+      end
     end
 
     def self.backlight

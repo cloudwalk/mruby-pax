@@ -26,8 +26,50 @@ mrb_s__serial(mrb_state *mrb, mrb_value self)
     return mrb_str_new(mrb, 0, 0);
 }
 
+/*
+ * Brightness level [0~10].
+ *    0: turn off the backlight
+ *   10: brightest
+ * The default value is 8. Other values: no action.
+ */
 static mrb_value
 mrb_s__set_backlight(mrb_state *mrb, mrb_value self)
+{
+  mrb_int mode;
+
+  mrb_get_args(mrb, "i", &mode);
+
+  OsScrBrightness(mode);
+
+  return mrb_fixnum_value(mode);
+}
+
+/*
+ * Sleep level, value range is [0, 2].
+ *   0: System runs normally;
+ *   1: Screensaver mode.
+ *     CPU worksnormally; LCD, key backlight, touch key and touch screen can be woken up by plastic button.
+ *   2: System sleeps.
+ *     CPU is in standby mode, other modules are closed and can only be woken up by plastic button.
+ */
+static mrb_value
+mrb_s__set_sleep_mode(mrb_state *mrb, mrb_value self)
+{
+  mrb_int mode;
+
+  mrb_get_args(mrb, "i", &mode);
+
+  OsSysSleepEx(mode);
+
+  return mrb_fixnum_value(mode);
+}
+
+/*
+ *        0: Turn off the backlight.
+ * Non-zero: Turn on the backlight.
+ */
+static mrb_value
+mrb_s__set_kb_backlight(mrb_state *mrb, mrb_value self)
 {
   mrb_int mode;
 
@@ -212,6 +254,8 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , audio  , "beep"            , mrb_pax_audio_s_beep      , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_serial"         , mrb_s__serial             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_backlight="     , mrb_s__set_backlight      , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , system , "_kb_backlight="  , mrb_s__set_kb_backlight   , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , system , "_sleep_mode="    , mrb_s__set_sleep_mode     , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , system , "_battery"        , mrb_s_battery             , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_power_supply"   , mrb_s__power_supply       , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_ip"             , mrb_addrinfo_s__ip        , MRB_ARGS_OPT(1));
