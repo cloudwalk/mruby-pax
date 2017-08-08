@@ -44,7 +44,21 @@ mrb_pax_s__getc(mrb_state *mrb, mrb_value self)
 
   if (mrb_fixnum_p(obj)) timeout = mrb_fixnum(obj);
 
-  return mrb_fixnum_value(GetKey(timeout));
+	/*return mrb_fixnum_value(GetKey(mrb, timeout));*/
+	return mrb_fixnum_value(GetMainKey(mrb, timeout));
+}
+
+mrb_value
+mrb_pax_s__getc_read(mrb_state *mrb, mrb_value self)
+{
+  mrb_value obj;
+  mrb_int timeout=0;
+
+  mrb_get_args(mrb, "o", &obj);
+
+  if (mrb_fixnum_p(obj)) timeout = mrb_fixnum(obj);
+
+  return mrb_fixnum_value(GetMainKey(mrb, timeout));
 }
 
 mrb_value
@@ -115,9 +129,9 @@ mrb_display_init(mrb_state* mrb)
 
   mrb_define_method(mrb       , krn , "__print__"          , mrb__print__                   , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pax , "_getc"              , mrb_pax_s__getc                , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pax , "_getc_read"         , mrb_pax_s__getc_read           , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "display_clear"      , mrb_pax_s_display_clear        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line   , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap         , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , dsp , "print_status_bar"   , mrb_display_s_print_status_bar , MRB_ARGS_REQ(2));
 }
-
