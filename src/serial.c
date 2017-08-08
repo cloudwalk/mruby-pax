@@ -185,8 +185,7 @@ int OsWlPortRecv(int fp, void *RecvBuf, int RecvLen, int TimeoutMs)
       err = errno;
       if (err != EAGAIN && err != EINTR)
         return port_err(err);
-    }
-    else {
+    } else {
       buf += ret;
       RecvLen -= ret;
       total += ret;

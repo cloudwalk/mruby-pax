@@ -40,10 +40,10 @@ class PAX
       open(com, speed, databits, parity, stopbits)
     end
 
-    def read(eot = "\n")
+    def read(size = 200, eot = "\n")
       str = ""
       timeout = Time.now + DEFAULT_TIMEOUT / 1000
-      while(ch = recv(200))
+      while(ch = recv(size))
         str << ch
         break if str.include?(eot)
         break if timeout < Time.now
@@ -51,9 +51,9 @@ class PAX
       str
     end
 
-    def command(str)
+    def command(str, size)
       send(str)
-      read
+      read(size)
     end
   end
 end
