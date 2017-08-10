@@ -67,8 +67,7 @@ class PAX
   end
 
   def self.printer_start
-    ret = Device::Printer.start
-    ContextLog.info("Error Printer start [#{ret}]") if ret != PAX::Printer::RET_OK
+    Device::Printer.start
   end
 
   def self.setup
