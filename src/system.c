@@ -102,7 +102,7 @@ mrb_addrinfo_s__ip(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "o", &host);
 
   if (mrb_string_p(host)) {
-    ret = OsNetDns(RSTRING_PTR(host), (char *)&dnsAddr, 5000);
+    ret = OsNetDns(RSTRING_PTR(host), (char *)&dnsAddr, 30000);
   }
 
   if (ret == RET_OK)
