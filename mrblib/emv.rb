@@ -174,7 +174,7 @@ class PAX
       end
     end
 
-    def self.row_to_app(row, version = 3)
+    def self.row_to_app(row, version = nil)
       app = EMV_APP_DEFAULT.dup
 
       # APP Parameter
@@ -219,7 +219,13 @@ class PAX
       when 3
         app["Version"]       = [row.application_version_number_3].pack("H*")
       else
-        app["Version"]       = [row.application_version_number_3].pack("H*")
+        if row.application_version_number_1 != "0000"
+          app["Version"]     = [row.application_version_number_1].pack("H*")
+        elsif row.application_version_number_2 != "0000"
+          app["Version"]     = [row.application_version_number_2].pack("H*")
+        else
+          app["Version"]     = [row.application_version_number_3].pack("H*")
+        end
       end
 
       # = ProcessTransaction
