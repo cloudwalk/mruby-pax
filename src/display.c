@@ -118,6 +118,20 @@ mrb_display_s_print_status_bar(mrb_state *mrb, mrb_value self)
   }
 }
 
+mrb_value
+mrb_display_s_font(mrb_state *mrb, mrb_value self)
+{
+  mrb_value path;
+  mrb_int r = 0, g = 0, b = 0, a = 0, width = 0, height = 0;
+
+  mrb_get_args(mrb, "iiiiiiS", &r, &g, &b, &a, &width, &height, &path);
+
+  /*CloseFont();*/
+  OpenFont(r, g, b, a, 0, 0, width, height, RSTRING_PTR(path));
+
+  return mrb_true_value();
+}
+
 void
 mrb_display_init(mrb_state* mrb)
 {
@@ -134,4 +148,5 @@ mrb_display_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pax , "display_clear_line" , mrb_pax_s_display_clear_line   , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pax , "print_bitmap"       , mrb_pax_s_print_bitmap         , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , dsp , "print_status_bar"   , mrb_display_s_print_status_bar , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , dsp , "font"               , mrb_display_s_font             , MRB_ARGS_REQ(7));
 }
