@@ -31,6 +31,7 @@ class PAX
   def self.set_os_values
     PAX::System._os_set_value("persist.sys.sound.enable", "true")
     PAX::System._os_set_value("persist.sys.backlighttime", 180.chr)
+    PAX::System._os_set_value("persist.sys.continue.print", "1")
     PAX::Audio.volume = 5
   end
 
