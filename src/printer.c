@@ -288,6 +288,9 @@ mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
   strncat(&buffer[0], RSTRING_PTR(buf), RSTRING_LEN(buf));
 
   OsPrnPrintf(buffer);
+  OsPrnSetGray(3);
+  OsPrnSetSpace(0,0);
+  OsPrnSetIndent(0,0);
   ret = OsPrnStart();
   OsPrnReset();
 
