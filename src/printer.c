@@ -234,7 +234,7 @@ mrb_pax_printer_s__font(mrb_state *mrb, mrb_value self)
 {
   mrb_value filename;
 
-  mrb_get_args(mrb, "s", &filename);
+  mrb_get_args(mrb, "S", &filename);
 
   return mrb_fixnum_value(OsPrnSetFont(RSTRING_PTR(filename)));
 }
