@@ -137,7 +137,6 @@ class PAX
                  multicode_height  = self.multi_height)
 
       if self.allow?
-        ContextLog.info "Change Size"
         if singlecode_width == 10
           self._size(9, 20, 12, 24)
         else
