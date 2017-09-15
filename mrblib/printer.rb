@@ -59,7 +59,6 @@ class PAX
         self.multi_width   = multicode_width
         self.multi_height  = multicode_height
 
-        self.level = 3
         self.size(singlecode_width, singlecode_height, multicode_width, multicode_height)
       end
       ret
@@ -138,8 +137,12 @@ class PAX
                  multicode_height  = self.multi_height)
 
       if self.allow?
-        self._size(singlecode_width, singlecode_height, multicode_width,
-                   multicode_height)
+        ContextLog.info "Change Size"
+        if singlecode_width == 10
+          self._size(9, 20, 12, 24)
+        else
+          self._size(singlecode_width, singlecode_height, multicode_width, multicode_height)
+        end
       end
     end
 
