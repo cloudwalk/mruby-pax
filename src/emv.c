@@ -248,6 +248,8 @@ int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
     emv_applist_to_hash(current_mrb, hash, List[iCnt]);
     mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "label"),
         mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));
+    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "aid"),
+        mrb_str_new(current_mrb, (const char*)stAppList[iCnt].aucAID, 16));
     mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "index"), mrb_fixnum_value(iCnt));
     mrb_ary_push(current_mrb, array, hash);
   }
