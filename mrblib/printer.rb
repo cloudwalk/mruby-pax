@@ -151,7 +151,9 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.feed(pixels = 60)
-      self._feed(pixels) if self.allow?
+      if self.allow?
+        self._print("\f")
+      end
     end
 
     # @brief Write text on print buffer.
