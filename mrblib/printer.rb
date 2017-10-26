@@ -18,7 +18,7 @@ class PAX
     DEFAULT_MULTI_HEIGHT  = 24
 
     class << self
-      attr_accessor :single_width, :single_height, :multi_width, :multi_height
+      attr_accessor :single_width, :single_height, :multi_width, :multi_height, :thread, :printer_control
     end
 
     def self.allow?
@@ -73,7 +73,30 @@ class PAX
     #
     # @return [Fixnum] Return number.
     def self.open
-      self._open if self.allow?
+      if self.allow?
+        self._open
+        self.thread_new
+      end
+    end
+
+    def self.thread_new
+      self.printer_control = PrinterControl.new
+      self.thread = Thread.new(self.printer_control) do |printer|
+        loop do
+          if printer.flag_print
+            sleep(2)
+            printer.print
+            printer.flag_print = false
+          end
+        end
+      end
+    end
+
+    def self.thread_print
+      self.printer_control.flag_print = true
+      unless self.thread.alive?
+        thread_new
+      end
     end
 
     # @brief Restore the printer default settings and clear the print buffer data.
@@ -132,9 +155,9 @@ class PAX
     #
     # @return [NilClass] Allways returns nil.
     def self.size(singlecode_width = self.single_width,
-                 singlecode_height = self.single_height,
-                 multicode_width   = self.multi_width,
-                 multicode_height  = self.multi_height)
+                  singlecode_height = self.single_height,
+                  multicode_width   = self.multi_width,
+                  multicode_height  = self.multi_height)
 
       if self.allow?
         if singlecode_width == 10
@@ -153,6 +176,7 @@ class PAX
     def self.feed(pixels = 60)
       if self.allow?
         self._print("\f")
+        thread_print
       end
     end
 
@@ -163,7 +187,8 @@ class PAX
     # @return [NilClass] Allways returns nil.
     def self.print(string)
       if self.allow? && ! string.to_s.empty?
-        self._print(string)
+        self._print("#{string}\n")
+        self.thread_print
       end
     end
 
@@ -197,6 +222,7 @@ class PAX
       if self.allow?
         if File.exists?(path)
           self._print_bmp(path)
+          thread_print
         else
           BMP_FILE_ERROR
         end
