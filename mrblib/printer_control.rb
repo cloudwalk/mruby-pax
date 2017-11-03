@@ -1,6 +1,6 @@
 class PrinterControl
   attr_accessor :flag_print
-  
+
   def initialize
     self.flag_print = false
   end
