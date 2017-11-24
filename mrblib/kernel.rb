@@ -64,6 +64,10 @@ module Kernel
     convert_key(PAX._getc(timeout_io))
   end
 
+  def getxy(timeout = 10_000)
+    PAX::Touch.getxy(timeout)
+  end
+
   private
   def convert_key(value)
     PAX_KEYS[value] || 0x1B.chr
