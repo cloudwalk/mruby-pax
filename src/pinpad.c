@@ -9,6 +9,7 @@
 #include "mruby/hash.h"
 
 #include "osal.h"
+#include "ui.h"
 
 #define PED_TLK 0x01
 #define PED_TMK 0x02
@@ -122,6 +123,7 @@ mrb_s_pinpad_get_pin_block(mrb_state *mrb, mrb_value klass)
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedGetPinBlock(slot, (const unsigned char *)RSTRING_PTR(pan),
       RSTRING_PTR(len), 0x00, timeout, (unsigned char *)&pinblock);
+  display_clear();
 
   hash = mrb_hash_new(mrb);
   if (ret == RET_OK)
@@ -154,6 +156,7 @@ mrb_s_pinpad__get_pin_dukpt(mrb_state *mrb, mrb_value klass)
       RGB(0x00, 0x00, 0x00), PED_ASTERISK_ALIGN_LEFT);
   ret = OsPedGetPinDukpt(key_index, (const unsigned char *)RSTRING_PTR(pan),
       RSTRING_PTR(len), 0x20, timeout, (unsigned char *)&ksn, (unsigned char *)&dataOut);
+  display_clear();
 
   hash = mrb_hash_new(mrb);
   if (ret == RET_OK) {
