@@ -43,8 +43,16 @@ class PAX
     DEFAULT_TIMEOUT = 30
 
     class << self
-      attr_accessor :pinpad, :timeout
+      attr_accessor :pinpad, :timeout, :r, :g, :b
     end
+
+    def self.rgb(r,g,b)
+      self.r = r
+      self.g = g
+      self.b = b
+    end
+
+    self.rgb(0,0,0)
 
     def self.timeout
       @timeout || EmvTransaction.timeout || DEFAULT_TIMEOUT
