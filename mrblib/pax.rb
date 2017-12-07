@@ -12,7 +12,9 @@ class PAX
     end
 
     def self.display_bitmap(path, row = 0, column = 0)
-      PAX.print_bitmap(path, row, column)
+      if File.exists? path
+        PAX.print_bitmap(path, row, column)
+      end
     end
 
     def self.print_in_line(buf, row=0, column=0)
