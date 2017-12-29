@@ -38,6 +38,7 @@ class PAX
   end
 
   def self.define_device_modules
+    Device.const_set(:Touch             , PAX::Touch)
     Device.const_set(:Pinpad            , PAX::Pinpad)
     Device.const_set(:EMV               , PAX::EMV)
     Device::Network.const_set(:Gprs     , PAX::Network::Gprs)

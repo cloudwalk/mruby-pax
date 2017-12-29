@@ -68,6 +68,10 @@ module Kernel
     PAX::Touch.getxy(timeout)
   end
 
+  def getxy_stream(timeout = 10_000)
+    PAX::Touch.getxy_stream(timeout)
+  end
+
   private
   def convert_key(value)
     PAX_KEYS[value] || 0x1B.chr

@@ -6,6 +6,13 @@ class PAX
         [hash["x"], hash["y"]]
       end
     end
+
+    def self.getxy_stream(timeout = 10_000)
+      hash = self._getxy_stream(timeout)
+      if hash["return"] == 1
+        [hash["x"], hash["y"]]
+      end
+    end
   end
 end
 
