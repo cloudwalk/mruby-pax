@@ -345,7 +345,7 @@ mrb_printer_init(mrb_state* mrb)
   mrb_define_class_method(mrb , printer , "_open"         , mrb_pax_printer_s__open         , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , printer , "_reset"        , mrb_pax_printer_s__reset        , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , printer , "_close"        , mrb_pax_printer_s__close        , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , printer , "_font="        , mrb_pax_printer_s__font         , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_font"         , mrb_pax_printer_s__font         , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , printer , "_level="       , mrb_pax_printer_s__level        , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , printer , "_size"         , mrb_pax_printer_s__size         , MRB_ARGS_REQ(4));
   mrb_define_class_method(mrb , printer , "_feed"         , mrb_pax_printer_s__feed         , MRB_ARGS_REQ(1));

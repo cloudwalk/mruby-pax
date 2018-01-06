@@ -129,8 +129,8 @@ class PAX
     # @retval RET_OK Success.
     # @retval ERR_FONT_NOT_EXIST Font does not exist.
     # @retval ERR_INVALID_PARAM Invalid parameter.
-    def self.font=(filename)
-      self._font = filename if self.allow?
+    def self.font(filename)
+      self._font(filename) if self.allow?
     end
 
     # @brief Sets printing gray level.

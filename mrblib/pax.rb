@@ -74,6 +74,7 @@ class PAX
 
   def self.printer_start
     Device::Printer.start
+    PAX::Printer.font("AerialMono.ttf")
   end
 
   def self.setup
