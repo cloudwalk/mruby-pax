@@ -96,6 +96,7 @@ class PAX
               end
             end
             printer.print
+            PAX::Printer.font("AerialMono.ttf")
           end
         end
       end
