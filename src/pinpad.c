@@ -343,11 +343,10 @@ mrb_pinpad_s_key_kcv(mrb_state *mrb, mrb_value klass)
 {
   mrb_value array;
   unsigned char kcv[8] = {0x00};
-  mrb_int ret;
-  /*mrb_int type, index;*/
-  /*mrb_get_args(mrb, "ii", &type, &index);*/
+  mrb_int ret, index;
+  mrb_get_args(mrb, "i", &index);
 
-  ret = OsPedGetKcv(PED_TIK, 33, 0x00, 0, NULL, &kcv);
+  ret = OsPedGetKcv(PED_TIK, (int)index, 0x00, 0, NULL, &kcv);
 
   array = mrb_ary_new(mrb);
   mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
@@ -376,5 +375,5 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pinpad , "derive"            , mrb_s_pinpad_derive            , MRB_ARGS_REQ(6));
   mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pinpad , "key_kcv"           , mrb_pinpad_s_key_kcv           , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , pinpad , "key_kcv"           , mrb_pinpad_s_key_kcv           , MRB_ARGS_REQ(1));
 }
