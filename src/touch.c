@@ -23,7 +23,7 @@ mrb_touch_s__getxy(mrb_state *mrb, mrb_value self)
   ret = GetTouchScreen(timeout, &x, &y, 1);
 
   hash = mrb_hash_new(mrb);
-  if (ret == 1 && x <= S920_SCREEN_Y && y <= S920_SCREEN_Y && x > 0 && y > 0) {
+  if (ret == 1 && x <= S920_SCREEN_X && y <= S920_SCREEN_Y && x > 0 && y > 0) {
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "x")      , mrb_fixnum_value(x));
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "y")      , mrb_fixnum_value(y));
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "return") , mrb_fixnum_value(ret));
@@ -43,7 +43,7 @@ mrb_touch_s__getxy_stream(mrb_state *mrb, mrb_value self)
   ret = GetTouchScreen(timeout, &x, &y, 0);
 
   hash = mrb_hash_new(mrb);
-  if (ret == 1 && x <= S920_SCREEN_Y && y <= S920_SCREEN_Y && x > 0 && y > 0) {
+  if (ret == 1 && x <= S920_SCREEN_X && y <= S920_SCREEN_Y && x > 0 && y > 0) {
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "x")      , mrb_fixnum_value(x));
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "y")      , mrb_fixnum_value(y));
     mrb_hash_set(mrb , hash , mrb_str_new_lit(mrb , "return") , mrb_fixnum_value(ret));
