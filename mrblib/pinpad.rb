@@ -7,6 +7,8 @@ class PAX
     PED_INT_TMK         = 2
     PED_INT_TLK         = 1
     PED_INT_TDK         = 5
+    PED_INT_TIK         = 10
+    PED_INT_TPK         = 3
     MODE_ECB_DECRYPTION = 0
     MODE_ECB_ENCRYPTION = 1
     MODE_CBC_DECRYPTION = 2
@@ -148,6 +150,29 @@ class PAX
     def self.get_pin_dukpt(index, pan, len, timeout)
       pan_shifted = "0000" + pan.to_s[-13..-2]
       self._get_pin_dukpt(index, pan_shifted, len, timeout)
+    end
+
+    def self.key_ksn(index)
+      pin = self._key_ksn(index)
+      {
+        :pin  => convert_result_to_hex(pin),
+        :data => []
+      }
+    end
+
+    def self.key_kcv(index)
+      pin  = self._key_kcv(PED_INT_TIK, index)
+      data = self._key_kcv(PED_INT_TPK , index)
+      {
+        :pin  => convert_result_to_hex(pin),
+        :data => convert_result_to_hex(data)
+      }
+    end
+
+    private
+    def self.convert_result_to_hex(result)
+      ret, binary = result
+      [ret, binary.to_s.unpack("H*").first.to_s.upcase]
     end
   end
 end

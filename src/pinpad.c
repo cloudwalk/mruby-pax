@@ -339,14 +339,14 @@ mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_pinpad_s_key_kcv(mrb_state *mrb, mrb_value klass)
+mrb_pinpad_s__key_kcv(mrb_state *mrb, mrb_value klass)
 {
   mrb_value array;
   unsigned char kcv[8] = {0x00};
-  mrb_int ret, index;
-  mrb_get_args(mrb, "i", &index);
+  mrb_int ret, index, type;
+  mrb_get_args(mrb, "ii", &type, &index);
 
-  ret = OsPedGetKcv(PED_TIK, (int)index, 0x00, 0, NULL, &kcv);
+  ret = OsPedGetKcv((int)type, (int)index, 0x00, 0, NULL, &kcv);
 
   array = mrb_ary_new(mrb);
   mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
@@ -356,7 +356,7 @@ mrb_pinpad_s_key_kcv(mrb_state *mrb, mrb_value klass)
 }
 
 static mrb_value
-mrb_pinpad_s_key_ksn(mrb_state *mrb, mrb_value klass)
+mrb_pinpad_s__key_ksn(mrb_state *mrb, mrb_value klass)
 {
   mrb_value array;
   unsigned char ksn[10] = {0x00};
@@ -392,6 +392,6 @@ mrb_pinpad_init(mrb_state* mrb)
   mrb_define_class_method(mrb , pinpad , "des"               , mrb_s_pinpad_des               , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , pinpad , "derive"            , mrb_s_pinpad_derive            , MRB_ARGS_REQ(6));
   mrb_define_class_method(mrb , pinpad , "load_key"          , mrb_s_pinpad_load_key          , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pinpad , "key_kcv"           , mrb_pinpad_s_key_kcv           , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , pinpad , "key_ksn"           , mrb_pinpad_s_key_ksn           , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , pinpad , "_key_kcv"          , mrb_pinpad_s__key_kcv          , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , pinpad , "_key_ksn"          , mrb_pinpad_s__key_ksn          , MRB_ARGS_REQ(1));
 }
