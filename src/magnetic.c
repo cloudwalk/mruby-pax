@@ -34,28 +34,14 @@ mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 
 /*TODO Scalone REMOVE ALL MAGNETIC FUNCTIONS FROM HERE USE PURE RUBY IMPLEMENTATION WITH IO*/
 static mrb_value
-mrb_magnetic_s_read(mrb_state *mrb, mrb_value self)
+mrb_magnetic_s__read(mrb_state *mrb, mrb_value self)
 {
-  mrb_int ret;
-
   memset(&track1, 0, sizeof(track1));
   memset(&track2, 0, sizeof(track2));
   memset(&track3, 0, sizeof(track3));
 
-  ret = OsMsrSwiped();
-
-  if (ret)
-  {
-    ret = OsMsrRead(&track1, &track2, &track3);
-
-    if (ret == 0)
-    {
-      return mrb_fixnum_value(1);
-    }
-    else
-    {
-      return mrb_fixnum_value(0);
-    }
+  if (OsMsrSwiped()) {
+    mrb_fixnum_value(OsMsrRead(&track1, &track2, &track3));
   }
 }
 
@@ -93,7 +79,7 @@ mrb_magnetic_init(mrb_state* mrb)
   magnetic = mrb_define_class_under(mrb, pax, "Magnetic", mrb->object_class);
 
   mrb_define_class_method(mrb , magnetic , "open"      , mrb_magnetic_s_open      , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , magnetic , "read"      , mrb_magnetic_s_read      , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , magnetic , "_read"     , mrb_magnetic_s__read     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , magnetic , "close"     , mrb_magnetic_s_close     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , magnetic , "tracks"    , mrb_magnetic_s_tracks    , MRB_ARGS_REQ(1));
 }
