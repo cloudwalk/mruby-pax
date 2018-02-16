@@ -1,4 +1,4 @@
-module PAX
+class PAX
   class Magnetic
     def self.read
       if self._read == 0
@@ -10,3 +10,4 @@ module PAX
     end
   end
 end
+
