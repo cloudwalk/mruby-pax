@@ -3,6 +3,10 @@ class PAX
     DEFAULT_BACKLIGHT = 1
     RET_OK            = 0
 
+    def self.shutdown
+      PAX::Printer.thread_kill
+    end
+
     def self.serial
       PAX::System._serial
     end
