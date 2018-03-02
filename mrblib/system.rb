@@ -3,7 +3,7 @@ class PAX
     DEFAULT_BACKLIGHT = 1
     RET_OK            = 0
 
-    def self.shutdown
+    def self.teardown
       PAX::Printer.thread_kill
     end
 
