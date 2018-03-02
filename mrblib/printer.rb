@@ -83,6 +83,7 @@ class PAX
       self.printer_control = PrinterControl.new
       self.thread = Thread.new(self.printer_control) do |printer|
         loop do
+          break if printer.kill
           if printer.flag_print
             printer.flag_print = false
             timeout = Time.now + 4
@@ -98,6 +99,7 @@ class PAX
             printer.print
             PAX::Printer.font("AerialMono.ttf")
           end
+          nil
         end
       end
     end
@@ -105,7 +107,15 @@ class PAX
     def self.thread_print
       self.printer_control.flag_print = true
       unless self.thread.alive?
+        thread_kill
         thread_new
+      end
+    end
+
+    def self.thread_kill
+      if self.thread
+        self.printer_control.kill!
+        self.thread.join
       end
     end
 
