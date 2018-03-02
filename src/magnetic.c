@@ -36,7 +36,7 @@ mrb_magnetic_s_open(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_magnetic_s__read(mrb_state *mrb, mrb_value self)
 {
-  mrb_int ret=0;
+  mrb_int ret=-1;
   memset(&track1, 0, sizeof(track1));
   memset(&track2, 0, sizeof(track2));
   memset(&track3, 0, sizeof(track3));
@@ -44,7 +44,7 @@ mrb_magnetic_s__read(mrb_state *mrb, mrb_value self)
   if (OsMsrSwiped())
     ret = OsMsrRead(&track1, &track2, &track3);
 
-  mrb_fixnum_value(ret);
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
