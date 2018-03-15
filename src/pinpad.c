@@ -346,12 +346,20 @@ mrb_pinpad_s__key_kcv(mrb_state *mrb, mrb_value klass)
   mrb_int ret, index, type;
   mrb_get_args(mrb, "ii", &type, &index);
 
-  ret = OsPedGetKcv((int)type, (int)index, 0x00, 0, NULL, &kcv);
-
   array = mrb_ary_new(mrb);
-  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
-  if (ret == RET_OK) mrb_ary_push(mrb, array, mrb_str_new(mrb, kcv, 8));
 
+  if (type == PED_TMK)
+  {
+    ret = OsPedGetKcv((int)type, (int)index, 0x00, 8, "\x0\x0\x0\x0\x0\x0\x0\x0", &kcv);
+    mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+    if (ret == RET_OK) mrb_ary_push(mrb, array, mrb_str_new(mrb, kcv, 3));
+  }
+  else
+  {
+    ret = OsPedGetKcv((int)type, (int)index, 0x00, 0, NULL, &kcv);
+    mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+    if (ret == RET_OK) mrb_ary_push(mrb, array, mrb_str_new(mrb, kcv, 8));
+  }
   return array;
 }
 

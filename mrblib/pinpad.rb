@@ -163,9 +163,11 @@ class PAX
     def self.key_kcv(index)
       pin  = self._key_kcv(PED_INT_TIK, index)
       data = self._key_kcv(PED_INT_TPK , index)
+      ms3des = self._key_kcv(PED_INT_TMK , index)
       {
         :pin  => convert_result_to_hex(pin),
-        :data => convert_result_to_hex(data)
+        :data => convert_result_to_hex(data),
+        :ms3des => convert_result_to_hex(ms3des)
       }
     end
 
@@ -176,4 +178,3 @@ class PAX
     end
   end
 end
-
