@@ -122,6 +122,19 @@ class PAX
       message         = options[:message]
 
       puts message
+      if File.exists?("./shared/emv_enter_pin.bmp")
+        Device::Display.print_bitmap("./shared/emv_enter_pin.bmp")
+        STDOUT.y += 1
+        STDOUT.x += 1
+        Device::Display.print(message[0..20])
+        STDOUT.x += 1
+        Device::Display.print(message[22..-2])
+        STDOUT.x = 1
+        STDOUT.y += 2
+        EmvTransaction.set_rgb
+      else
+        puts message
+      end
 
       response = PAX::Pinpad.get_pin_dukpt(index, pan, len, timeout_seconds * 1000)
       response["block"] = response["block"].unpack("H*")[0] if response["block"]
