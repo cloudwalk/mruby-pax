@@ -124,6 +124,7 @@ class PAX
       puts message
       if File.exists?("./shared/emv_enter_pin.bmp")
         Device::Display.print_bitmap("./shared/emv_enter_pin.bmp")
+        STDOUT.fresh
         STDOUT.y += 1
         STDOUT.x += 1
         Device::Display.print(message[0..20])
