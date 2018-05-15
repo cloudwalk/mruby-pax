@@ -42,7 +42,7 @@ class PAX
 
     def read(size = 200, eot = "\n")
       str = ""
-      timeout = Time.now + DEFAULT_TIMEOUT / 1000
+      timeout = Time.now + @timeout / 1000
       while(ch = recv(size))
         str << ch
         break if str.include?(eot)
@@ -57,4 +57,3 @@ class PAX
     end
   end
 end
-
