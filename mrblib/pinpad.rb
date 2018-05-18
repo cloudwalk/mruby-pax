@@ -32,6 +32,7 @@ class PAX
     ERR_PED_WAIT_INTERVAL     = -3807
     ERR_PED_INPUT_PIN_TIMEOUT = -3815
     ERR_PED_GROUP_IDX_ERR     = -3818
+    ERR_PED_NO_KEY            = -3801
 
     DUKPT_DEFAULT = {
       "KSN"      => "",
