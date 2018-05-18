@@ -67,7 +67,7 @@ class PAX
   def self.set_keyboard
     if keys = self.pagination_keys[PAX::System.model]
       keyboard = ["qzQZ.", "abcABC", "defDEF", "ghiGHI", "jklJKL", "mnoMNO",
-                  "prsPRS", "tuvTUV", "wxyWXY", ", *\#_$%-+=!@"]
+                  "prsPRS", "tuvTUV", "wxyWXY", ', */\{}[]#_$%-+=!?@&$']
       Device::IO.setup_keyboard(keyboard, keys)
     end
   end
