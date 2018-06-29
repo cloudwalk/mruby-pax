@@ -27,4 +27,5 @@ MRuby::Gem::Specification.new('mruby-pax') do |spec|
   spec.add_dependency 'mruby-pax-network'
   spec.add_dependency 'mruby-io'
   spec.add_dependency 'mruby-time'
+  spec.add_dependency 'mruby-polarssl'
 end
