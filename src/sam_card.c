@@ -24,7 +24,7 @@ mrb_sam_card_power(mrb_state *mrb, mrb_value self)
   mrb_int status, historical_size, ret;
   mrb_value historical;
 
-  mrb_get_args(mrb, "iiS", &status, &historical_size, &historical);
+  mrb_get_args(mrb, "i|iS", &status, &historical_size, &historical);
 
   if (status == 1) { // Turn on
   } else { // Turn off
@@ -73,7 +73,7 @@ mrb_touch_init(mrb_state* mrb)
   pax      = mrb_class_get(mrb, "PAX");
   sam_card = mrb_define_class_under(mrb, pax, "SamCard", mrb->object_class);
 
-  mrb_define_class_method(mrb , sam_card , "power" , mrb_sam_card_power , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , sam_card , "power" , mrb_sam_card_power , MRB_ARGS_REQ(1) | MRB_ARGS_OPT(2));
   mrb_define_class_method(mrb , sam_card , "send"  , mrb_sam_card_send  , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , sam_card , "read"  , mrb_sam_card_read  , MRB_ARGS_NONE());
 }
