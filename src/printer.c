@@ -18,6 +18,7 @@
 #include "xui.h"
 #include "ui.h"
 #include "keyboard.h"
+#include "prolin_barcode_lib.h"
 
 struct tagBITMAPFILEHEADER {
   unsigned short bfType;
@@ -207,6 +208,68 @@ bmp_convert(char *file, unsigned char *logo)
   return 0;
 }
 
+static inline int module_is_set(ST_BITMAP *Bitmap, int y_coord, int x_coord)
+{
+  return !(Bitmap->Data[(y_coord * Bitmap->Width + x_coord)*4] & 0xff);
+}
+
+/*
+ * @ Convert1DPrinterDataPixel - Convert from ST_BITMAP to the buffer of OsPrnPutImage function, Valid only for barcode1D.
+ * @ Bitmap:	ST_BITMAP
+ * @ Pixel:		Convert pixels to Pixel * Pixel.
+ * @ Times:		the height of the barcode1D amplification factor.
+ * @ Buf:		the buffer for print.
+ * @ Size:		the size of buffer.
+ */
+static int Convert1DPrinterDataPixel(ST_BITMAP* Bitmap, int Pixel, int Times, unsigned char* Buf, int Size)
+{
+  int i = 0, j = 0, r = 0, ModuleValue = 0;
+  int Width = Bitmap->Width;
+  int Rows = Bitmap->Height;
+  unsigned long OffSet = 0;
+  int RowLen = ((Width * Pixel) + 7)/8 + 2;
+  int SizeByte = (RowLen * Rows * Pixel * Times + 1) * sizeof(unsigned char);
+  unsigned char* RowBuf = (unsigned char*)malloc(RowLen);
+  unsigned char* Barcode = (unsigned char*)malloc(SizeByte);
+  unsigned char *BarcodePtr = Barcode;
+
+  if (Size < SizeByte) {
+    /*printf("Convert1DPrinterDataPixel size is not enough \n");*/
+    free(RowBuf);
+    free(Barcode);
+    return -1;
+  }
+
+  memset(Barcode, 0, SizeByte);
+  BarcodePtr[0] =  Rows * Pixel * Times; /* the max is 255*/
+  BarcodePtr++;
+
+  for (r = 0; r < Rows; r++)
+  {
+    memset(RowBuf, 0, RowLen);
+    OffSet = 0;
+    RowBuf[0] = (((Width & 0xff00) >> 8) * Pixel + 7)/8;
+    RowBuf[1] = ((Width & 0xff) * Pixel + 7)/8;
+    for (i = 0; i < Width; i++) {
+      ModuleValue = module_is_set(Bitmap, r, i);
+      for (j = 0; j < Pixel; j++) {
+        RowBuf[2 + (OffSet/8)] |= ModuleValue << (7 - OffSet%8);
+        OffSet++;
+      }
+    }
+    for(i = 0; i < Pixel * Times; i++) {
+      memcpy(BarcodePtr, RowBuf, RowLen);
+      BarcodePtr += RowLen;
+    }
+  }
+
+  memcpy(Buf, Barcode, SizeByte);
+  free(Barcode);
+  free(RowBuf);
+
+  return 0;
+}
+
 static mrb_value
 mrb_pax_printer_s__open(mrb_state *mrb, mrb_value self)
 {
@@ -277,7 +340,6 @@ mrb_pax_printer_s__feed(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_printer_s__print(mrb_state *mrb, mrb_value self)
 {
-  mrb_int ret;
   mrb_value buf;
   unsigned char buffer[2048];
 
@@ -333,6 +395,44 @@ mrb_pax_printer_s__check(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(OsPrnCheck());
 }
 
+static mrb_value
+mrb_pax_printer_s__print_barcode(mrb_state *mrb, mrb_value self)
+{
+  mrb_int ret;
+  mrb_value string;
+  ST_ENCODED_INFO encode_info = {0};
+  ST_BITMAP bitmap = {0};
+  unsigned char* buf = NULL;
+  int bufsize = 0;
+  int pixel = 4;
+  int times = 20;
+
+  mrb_get_args(mrb, "S", &string);
+
+  bitmap.Data = (unsigned char*)malloc(400*400*4);
+  bitmap.Size = 400 * 400 * 4;
+  memset(bitmap.Data, 0, bitmap.Size);
+
+  encode_info.Type = EAN13,
+    encode_info.String = RSTRING_PTR(string),
+    encode_info.Len = RSTRING_LEN(string),
+    encode_info.SizeLevel = 1,
+    encode_info.CorrectionLevel = 1,
+
+    OsBarcodeGetBitmap(&encode_info, &bitmap);
+
+  bufsize =((((bitmap.Width * pixel) + 7)/8 + 2) * bitmap.Height * pixel * times + 1) * sizeof(unsigned char);
+  buf = (unsigned char*)malloc(bufsize);
+  ret = Convert1DPrinterDataPixel(&bitmap, pixel, times, buf, bufsize);
+
+  if (ret == 0) OsPrnPutImage(buf);
+
+  free(bitmap.Data);
+  free(buf);
+
+  return mrb_fixnum_value(ret);
+}
+
 void
 mrb_printer_init(mrb_state* mrb)
 {
@@ -342,16 +442,17 @@ mrb_printer_init(mrb_state* mrb)
   pax   = mrb_class_get(mrb, "PAX");
   printer = mrb_define_class_under(mrb, pax, "Printer", mrb->object_class);
 
-  mrb_define_class_method(mrb , printer , "_open"         , mrb_pax_printer_s__open         , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , printer , "_reset"        , mrb_pax_printer_s__reset        , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , printer , "_close"        , mrb_pax_printer_s__close        , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , printer , "_font"         , mrb_pax_printer_s__font         , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , printer , "_level="       , mrb_pax_printer_s__level        , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , printer , "_size"         , mrb_pax_printer_s__size         , MRB_ARGS_REQ(4));
-  mrb_define_class_method(mrb , printer , "_feed"         , mrb_pax_printer_s__feed         , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , printer , "_print"        , mrb_pax_printer_s__print        , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , printer , "_print_buffer" , mrb_pax_printer_s__print_buffer , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , printer , "_print_bmp"    , mrb_pax_printer_s__print_bmp    , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , printer , "_check"        , mrb_pax_printer_s__check        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_open"          , mrb_pax_printer_s__open          , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_reset"         , mrb_pax_printer_s__reset         , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_close"         , mrb_pax_printer_s__close         , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_font"          , mrb_pax_printer_s__font          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_level="        , mrb_pax_printer_s__level         , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_size"          , mrb_pax_printer_s__size          , MRB_ARGS_REQ(4));
+  mrb_define_class_method(mrb , printer , "_feed"          , mrb_pax_printer_s__feed          , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_print"         , mrb_pax_printer_s__print         , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_print_buffer"  , mrb_pax_printer_s__print_buffer  , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_print_bmp"     , mrb_pax_printer_s__print_bmp     , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_check"         , mrb_pax_printer_s__check         , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , printer , "_print_barcode" , mrb_pax_printer_s__print_barcode , MRB_ARGS_REQ(1));
 }
 

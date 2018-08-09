@@ -227,6 +227,20 @@ class PAX
     BMP_INVALID_WIDTH  = -4
     BMP_LSEEK_FAILED   = -5
 
+    # @brief Print barcode as bmp image.
+    #
+    # TODO Scalone
+    #
+    # @param path [String] Path to bmp file.
+    #
+    # @return [Integer] 0 success -1 fail.
+    def self.print_barcode(code)
+      if self.allow?
+        self._print_barcode(code)
+        self.thread_print
+      end
+    end
+
     # @brief Print bmp file.
     #
     # Details:
@@ -237,7 +251,7 @@ class PAX
     #
     # @param path [String] Path to bmp file.
     #
-    # @return [NilClass] Allways returns nil.
+    # @return [Integer] 0 success -1 fail.
     def self.print_bmp(path)
       if self.allow?
         if File.exists?(path)
