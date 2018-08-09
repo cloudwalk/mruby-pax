@@ -275,9 +275,11 @@ mrb_s_pinpad_load_key(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_pinpad_get_pin_plain(mrb_state *mrb, mrb_value klass)
 {
-  unsigned char ucBlock;
+  unsigned char ucBlock[2+1];
   mrb_value hash, len, screen;
   mrb_int ret, slot, timeout, column, line, r, g, b;
+
+  memset(&ucBlock, 0, sizeof(ucBlock));
 
   mrb_get_args(mrb, "iSi", &slot, &len, &timeout);
 
@@ -301,10 +303,12 @@ mrb_s_pinpad_get_pin_plain(mrb_state *mrb, mrb_value klass)
 static mrb_value
 mrb_s_pinpad_verify_cipher_pin(mrb_state *mrb, mrb_value klass)
 {
-  unsigned char ucBlock;
+  unsigned char ucBlock[2+1];
   ST_RSA_PINKEY stRSAPINKEY;
   mrb_value hash, rsa, modulus, exponent, random, len, screen;
   mrb_int ret, slot, timeout, modulus_len, random_len, column, line, r, g, b;
+
+  memset(&ucBlock, 0, sizeof(ucBlock));
 
   mrb_get_args(mrb, "iSoi", &slot, &len, &rsa, &timeout);
 
