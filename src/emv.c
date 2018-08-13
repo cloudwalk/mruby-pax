@@ -976,5 +976,5 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "random"               , mrb_s_emv_random           , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , emv , "param_flag"           , mrb_s_emv_param_flag       , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , emv , "_set_mck_params"      , mrb_s_emv_set_mck_params   , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "set_mck_params"       , mrb_s_emv_set_mck_params   , MRB_ARGS_REQ(1));
 }

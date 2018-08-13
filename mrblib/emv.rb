@@ -560,9 +560,5 @@ class PAX
       value2 = "#{rid}#{key_id}#{exponent_treated}".unpack("H*")
       Digest::SHA1.digest(value)
     end
-
-    def self.set_mck_params(hash)
-      self._set_mck_params(hash)
-    end
   end
 end
