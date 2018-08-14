@@ -413,13 +413,13 @@ mrb_pax_printer_s__print_barcode(mrb_state *mrb, mrb_value self)
   bitmap.Size = 400 * 400 * 4;
   memset(bitmap.Data, 0, bitmap.Size);
 
-  encode_info.Type = EAN13,
-    encode_info.String = RSTRING_PTR(string),
-    encode_info.Len = RSTRING_LEN(string),
-    encode_info.SizeLevel = 1,
-    encode_info.CorrectionLevel = 1,
+  encode_info.Type = ITF,
+  encode_info.String = RSTRING_PTR(string),
+  encode_info.Len = RSTRING_LEN(string),
+  encode_info.SizeLevel = 1,
+  encode_info.CorrectionLevel = 1,
 
-    OsBarcodeGetBitmap(&encode_info, &bitmap);
+  OsBarcodeGetBitmap(&encode_info, &bitmap);
 
   bufsize =((((bitmap.Width * pixel) + 7)/8 + 2) * bitmap.Height * pixel * times + 1) * sizeof(unsigned char);
   buf = (unsigned char*)malloc(bufsize);
