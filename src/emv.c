@@ -754,25 +754,11 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
   return mrb_fixnum_value(ret);
 }
 
-int already_config_param = 0;
 /*Check core_init before initialize, system error*/
   static mrb_value
 mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
 {
-  EMV_MCKPARAM pMCKParam;
-
-  memset(&pMCKParam,0,sizeof(EMV_MCKPARAM));
-
   EMVInitTLVData();
-  if (already_config_param == 0) {
-    already_config_param = 1;
-    EMVGetMCKParam(&pMCKParam);
-    pMCKParam.ucBypassPin    = 0;
-    pMCKParam.ucBatchCapture = 1;
-
-    EMVSetMCKParam(&pMCKParam);
-  }
-
   return mrb_true_value();
 }
 
@@ -935,6 +921,29 @@ mrb_s_emv_param_flag(mrb_state *mrb, mrb_value klass)
   mrb_fixnum_value(flag);
 }
 
+static mrb_value
+mrb_s_emv_set_mck_params(mrb_state *mrb, mrb_value klass)
+{
+  mrb_value hash;
+  mrb_int ret, value;
+  EMV_MCKPARAM pMCKParam;
+
+  memset(&pMCKParam,0,sizeof(EMV_MCKPARAM));
+  mrb_get_args(mrb, "o", &hash);
+
+  ret = EMVGetMCKParam(&pMCKParam);
+  if (ret != EMV_OK) return mrb_fixnum_value(ret);
+
+  value = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ucBypassPin")));
+  pMCKParam.ucBypassPin    = value;
+
+  value = mrb_fixnum(mrb_hash_get(mrb, hash, mrb_str_new_lit(mrb, "ucBatchCapture")));
+  pMCKParam.ucBatchCapture = value;
+
+  ret = EMVSetMCKParam(&pMCKParam);
+  return mrb_fixnum_value(ret);
+}
+
   void
 mrb_emv_init(mrb_state* mrb)
 {
@@ -967,4 +976,5 @@ mrb_emv_init(mrb_state* mrb)
   mrb_define_class_method(mrb , emv , "random"               , mrb_s_emv_random           , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , emv , "version"              , mrb_s_emv_version          , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , emv , "param_flag"           , mrb_s_emv_param_flag       , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , emv , "set_mck_params"       , mrb_s_emv_set_mck_params   , MRB_ARGS_REQ(1));
 }
