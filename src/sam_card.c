@@ -21,12 +21,43 @@
  * ContextLog(mrb, 0, "2TLV [%d][%s][%d]", iTag, psDat, iDataLen);
  */
 
+ void toHexStr(unsigned char *buff, int size, char *str) 
+ {
+	int i;
+	for (i = 0; i < size; i++)
+	{
+		sprintf(str, "%02x", buff[i]);
+		str += 2;
+	}
+ }
 
-int PowerOn(int slot, int *historical_size, char *historical)
+int ToSDK(int slot)
+{
+	switch(slot) {
+		case 1:
+			return ICC_SAM1_SLOT;
+		case 2:
+			return ICC_SAM2_SLOT;
+		case 3:
+			return ICC_SAM3_SLOT;
+		case 4:
+			return ICC_SAM4_SLOT;
+		default:
+			return 1;
+	}
+}
+ 
+int PowerOn(mrb_state *mrb, int slot, int *historical_size, char *historical)
 {
 	unsigned char atr[35];
 	int size = 0;
-	int ret = OsIccOpen(slot);
+	int ret = 0;
+	
+	// Adjust slot according to SDK
+	slot = ToSDK(slot);
+
+	ret = OsIccOpen(slot);
+	ContextLog(mrb, 0, "OsIccOpen(%d) = %d", slot, ret);
 	
 	if (ret == ERR_DEV_NOT_EXIST) {
 		// invalid SAM
@@ -34,6 +65,7 @@ int PowerOn(int slot, int *historical_size, char *historical)
 	}
 	
 	ret = OsIccDetect(slot);
+	ContextLog(mrb, 0, "OsIccDetect(%d) = %d", slot, ret);
 	
 	if (ret != RET_OK) {
 		// card not present
@@ -41,6 +73,7 @@ int PowerOn(int slot, int *historical_size, char *historical)
 	}
 	
 	ret = OsIccInit(slot, 0x20, atr);
+	ContextLog(mrb, 0, "OsIccInit(%d) = %d", slot, ret);
 	
 	if (ret == RET_OK) {
 		size = (int) atr[0];
@@ -52,14 +85,40 @@ int PowerOn(int slot, int *historical_size, char *historical)
 		return 0;
 	} else {
 		// TODO: check for VCC (-4) and VPP (-5) errors
-		// TODO: commucation error (-6)
-		// card mute
-		return -3;
+		
+		switch (ret) {
+			case ERR_SCI_HW_STEP:	
+				return -3; // SamCard mudo
+			case ERR_SCI_HW_PARITY:		
+			case ERR_SCI_HW_TCK:			
+			case ERR_SCI_ATR_TS:		
+			case ERR_SCI_ATR_TA1:			
+			case ERR_SCI_ATR_TD1:			
+			case ERR_SCI_ATR_TA2:			
+			case ERR_SCI_ATR_TB1:			
+			case ERR_SCI_ATR_TB2:			
+			case ERR_SCI_ATR_TC2:			
+			case ERR_SCI_ATR_TD2:			
+			case ERR_SCI_ATR_TA3:			
+			case ERR_SCI_ATR_TB3:			
+			case ERR_SCI_ATR_TC3:			
+			case ERR_SCI_T_ORDER:			
+			case ERR_SCI_PPS_PPSS:		
+			case ERR_SCI_PPS_PPS0:		
+			case ERR_SCI_PPS_PCK:						
+			case ERR_SCI_PARAM:
+				return -6; // Erro de comunicação
+			default:
+				return -8; // Erro Desconhecido
+		}
 	}
 }
 
-int PowerDown(int slot) 
+int PowerDown(mrb_state *mrb, int slot) 
 {
+	// Adjust slot according to SDK
+	slot = ToSDK(slot);
+	
 	// first, check if card is inserted
 	// it will also power down card
 	int ret = OsIccDetect(slot);
@@ -73,17 +132,47 @@ int PowerDown(int slot)
 	}
 }
 
-int SendAPDU(int slot, char *in, int sizeIn, char *out, int *sizeOut)
+int SendAPDU(mrb_state *mrb, int slot, char *in, int sizeIn, char *out, int *sizeOut)
 {
 	ST_APDU_REQ req;
 	ST_APDU_RSP rsp;
 	int ret;
 	int size;
+	char dataInHex[1024 + 1];
+	
+	// Adjust slot according to SDK
+	slot = ToSDK(slot);
 	
 	memset(&req, 0, sizeof(req));
-	memcpy(&req, in, sizeIn);
+	
+	if (sizeIn > 0) {
+		req.Cmd[0] = in[0]; /*CLA*/
+	}
+	if (sizeIn > 1) {
+		req.Cmd[1] = in[1]; /*INS*/
+	}
+	if (sizeIn > 2) {
+		req.Cmd[2] = in[2]; /*P1 */
+	}
+	if (sizeIn > 3) {
+		req.Cmd[3] = in[3]; /*P2 */
+	}
+	if (sizeIn > 4) {
+		req.LC     = in[4]; /*LC */
+	}
+	if (req.LC > 0) {
+		memcpy(req.DataIn, (in + 5), req.LC);
+	}
+	if (sizeIn > 5 + req.LC) {
+		req.LE     = *(in + 5 + req.LC);
+	}
+	
+	memset(dataInHex, 0, sizeof(dataInHex));
+	toHexStr(req.DataIn, req.LC, dataInHex);
+	ContextLog(mrb, 0, "ST_APDU_REQ = %02x%02x%02x%02x %02x %s %02x", req.Cmd[0], req.Cmd[1], req.Cmd[2], req.Cmd[3], req.LC, dataInHex, req.LE);
 	
 	ret = OsIccExchange(slot, 0x01, &req, &rsp);
+	ContextLog(mrb, 0, "OsIccExchange(%d) = %d", slot, ret);
 	
 	if (ret == RET_OK) {
 		size = rsp.LenOut;
@@ -98,15 +187,43 @@ int SendAPDU(int slot, char *in, int sizeIn, char *out, int *sizeOut)
 		
 		return 0;
 	} else {
-		//TODO:
-		//•	-1: Sem resposta
-		//•	-2: SamCard Invalido
-		//•	-3: SamCard mudo
-		//•	-4: Problema VCC
-		//•	-5: Problema VPP
-		//•	-6: Erro de comunicação
-		//•	-7: SamCard removido
-		return -1;
+		switch (ret) {
+			//TODO:
+			//•	-4: Problema VCC
+			//•	-5: Problema VPP
+			case ERR_SCI_HW_NOCARD:		
+				return -1; // Sem resposta
+			case ERR_DEV_NOT_EXIST:
+				return -2; // SamCard Invalido
+			case ERR_SCI_HW_STEP:	
+				return -3; // SamCard mudo
+			case ERR_SCI_HW_PARITY:		
+			case ERR_SCI_HW_TCK:				
+			case ERR_SCI_T_ORDER:			
+			case ERR_SCI_PPS_PPSS:		
+			case ERR_SCI_PPS_PPS0:		
+			case ERR_SCI_PPS_PCK:			
+			case ERR_SCI_T0_PARAM:		
+			case ERR_SCI_T0_REPEAT:		
+			case ERR_SCI_T0_PROB:			
+			case ERR_SCI_T1_PARAM:		
+			case ERR_SCI_T1_BWT:			
+			case ERR_SCI_T1_CWT:			
+			case ERR_SCI_T1_BREP:			
+			case ERR_SCI_T1_LRC:			
+			case ERR_SCI_T1_NAD:			
+			case ERR_SCI_T1_LEN:			
+			case ERR_SCI_T1_PCB:			
+			case ERR_SCI_T1_SRC:			
+			case ERR_SCI_T1_SRL:			
+			case ERR_SCI_T1_SRA:			
+			case ERR_SCI_PARAM:
+				return -6; // Erro de comunicação
+			case ERR_SCI_HW_TIMEOUT:
+				return -7; // SamCard Removido
+			default:
+				return -8; // Erro Desconhecido
+		}
 	}
 }
 
@@ -130,16 +247,16 @@ mrb_sam_card_power(mrb_state *mrb, mrb_value self)
 
   if (status == 1) {
 	// Turn on
-    ret = PowerOn(slot, &historical_size, historical);
+    ret = PowerOn(mrb, slot, &historical_size, historical);
   } else { 
     // Turn off
-	ret = PowerDown(slot);
+	ret = PowerDown(mrb, slot);
   }
 
   array = mrb_ary_new(mrb);
   mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
 
-  if (ret == RET_OK) {
+  if (ret == RET_OK && status == 1) {
 	mrb_ary_push(mrb, array, mrb_str_new(mrb, historical, historical_size));
   }
   
@@ -164,7 +281,7 @@ mrb_sam_card_send(mrb_state *mrb, mrb_value self)
 
   in_size = RSTRING_LEN(in);
 
-  ret = SendAPDU(slot, (char *)RSTRING_PTR(in), in_size, out, &out_size);
+  ret = SendAPDU(mrb, slot, (char *)RSTRING_PTR(in), in_size, out, &out_size);
    
   array = mrb_ary_new(mrb);
   mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
@@ -177,7 +294,7 @@ mrb_sam_card_send(mrb_state *mrb, mrb_value self)
 }
 
 void
-mrb_touch_init(mrb_state* mrb)
+mrb_sam_card_init(mrb_state* mrb)
 {
   struct RClass *pax, *sam_card;
 

@@ -23,6 +23,7 @@ void mrb_pinpad_init(mrb_state* mrb);
 void mrb_printer_init(mrb_state* mrb);
 void mrb_touch_init(mrb_state* mrb);
 void mrb_serial_init(mrb_state* mrb);
+void mrb_sam_card_init(mrb_state* mrb);
 
 void
 mrb_mruby_pax_gem_init(mrb_state* mrb)
@@ -37,6 +38,7 @@ mrb_mruby_pax_gem_init(mrb_state* mrb)
   mrb_printer_init(mrb); DONE;
   mrb_touch_init(mrb); DONE;
   mrb_serial_init(mrb); DONE;
+  mrb_sam_card_init(mrb); DONE;
 }
 
 void
