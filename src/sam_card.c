@@ -21,16 +21,6 @@
  * ContextLog(mrb, 0, "2TLV [%d][%s][%d]", iTag, psDat, iDataLen);
  */
 
- void toHexStr(unsigned char *buff, int size, char *str) 
- {
-	int i;
-	for (i = 0; i < size; i++)
-	{
-		sprintf(str, "%02x", buff[i]);
-		str += 2;
-	}
- }
-
 int ToSDK(int slot)
 {
 	switch(slot) {
@@ -73,7 +63,7 @@ int PowerOn(mrb_state *mrb, int slot, int *historical_size, char *historical)
 	}
 	
 	ret = OsIccInit(slot, 0x20, atr);
-	ContextLog(mrb, 0, "OsIccInit(%d) = %d", slot, ret);
+	ContextLog(mrb, 0, "OsIccInit(%d, 0x20, %p) = %d", slot, atr, ret);
 	
 	if (ret == RET_OK) {
 		size = (int) atr[0];
@@ -138,7 +128,6 @@ int SendAPDU(mrb_state *mrb, int slot, char *in, int sizeIn, char *out, int *siz
 	ST_APDU_RSP rsp;
 	int ret;
 	int size;
-	char dataInHex[1024 + 1];
 	
 	// Adjust slot according to SDK
 	slot = ToSDK(slot);
@@ -157,22 +146,21 @@ int SendAPDU(mrb_state *mrb, int slot, char *in, int sizeIn, char *out, int *siz
 	if (sizeIn > 3) {
 		req.Cmd[3] = in[3]; /*P2 */
 	}
-	if (sizeIn > 4) {
+	if (sizeIn > 5) {       //LC is optional, for it to be present, LE also must be present
 		req.LC     = in[4]; /*LC */
 	}
 	if (req.LC > 0) {
 		memcpy(req.DataIn, (in + 5), req.LC);
 	}
-	if (sizeIn > 5 + req.LC) {
-		req.LE     = *(in + 5 + req.LC);
+	if (sizeIn > (4 + req.LC)) {
+		int adjust = sizeIn == 5 ? 4 : 5 + req.LC;
+		req.LE     = *(in + adjust);
 	}
-	
-	memset(dataInHex, 0, sizeof(dataInHex));
-	toHexStr(req.DataIn, req.LC, dataInHex);
-	ContextLog(mrb, 0, "ST_APDU_REQ = %02x%02x%02x%02x %02x %s %02x", req.Cmd[0], req.Cmd[1], req.Cmd[2], req.Cmd[3], req.LC, dataInHex, req.LE);
+
+	ContextLog(mrb, 0, "ST_APDU_REQ = %02x%02x%02x%02x %02x %p %02x", req.Cmd[0], req.Cmd[1], req.Cmd[2], req.Cmd[3], req.LC, req.DataIn, req.LE);
 	
 	ret = OsIccExchange(slot, 0x01, &req, &rsp);
-	ContextLog(mrb, 0, "OsIccExchange(%d) = %d", slot, ret);
+	ContextLog(mrb, 0, "OsIccExchange(%d, 0x01, %p, %p) = %d", slot, &req, &rsp, ret);
 	
 	if (ret == RET_OK) {
 		size = rsp.LenOut;
