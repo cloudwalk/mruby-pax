@@ -37,7 +37,7 @@ typedef struct {
 static card_t selected;
 
 
-int DetectCards(mrb_state *mrb, int *cardsDetected, int timeout)
+int DetectCards(mrb_state *mrb, int timeout)
 {
 	int ret = 0;
 	char type;
@@ -51,12 +51,11 @@ int DetectCards(mrb_state *mrb, int *cardsDetected, int timeout)
 	
 	// start timer
 	OsTimerSet(&exit, timeout);
-
-	*cardsDetected = 0;
 	
 	// clear selected state
 	selected.status = -1;
 	selected.type = -1;
+	selected.size = -1;
 	memset(selected.uid, 0, sizeof(selected.uid));
 	
 	
@@ -91,13 +90,15 @@ int DetectCards(mrb_state *mrb, int *cardsDetected, int timeout)
 		
 		if (current == RET_OK) 
 		{
-			(*cardsDetected) = 1;
+			// derive size from ATQX
+			if ((atqx[0] & 0xE0) == 0) selected.size = 4;
+			if ((atqx[0] & 0x40) != 0) selected.size = 7;
 			
 			break;
 		}
 		
 		// exit by timeout
-		if (cardsDetected == 0 && OsTimerCheck(&exit) == 0)
+		if (OsTimerCheck(&exit) == 0)
 		{
 			// Timeout Error
 			ret = -1;
@@ -110,33 +111,31 @@ int DetectCards(mrb_state *mrb, int *cardsDetected, int timeout)
 	return ret;
 }
 
-int ActivateCard(mrb_state *mrb, int index)
+int ActivateCard(mrb_state *mrb)
 {
 	unsigned char sak[2];
-	unsigned char rats[254];
 	int ret = 0;
 	
 	memset(sak, 0, sizeof(sak));
 	ret = OsPiccAntiSel('A', selected.uid, 0x00, sak);
 		
-	ContextLog(mrb, 0, "OsPiccAntiSel('A', %p, 0x00, %02x%02x) = %d", selected.uid, sak[0], sak[1], ret);
-	
-	// if card needs activation
-	if(ret == RET_OK && *sak == 0x20)
-	{
-		ret = OsPiccActive('A', rats);
-		ContextLog(mrb, 0, "OsPiccActive('A', %p) = %d", rats, ret);
-	}
+	ContextLog(mrb, 0, "OsPiccAntiSel('A', %p, 0x00, 0x%02x) = %d", selected.uid, *sak, ret);
 
 	if (ret == RET_OK) 
-	{
-		// status is OK
-		selected.status = 0;
-		// type is ULTRALIGHT or CLASSIC
-		selected.type = *sak == 0x00 ? 1 : 0;
-		// size is 7 or 4 bytes
-		selected.size = *sak == 0x00 ? 7 : 4;
-		return 0;
+	{			
+		// if card needs activation
+		if(*sak == 0x20)
+		{
+			// card is not mifare compatible
+			return -2;
+		} else {
+			// status is OK
+			selected.status = 0;
+			// type is ULTRALIGHT or CLASSIC
+			selected.type = *sak == 0x00 ? 1 : 0;
+			
+			return 0;
+		}
 	}
 	else 
 	{
@@ -146,8 +145,6 @@ int ActivateCard(mrb_state *mrb, int index)
 		switch (ret) {
 			case PCD_ERR_WTO_FLAG:
 				return -1;
-				// TODO: 
-				// •	-2: O cartão detectado não é mifare
 			case PCD_ERR_COLL_FLAG:
 				return -3;
 			default:
@@ -161,8 +158,8 @@ int AuthenticateSector(mrb_state *mrb, int keyType, unsigned char key[], int sec
 {
 	int ret = 0;
 	unsigned char group = keyType == 0 ? 'A' : 'B';
-	// transforms sector into first block of the sector (of 4 blocks)
-	int authBlock = sector * 4;
+	// transforms sector into *last* block of the sector (of 4 blocks)
+	int authBlock = (sector * 4) + 3;
 	
 	ret = OsMifareAuthority(
 			selected.uid,
@@ -301,37 +298,23 @@ mrb_mifare_card_detect(mrb_state *mrb, mrb_value self)
 {
   // input
   mrb_int timeout = 0; 
-  mrb_int detected = 0;
   // output
   mrb_int ret = RET_OK; 
-  
-  mrb_value array;
 
   mrb_get_args(mrb, "i", &timeout);
 
-  ret = DetectCards(mrb, &detected, timeout);
-  
-  array = mrb_ary_new(mrb);
-  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+  ret = DetectCards(mrb, timeout);
 
-  if (ret == RET_OK) {
-	mrb_ary_push(mrb, array, mrb_fixnum_value(detected));
-  }
-  
-  return array;
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
 mrb_mifare_card_activate(mrb_state *mrb, mrb_value self)
 {
-  // input
-  int index = 0;
   // output
   mrb_int ret = RET_OK; 
 
-  mrb_get_args(mrb, "i", &index);
-
-  ret = ActivateCard(mrb, index);
+  ret = ActivateCard(mrb);
   
   return mrb_fixnum_value(ret);
 }
@@ -339,15 +322,11 @@ mrb_mifare_card_activate(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_mifare_card_uid(mrb_state *mrb, mrb_value self)
 {
-  // input
-  int index = 0;
   // output
   mrb_int ret = RET_OK; 
   
   mrb_value array;
 
-  mrb_get_args(mrb, "i", &index);
-  
   // transfer status from current selected card to ret
   ret = selected.status;
   
@@ -497,8 +476,8 @@ mrb_mifare_card_init(mrb_state* mrb)
   mifare_card = mrb_define_class_under(mrb, pax, "MifareCard", mrb->object_class);
 
   mrb_define_class_method(mrb , mifare_card , "detect"          , mrb_mifare_card_detect          , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , mifare_card , "activate"        , mrb_mifare_card_activate        , MRB_ARGS_REQ(1));
-  mrb_define_class_method(mrb , mifare_card , "uid"             , mrb_mifare_card_uid             , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , mifare_card , "activate"        , mrb_mifare_card_activate        , MRB_ARGS_REQ(0));
+  mrb_define_class_method(mrb , mifare_card , "uid"             , mrb_mifare_card_uid             , MRB_ARGS_REQ(0));
   mrb_define_class_method(mrb , mifare_card , "auth_sector"     , mrb_mifare_card_auth_sector     , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "read_block"      , mrb_mifare_card_read_block      , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , mifare_card , "write_block"     , mrb_mifare_card_write_block     , MRB_ARGS_REQ(3));
