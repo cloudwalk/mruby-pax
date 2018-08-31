@@ -255,8 +255,16 @@ class PAX
     def self.print_bmp(path)
       if self.allow?
         if File.exists?(path)
-          self._print_bmp(path)
-          thread_print
+          if File.size(path) >= 20_000
+            self.thread_kill
+            self.close
+            ret = self._print_big_bmp(path)
+            self.open
+            ret
+          else
+            self._print_bmp(path)
+            thread_print
+          end
         else
           BMP_FILE_ERROR
         end

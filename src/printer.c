@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/ioctl.h>
 
 #include "mruby.h"
 #include "mruby/compile.h"
@@ -19,6 +20,53 @@
 #include "ui.h"
 #include "keyboard.h"
 #include "prolin_barcode_lib.h"
+
+typedef struct{
+  unsigned short bfType;
+  unsigned int bfSize;
+  unsigned short bfReserved1;
+  unsigned short bfReserved2;
+  unsigned int bfOffBits;
+}BmpFileHeader;
+
+typedef struct{
+  unsigned int biSize;
+  unsigned int biWidth;
+  unsigned int biHeight;
+  unsigned short biPlanes;
+  unsigned short biBitCount;
+  unsigned int biCompression;
+  unsigned int biSizeImage;
+  unsigned int biXPelsPerMeter;
+  unsigned int biYPelsPerMeter;
+  unsigned int biClrUsed;
+  unsigned int biClrImportant;
+}BmpInfoHeader;
+
+#define PRINTER_GET_RESULT		_IOR('P', 1, int)
+#define PRINTER_CHECK_STATUS	_IOR('P', 2, int)
+
+#define PRINTER_DEV "/dev/printer"
+#define MAX_WIDTH 384
+
+#define buf2uint32(buf)\
+  (((unsigned int)(*((buf) + 3)) << 24) + \
+   ((unsigned int)(*((buf) + 2)) << 16) + \
+   ((unsigned int)(*((buf) + 1)) << 8) + \
+   ((unsigned int)(*((buf)))))
+#define buf2uint16(buf)\
+  (((unsigned short)(*((buf) + 1)) << 8) + \
+   ((unsigned short)(*((buf)))))
+
+#define bmp_set_var(var, buf, offset)	do{\
+  if(sizeof(var) == 2){\
+    var = buf2uint16(buf + offset);\
+    offset += 2;\
+  } else if(sizeof(var) == 4){\
+    var = buf2uint32(buf + offset);\
+    offset += 4;\
+  }\
+}while(0)
 
 struct tagBITMAPFILEHEADER {
   unsigned short bfType;
@@ -45,6 +93,207 @@ struct tagBITMAPINFOHEADER {
 } __attribute__ ((__packed__));
 
 typedef struct tagBITMAPINFOHEADER BITMAPINFOHEADER;
+
+static int printer_get_reuslt(int fd)
+{
+  int ret;
+  unsigned char status[2] = {0};
+
+  ret = ioctl(fd, PRINTER_GET_RESULT, status);
+  if(ret == 0){
+    switch(status[0]){
+      case 0x00:
+        ret = RET_OK;
+        break;
+      case 0x01:
+        ret = ERR_PRN_BUSY;
+        break;
+      case 0x02:
+        ret = ERR_PRN_PAPEROUT;
+        break;
+      case 0x03:
+        ret = ERR_PRN_OVERHEAT;
+        break;
+      case 0x04:
+        ret = ERR_PRN_OUTOFMEMORY;
+        break;
+      case 0x05:
+        ret = ERR_PRN_OVERVOLTAGE;
+        break;
+      default:
+        ret = ERR_PRN_BUSY;
+        break;
+    }
+  }else{
+    ret = ERR_PRN_BUSY;
+  }
+  return ret;
+}
+
+static void bmp_4bytesalign_convert(unsigned char* line, unsigned int width, unsigned int not_4bytes_align)
+{
+  unsigned int align_bytes = width / 32 * 4;
+  unsigned int tail_bytes;
+  unsigned char buf[4] = {0};
+
+  tail_bytes = buf2uint32(line + align_bytes);
+  if(not_4bytes_align >= 1 && not_4bytes_align <= 8){
+    buf[0] = (1 << (8 - not_4bytes_align)) - 1;
+    buf[1] = 0xFF;
+    buf[2] = 0xFF;
+    buf[3] = 0xFF;
+    tail_bytes |= buf2uint32(buf) ;
+  }else if(not_4bytes_align >= 9 && not_4bytes_align <= 16){
+    buf[0] = 0;
+    buf[1] = (1 << (8 - not_4bytes_align % 8)) - 1;
+    buf[2] = 0xFF;
+    buf[3] = 0xFF;
+    tail_bytes |= buf2uint32(buf) ;
+  }else if(not_4bytes_align >= 17 && not_4bytes_align <= 24){
+    buf[0] = 0;
+    buf[1] = 0;
+    buf[2] = (1 << (8 - not_4bytes_align % 8)) - 1;
+    buf[3] = 0xFF;
+    tail_bytes |= buf2uint32(buf) ;
+  }else if(not_4bytes_align >= 25 && not_4bytes_align <= 31){
+    buf[0] = 0;
+    buf[1] = 0;
+    buf[2] = 0;
+    buf[3] = (1 << (8 - not_4bytes_align % 8)) - 1;
+    tail_bytes |= buf2uint32(buf) ;
+  }
+  memmove(line + align_bytes, &tail_bytes, sizeof(tail_bytes));
+}
+
+static unsigned char* read_bmp_data(unsigned char* buf, unsigned int buf_size, unsigned int* width, unsigned int* height)
+{
+  BmpFileHeader fileheader;
+  BmpInfoHeader infoheader;
+  unsigned int i, row, offset = 0;
+  if (buf_size <= sizeof(BmpFileHeader) + sizeof(BmpInfoHeader) + 8) {
+    return NULL;
+  }
+
+#define BMP_SET_VAR(var) bmp_set_var(var,buf,offset)
+  BMP_SET_VAR(fileheader.bfType);
+  BMP_SET_VAR(fileheader.bfSize);
+  BMP_SET_VAR(fileheader.bfReserved1);
+  BMP_SET_VAR(fileheader.bfReserved2);
+  BMP_SET_VAR(fileheader.bfOffBits);
+
+  BMP_SET_VAR(infoheader.biSize);
+  BMP_SET_VAR(infoheader.biWidth);
+  BMP_SET_VAR(infoheader.biHeight);
+  BMP_SET_VAR(infoheader.biPlanes);
+  BMP_SET_VAR(infoheader.biBitCount);
+  BMP_SET_VAR(infoheader.biCompression);
+  BMP_SET_VAR(infoheader.biSizeImage);
+  BMP_SET_VAR(infoheader.biXPelsPerMeter);
+  BMP_SET_VAR(infoheader.biYPelsPerMeter);
+  BMP_SET_VAR(infoheader.biClrUsed);
+  BMP_SET_VAR(infoheader.biClrImportant);
+  if (infoheader.biBitCount != 1) {
+    return NULL; /* Not a 1bit BMP */
+  }
+  *width = infoheader.biWidth;
+  *height = infoheader.biHeight;
+
+  unsigned int not_4bytes_align = infoheader.biWidth % 32;
+  unsigned int row_bytes = (infoheader.biWidth + 31) / 32 * 4;
+  unsigned int data_size = infoheader.biHeight * row_bytes;
+  unsigned char * data = (unsigned char*)malloc(data_size);
+  unsigned char *line, *buf_line;
+
+  for (i = 0; i < infoheader.biHeight; i++) {
+    row = infoheader.biHeight - i - 1;
+    line = data + i * row_bytes;
+    buf_line = buf + fileheader.bfOffBits + row * row_bytes;
+    memmove(line, buf_line, row_bytes);
+    if (not_4bytes_align != 0)
+      bmp_4bytesalign_convert(line, infoheader.biWidth, not_4bytes_align);
+  }
+  return data;
+}
+
+static unsigned char* get_1bitbmp_data(unsigned char* buf, unsigned int buf_size, unsigned int* width, unsigned int* height)
+{
+  const unsigned char bmp_sig[2] = {0x42, 0x4D};
+  int ret;
+  unsigned char* data = NULL;
+
+  if (memcmp(buf, bmp_sig, sizeof(bmp_sig)) != 0) {
+    return NULL; /* Not a BMP file */
+  }
+
+  return read_bmp_data(buf, buf_size, width, height);
+}
+
+static unsigned char * onebitimgdata2prndata(unsigned char * data, unsigned int width, unsigned int height)
+{
+  unsigned int i, j;
+  unsigned int row_bytes = (width + 31) / 32 * 4;
+  unsigned int max_row_bytes = MAX_WIDTH / 8;
+  unsigned int min_row_bytes = row_bytes < max_row_bytes ? row_bytes : max_row_bytes;
+  unsigned char * prn_data = malloc(max_row_bytes * height + 2);
+  unsigned char *src, *dst;
+
+  for (j = 0; j < height; j++) {
+    src = data + row_bytes * j;
+    dst = prn_data + 2 + max_row_bytes * j;
+    for (i = 0; i < min_row_bytes; i++)
+      dst[i] = ~src[i];
+    if(min_row_bytes < max_row_bytes)
+      memset(dst + min_row_bytes, 0x0, max_row_bytes - min_row_bytes);
+  }
+
+  return prn_data;
+}
+
+static int printer_print(unsigned char* prndata, unsigned int prndata_size)
+{
+  int ret, fd;
+
+  prndata[0] = 0x01;
+  prndata[1] = 0x00;
+
+  fd = open(PRINTER_DEV, O_RDWR);
+  if (fd <= 0)
+    return ERR_PRN_BUSY;
+
+  write(fd , prndata, prndata_size);
+  ret = printer_get_reuslt(fd);
+
+  close(fd);
+  return ret;
+}
+
+int print_1bitbmp_buf(unsigned char* buf , unsigned int buf_size)
+{
+  int ret;
+  unsigned int width, height;
+  unsigned char *PrnData, *ImgData;
+
+  if(buf == NULL || buf_size ==0){
+    return ERR_INVALID_PARAM;
+  }
+
+  ImgData = get_1bitbmp_data(buf, buf_size, &width, &height);
+  if (ImgData == NULL){
+    return ERR_INVALID_PARAM;
+  }
+
+  PrnData = onebitimgdata2prndata(ImgData, width, height);
+  if(PrnData == NULL){
+    free(ImgData);
+    return ERR_INVALID_PARAM;
+  }
+
+  ret = printer_print(PrnData, (MAX_WIDTH/8)*height+2);
+  free(PrnData);
+  free(ImgData);
+
+  return ret;
+}
 
 /*
  *  0 - Success
@@ -275,8 +524,6 @@ mrb_pax_printer_s__open(mrb_state *mrb, mrb_value self)
 {
   mrb_int ret = 0;
   ret = OsPrnOpen(PRN_REAL, NULL);
-  /*OsPrnReset();*/
-  /*OsPrnSetParam(1);*/
   return mrb_fixnum_value(ret);
 }
 
@@ -371,22 +618,47 @@ mrb_pax_printer_s__print_buffer(mrb_state *mrb, mrb_value self)
 static mrb_value
 mrb_pax_printer_s__print_bmp(mrb_state *mrb, mrb_value self)
 {
-  mrb_int ret;
+	mrb_int ret;
+	mrb_value path;
+	unsigned char *buf;
+
+	mrb_get_args(mrb, "S", &path);
+
+	buf = (unsigned char*)mrb_malloc(mrb, sizeof(unsigned char)*20000);
+
+	ret = bmp_convert(RSTRING_PTR(path), buf);
+
+	if (ret == 0) {
+		OsPrnPutImage(buf);
+	}
+
+	mrb_free(mrb, buf);
+	return mrb_fixnum_value(0);
+}
+
+static mrb_value
+mrb_pax_printer_s__print_big_bmp(mrb_state *mrb, mrb_value self)
+{
+  mrb_int ret, size;
   mrb_value path;
   unsigned char *buf;
+  FILE* fp;
 
   mrb_get_args(mrb, "S", &path);
 
-  buf = (unsigned char*)mrb_malloc(mrb, sizeof(unsigned char)*20000);
+  fp = fopen(RSTRING_PTR(path), "r");
 
-  ret = bmp_convert(RSTRING_PTR(path), buf);
+  fseek(fp, 0L, SEEK_END);
+  size = ftell(fp);
+  fseek(fp, 0L, SEEK_SET);
+  buf = (unsigned char*)mrb_malloc(mrb, size);
+  fread(buf, 1, size, fp);
+  ret = print_1bitbmp_buf(buf, size);
 
-  if (ret == 0) {
-    OsPrnPutImage(buf);
-  }
+  if (buf) free(buf);
+  fclose(fp);
 
-  mrb_free(mrb, buf);
-  return mrb_fixnum_value(0);
+  return mrb_fixnum_value(ret);
 }
 
 static mrb_value
@@ -452,6 +724,7 @@ mrb_printer_init(mrb_state* mrb)
   mrb_define_class_method(mrb , printer , "_print"         , mrb_pax_printer_s__print         , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , printer , "_print_buffer"  , mrb_pax_printer_s__print_buffer  , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , printer , "_print_bmp"     , mrb_pax_printer_s__print_bmp     , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , printer , "_print_big_bmp" , mrb_pax_printer_s__print_big_bmp , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , printer , "_check"         , mrb_pax_printer_s__check         , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , printer , "_print_barcode" , mrb_pax_printer_s__print_barcode , MRB_ARGS_REQ(1));
 }
