@@ -47,7 +47,7 @@ int PowerOn(mrb_state *mrb, int slot, int *historical_size, char *historical)
   slot = ToSDK(slot);
 
   ret = OsIccOpen(slot);
-  ContextLog(mrb, 0, "OsIccOpen(%d) = %d", slot, ret);
+  //ContextLog(mrb, 0, "OsIccOpen(%d) = %d", slot, ret);
 
   if (ret == ERR_DEV_NOT_EXIST) {
     // invalid SAM
@@ -55,7 +55,7 @@ int PowerOn(mrb_state *mrb, int slot, int *historical_size, char *historical)
   }
 
   ret = OsIccDetect(slot);
-  ContextLog(mrb, 0, "OsIccDetect(%d) = %d", slot, ret);
+  //ContextLog(mrb, 0, "OsIccDetect(%d) = %d", slot, ret);
 
   if (ret != RET_OK) {
     // card not present
@@ -63,7 +63,7 @@ int PowerOn(mrb_state *mrb, int slot, int *historical_size, char *historical)
   }
 
   ret = OsIccInit(slot, 0x20, atr);
-  ContextLog(mrb, 0, "OsIccInit(%d, 0x20, %p) = %d", slot, atr, ret);
+  //ContextLog(mrb, 0, "OsIccInit(%d, 0x20, %p) = %d", slot, atr, ret);
 
   if (ret == RET_OK) {
     size = (int) atr[0];
@@ -157,10 +157,10 @@ int SendAPDU(mrb_state *mrb, int slot, char *in, int sizeIn, char *out, int *siz
     req.LE     = *(in + adjust);
   }
 
-  ContextLog(mrb, 0, "ST_APDU_REQ = %02x%02x%02x%02x %02x %p %02x", req.Cmd[0], req.Cmd[1], req.Cmd[2], req.Cmd[3], req.LC, req.DataIn, req.LE);
+  //ContextLog(mrb, 0, "ST_APDU_REQ = %02x%02x%02x%02x %02x %p %02x", req.Cmd[0], req.Cmd[1], req.Cmd[2], req.Cmd[3], req.LC, req.DataIn, req.LE);
 
   ret = OsIccExchange(slot, 0x01, &req, &rsp);
-  ContextLog(mrb, 0, "OsIccExchange(%d, 0x01, %p, %p) = %d", slot, &req, &rsp, ret);
+  //ContextLog(mrb, 0, "OsIccExchange(%d, 0x01, %p, %p) = %d", slot, &req, &rsp, ret);
 
   if (ret == RET_OK) {
     size = rsp.LenOut;

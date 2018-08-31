@@ -47,7 +47,7 @@ int DetectCards(mrb_state *mrb, int timeout)
   // always open logic
   int open = OsPiccOpen();
 
-  ContextLog(mrb, 0, "OsPiccOpen = %d", open);
+  //ContextLog(mrb, 0, "OsPiccOpen = %d", open);
 
   // start timer
   OsTimerSet(&exit, timeout);
@@ -63,14 +63,14 @@ int DetectCards(mrb_state *mrb, int timeout)
     memset(atqx, 0, sizeof(atqx));
     int current = OsPiccPoll(&type, atqx);
 
-    if (current == RET_OK)
-    {
-      ContextLog(mrb, 0, "OsPiccPoll(%c, %02x%02x) = %d", type, atqx[0], atqx[1], current);
-    }
-    else
-    {
-      ContextLog(mrb, 0, "OsPiccPoll = %d", current);
-    }
+    //if (current == RET_OK)
+    //{
+      //ContextLog(mrb, 0, "OsPiccPoll(%c, %02x%02x) = %d", type, atqx[0], atqx[1], current);
+    //}
+    //else
+    //{
+      //ContextLog(mrb, 0, "OsPiccPoll = %d", current);
+    //}
 
     // exit by unresolvable collision
     if (current == PCD_ERR_COLL_FLAG)
@@ -116,7 +116,7 @@ int ActivateCard(mrb_state *mrb)
   memset(sak, 0, sizeof(sak));
   ret = OsPiccAntiSel('A', selected.uid, 0x00, sak);
 
-  ContextLog(mrb, 0, "OsPiccAntiSel('A', %p, 0x00, 0x%02x) = %d", selected.uid, *sak, ret);
+  //ContextLog(mrb, 0, "OsPiccAntiSel('A', %p, 0x00, 0x%02x) = %d", selected.uid, *sak, ret);
 
   if (ret == RET_OK) {
     // if card needs activation
@@ -161,7 +161,7 @@ int AuthenticateSector(mrb_state *mrb, int keyType, unsigned char key[], int sec
       group,
       key);
 
-  ContextLog(mrb, 0, "OsMifareAuthority(%p, %d, %c, %p) = %d", selected.uid, authBlock, group, key, ret);
+  //ContextLog(mrb, 0, "OsMifareAuthority(%p, %d, %c, %p) = %d", selected.uid, authBlock, group, key, ret);
 
   if (ret == RET_OK) {
     return 0;
@@ -179,7 +179,7 @@ int ReadBlock(mrb_state *mrb, unsigned char sector, unsigned char block, unsigne
       data,
       0);
 
-  ContextLog(mrb, 0, "OsMifareOperate('R', %d, %p, 0) = %d", target, data, ret);
+  //ContextLog(mrb, 0, "OsMifareOperate('R', %d, %p, 0) = %d", target, data, ret);
 
   switch (ret) {
     case RET_OK:
@@ -201,7 +201,7 @@ int WriteBlock(mrb_state *mrb, unsigned char sector, unsigned char block, unsign
       data,
       0);
 
-  ContextLog(mrb, 0, "OsMifareOperate('W', %d, %p, 0) = %d", target, data, ret);
+  //ContextLog(mrb, 0, "OsMifareOperate('W', %d, %p, 0) = %d", target, data, ret);
 
   switch (ret) {
     case RET_OK:
@@ -223,7 +223,7 @@ int IncrementValue(mrb_state *mrb, unsigned char sector, unsigned char block, un
       value,
       target);
 
-  ContextLog(mrb, 0, "OsMifareOperate('+', %d, %p, %d) = %d", target, value, target, ret);
+  //ContextLog(mrb, 0, "OsMifareOperate('+', %d, %p, %d) = %d", target, value, target, ret);
 
   switch (ret) {
     case RET_OK:
@@ -245,7 +245,7 @@ int DecrementValue(mrb_state *mrb, unsigned char sector, unsigned char block, un
       value,
       target);
 
-  ContextLog(mrb, 0, "OsMifareOperate('-', %d, %p, %d) = %d", target, value, target, ret);
+  //ContextLog(mrb, 0, "OsMifareOperate('-', %d, %p, %d) = %d", target, value, target, ret);
 
   switch (ret) {
     case RET_OK:
@@ -270,7 +270,7 @@ int RestoreBlock(mrb_state *mrb, unsigned char sector, unsigned char sourceBlock
       data,
       targetDest);
 
-  ContextLog(mrb, 0, "OsMifareOperate('>', %d, %p, %d) = %d", targetSource, data, targetDest, ret);
+  //ContextLog(mrb, 0, "OsMifareOperate('>', %d, %p, %d) = %d", targetSource, data, targetDest, ret);
 
   switch (ret) {
     case RET_OK:
