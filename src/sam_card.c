@@ -224,7 +224,7 @@ mrb_sam_card_power(mrb_state *mrb, mrb_value self)
   // output
   mrb_int ret;
   mrb_int historical_size;
-  char historical[35];
+  char historical[1024];
 
   mrb_value array;
 
@@ -261,7 +261,7 @@ mrb_sam_card_send(mrb_state *mrb, mrb_value self)
   // output
   mrb_int ret;
   mrb_int out_size;
-  char out[35];
+  char out[1024];
 
   mrb_value array;
 
