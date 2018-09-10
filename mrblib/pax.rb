@@ -42,6 +42,7 @@ class PAX
     Device.const_set(:Pinpad            , PAX::Pinpad)
     Device.const_set(:SamCard           , PAX::SamCard)
     Device.const_set(:MifareCard        , PAX::MifareCard)
+    Device.const_set(:EMV               , PAX::EMV)
     Device::Crypto.const_set(:Newdes    , PAX::Crypto::Newdes)
     Device::Network.const_set(:Wifi     , PAX::Network::Wifi)
     Device::Network.const_set(:Gprs     , PAX::Network::Gprs)
