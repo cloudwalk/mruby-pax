@@ -266,6 +266,7 @@ class PAX
             self.close
             ret = self._print_big_bmp(path)
             self.open
+            PAX::Printer.font("AerialMono.ttf")
             ret
           else
             self._print_bmp(path)
