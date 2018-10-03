@@ -99,3 +99,5 @@ class PAX
   end
 end
 
+Platform = PAX
+
