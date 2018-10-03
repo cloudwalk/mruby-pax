@@ -128,7 +128,7 @@ int ActivateCard(mrb_state *mrb)
       // status is OK
       selected.status = 0;
       // type is ULTRALIGHT or CLASSIC
-      selected.type = *sak == 0x00 ? 1 : 0;
+      selected.type = *sak;
 
       return 0;
     }
