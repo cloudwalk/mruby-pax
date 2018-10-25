@@ -83,7 +83,7 @@ class PAX
       self.printer_control = PrinterControl.new
       self.thread = Thread.new(self.printer_control) do |printer|
         loop do
-          if printer.kill
+          if printer.kill!
             if printer.flag_print
               printer.print
               PAX::Printer.font("AerialMono.ttf")
@@ -291,4 +291,3 @@ class PAX
     end
   end
 end
-
