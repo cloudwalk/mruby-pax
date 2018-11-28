@@ -61,7 +61,12 @@ module Kernel
 
   def getc(timeout_io = nil)
     timeout_io ||= IO.timeout
-    convert_key(PAX._getc(timeout_io))
+    if DaFunk::PaymentChannel.client == Context::CommunicationChannel
+      convert_key(PAX._getc(timeout_io))
+    else
+      usleep(timeout_io * 1000) if timeout_io && timeout_io != 0
+      convert_key(PAX_KEYTIMEOUT)
+    end
   end
 
   def getxy(timeout = 10_000)
