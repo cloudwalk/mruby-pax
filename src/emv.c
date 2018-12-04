@@ -758,6 +758,8 @@ mrb_s_check_emv_pki(mrb_state *mrb, mrb_value klass)
   static mrb_value
 mrb_s_emv__init(mrb_state *mrb, mrb_value klass)
 {
+  char attr[40] = {0};
+  OsIccInit(0, 0, attr);
   EMVInitTLVData();
   return mrb_true_value();
 }
