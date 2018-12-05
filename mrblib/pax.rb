@@ -52,8 +52,8 @@ class PAX
 
   def self.pagination_keys
     {
-      "d200" => { :back_key => Device::IO::F1    , :back_key_label => " F1 " , :forward_key => Device::IO::F2   , :forward_key_label => " F2 " },
-      "s920" => { :back_key => Device::IO::ALPHA , :back_key_label => "PRT " , :forward_key => Device::IO::FUNC , :forward_key_label => "MENU"}
+      "d200" => { :back_key => Device::IO::F1   , :back_key_label => " F1 " , :forward_key => Device::IO::F2    , :forward_key_label => " F2 " },
+      "s920" => { :back_key => Device::IO::FUNC , :back_key_label => "PRT " , :forward_key => Device::IO::ALPHA , :forward_key_label => "MENU"}
     }
   end
 
