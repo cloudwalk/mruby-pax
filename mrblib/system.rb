@@ -11,6 +11,10 @@ class PAX
       PAX::System._serial
     end
 
+    def self.model
+      PAX::System._model.to_s.downcase
+    end
+
     def self.kb_backlight=(level)
       PAX::System._kb_backlight = level
     end

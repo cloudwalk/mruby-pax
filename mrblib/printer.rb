@@ -22,7 +22,7 @@ class PAX
     end
 
     def self.allow?
-      System.model != "d200"
+      System.model == "s920"
     end
 
     self.single_width  = DEFAULT_SINGLE_WIDTH

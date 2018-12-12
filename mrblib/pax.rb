@@ -53,13 +53,14 @@ class PAX
   def self.pagination_keys
     {
       "d200" => { :back_key => Device::IO::F1   , :back_key_label => " F1 " , :forward_key => Device::IO::F2    , :forward_key_label => " F2 " },
+      "d195" => { :back_key => Device::IO::F1   , :back_key_label => " F1 " , :forward_key => Device::IO::F2    , :forward_key_label => " F2 " },
       "s920" => { :back_key => Device::IO::FUNC , :back_key_label => "PRT " , :forward_key => Device::IO::ALPHA , :forward_key_label => "MENU"}
     }
   end
 
   def self.screen_definition
     case PAX::System.model
-    when "d200"
+    when "d200", "d195"
       [22, 8]
     when "s920"
       [22, 14]

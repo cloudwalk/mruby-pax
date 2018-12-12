@@ -40,7 +40,7 @@ getAsteriskSize(void)
 {
   if (iAsteriskSize == 0) {
     OsRegGetValue("ro.fac.mach", model);
-    if (strcmp(model, "d200") == 0)
+    if (strcmp(model, "d200") == 0 || strcmp(model, "d195") == 0)
       iAsteriskSize = 24;
     else
       iAsteriskSize = 16;

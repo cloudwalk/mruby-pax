@@ -183,7 +183,7 @@ mrb_pax_s__pinpad_version(mrb_state *mrb, mrb_value self)
 }
 
 static mrb_value
-mrb_system_s_model(mrb_state *mrb, mrb_value self)
+mrb_system_s__model(mrb_state *mrb, mrb_value self)
 {
   mrb_int len;
   char model[64]="\0";
@@ -264,7 +264,7 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "_os_version"     , mrb_pax_s__os_version     , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_osal_version"   , mrb_pax_s__osal_version   , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_pinpad_version" , mrb_pax_s__pinpad_version , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , system , "model"           , mrb_system_s_model        , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , system , "_model"          , mrb_system_s__model       , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , system , "_os_set_value"   , mrb_system_s_os_set_value , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_os_get_value"   , mrb_system_s_os_get_value , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , system , "install"         , mrb_system_s_install      , MRB_ARGS_REQ(3));
