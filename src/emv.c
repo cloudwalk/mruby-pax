@@ -25,6 +25,55 @@ mrb_value current_klass;
 void emv_applist_to_hash(mrb_state *mrb, mrb_value hash, EMV_APPLIST parameter);
 int IccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv);
 
+void
+get_rgba(mrb_state *mrb, mrb_value klass, int *r, int *g, int *b)
+{
+  mrb_value value;
+
+  *r = 0;
+  *g = 0;
+  *b = 0;
+
+  value = mrb_funcall(mrb, klass, "r", 0);
+  if (! mrb_nil_p(value)) *r = mrb_fixnum(value);
+
+  value = mrb_funcall(mrb, klass, "g", 0);
+  if (! mrb_nil_p(value)) *g = mrb_fixnum(value);
+
+  value = mrb_funcall(mrb, klass, "b", 0);
+  if (! mrb_nil_p(value)) *b = mrb_fixnum(value);
+}
+
+int iAsteriskSize = 0;
+
+int
+getAsteriskSize(void)
+{
+  char model[64]="\0";
+
+  if (iAsteriskSize == 0) {
+    OsRegGetValue("ro.fac.mach", model);
+    if (strcmp(model, "d200") == 0 || strcmp(model, "d195") == 0)
+      iAsteriskSize = 24;
+    else
+      iAsteriskSize = 16;
+  }
+  return iAsteriskSize;
+}
+
+int line_width;
+int line_height;
+
+int fix_x(int x)
+{
+  return x * line_width;
+}
+
+int fix_y(int y)
+{
+  return y * line_height;
+}
+
 void logEMVError(void)
 {
   mrb_value context;

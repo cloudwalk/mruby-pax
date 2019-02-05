@@ -10,6 +10,7 @@
 
 #include "osal.h"
 #include "ui.h"
+#include "emv.h"
 
 #define PED_TLK 0x01
 #define PED_TMK 0x02
@@ -20,52 +21,6 @@
 
 int screen_x;
 int screen_y;
-int line_width;
-int line_height;
-int iAsteriskSize = 0;
-char model[64]="\0";
-
-static int fix_x(int x)
-{
-  return x * line_width;
-}
-
-static int fix_y(int y)
-{
-  return y * line_height;
-}
-
-static int
-getAsteriskSize(void)
-{
-  if (iAsteriskSize == 0) {
-    OsRegGetValue("ro.fac.mach", model);
-    if (strcmp(model, "d200") == 0 || strcmp(model, "d195") == 0)
-      iAsteriskSize = 24;
-    else
-      iAsteriskSize = 16;
-  }
-  return iAsteriskSize;
-}
-
-static void
-get_rgba(mrb_state *mrb, mrb_value klass, int *r, int *g, int *b)
-{
-  mrb_value value;
-
-  *r = 0;
-  *g = 0;
-  *b = 0;
-
-  value = mrb_funcall(mrb, klass, "r", 0);
-  if (! mrb_nil_p(value)) *r = mrb_fixnum(value);
-
-  value = mrb_funcall(mrb, klass, "g", 0);
-  if (! mrb_nil_p(value)) *g = mrb_fixnum(value);
-
-  value = mrb_funcall(mrb, klass, "b", 0);
-  if (! mrb_nil_p(value)) *b = mrb_fixnum(value);
-}
 
 static mrb_value
 mrb_s_pinpad_load_pin_key(mrb_state *mrb, mrb_value klass)
