@@ -234,8 +234,9 @@ int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
 int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
 {
-  mrb_value hash, block;
+  mrb_value hash, block, screen, pinpad, pax;
   mrb_int iRet=0;
+  mrb_int column, line, r, g, b;
 
   if (pszPlainPin == NULL) {
     hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,
@@ -247,6 +248,17 @@ int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
         mrb_str_new(current_mrb, pszPlainPin, 8));
   }
   block = mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "block"));
+
+  pax    = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "PAX"));
+  pinpad = mrb_const_get(current_mrb, pax, mrb_intern_lit(current_mrb, "Pinpad"));
+  get_rgba(current_mrb, pinpad, &r, &g, &b);
+
+  screen = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "STDOUT"));
+  column = mrb_fixnum(mrb_funcall(current_mrb, screen, "x", 0));
+  line   = mrb_fixnum(mrb_funcall(current_mrb, screen, "y", 0));
+
+  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
+      RGB(r, g, b), PED_ASTERISK_ALIGN_LEFT);
 
   if (! mrb_nil_p(block)) {
     memcpy(&pszPlainPin, RSTRING_PTR(block), 8);
@@ -899,6 +911,8 @@ mrb_s_emv_random(mrb_state *mrb, mrb_value klass)
   static mrb_value
 mrb_s_card_auth(mrb_state *mrb, mrb_value klass)
 {
+  current_mrb = mrb;
+  current_klass = klass;
   return mrb_fixnum_value(EMVCardAuth());
 }
 
