@@ -10,6 +10,7 @@
 #include "osal.h"
 #include "xui.h"
 #include "ui.h"
+#include "runtime_system.h"
 
 static mrb_value
 mrb_s__serial(mrb_state *mrb, mrb_value self)
@@ -242,6 +243,15 @@ mrb_system_s_install(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(OsInstallFile(RSTRING_PTR(name), RSTRING_PTR(path), type));
 }
 
+reload_flag = 0;
+
+static mrb_value
+mrb_system_s_reload(mrb_state *mrb, mrb_value self)
+{
+  reload_flag = 1;
+  return mrb_true_value();
+}
+
 void
 mrb_system_init(mrb_state* mrb)
 {
@@ -268,5 +278,6 @@ mrb_system_init(mrb_state* mrb)
   mrb_define_class_method(mrb , system , "_os_set_value"   , mrb_system_s_os_set_value , MRB_ARGS_REQ(2));
   mrb_define_class_method(mrb , system , "_os_get_value"   , mrb_system_s_os_get_value , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , system , "install"         , mrb_system_s_install      , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , system , "reload"          , mrb_system_s_reload       , MRB_ARGS_NONE());
 }
 
