@@ -458,6 +458,12 @@ mrb_mifare_card_restore_block(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(ret);
 }
 
+  static mrb_value
+mrb_mifare_card_close(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(OsPiccRemove());
+}
+
   void
 mrb_mifare_card_init(mrb_state* mrb)
 {
@@ -475,5 +481,6 @@ mrb_mifare_card_init(mrb_state* mrb)
   mrb_define_class_method(mrb , mifare_card , "increment_value" , mrb_mifare_card_increment_value , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "decrement_value" , mrb_mifare_card_decrement_value , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "restore_block"   , mrb_mifare_card_restore_block   , MRB_ARGS_REQ(3));
+  mrb_define_class_method(mrb , mifare_card , "close"           , mrb_mifare_card_close           , MRB_ARGS_NONE());
 }
 
