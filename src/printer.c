@@ -655,7 +655,7 @@ mrb_pax_printer_s__print_big_bmp(mrb_state *mrb, mrb_value self)
   fread(buf, 1, size, fp);
   ret = print_1bitbmp_buf(buf, size);
 
-  if (buf) free(buf);
+  if (buf) mrb_free(mrb, buf);
   fclose(fp);
 
   return mrb_fixnum_value(ret);
