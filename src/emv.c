@@ -114,18 +114,18 @@ void logEMVError(void)
  * @author	Prolin App developer
  * @date	2013-05-20
  */
-int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)
-{
-  mrb_value hash, block;
+/*int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uchar Mode,ulong TimeoutMs)*/
+/*{*/
+  /*mrb_value hash, block;*/
 
-  hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_plain", 2,
-      mrb_fixnum_value((mrb_int)IccSlot), mrb_str_new_cstr(current_mrb, ExpPinLenIn));
-  block  = mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "block"));
+  /*hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_plain", 2,*/
+      /*mrb_fixnum_value((mrb_int)IccSlot), mrb_str_new_cstr(current_mrb, ExpPinLenIn));*/
+  /*block  = mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "block"));*/
 
-  memcpy(IccRespOut, RSTRING_PTR(block), RSTRING_LEN(block));
+  /*memcpy(IccRespOut, RSTRING_PTR(block), RSTRING_LEN(block));*/
 
-  return mrb_fixnum(mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "return")));
-}
+  /*return mrb_fixnum(mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "return")));*/
+/*}*/
 
 /**
  * @fn int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
@@ -140,26 +140,26 @@ int cEMVPedVerifyPlainPin (uchar IccSlot,uchar *ExpPinLenIn,uchar *IccRespOut,uc
  * @author	Prolin App developer
  * @date	2013-05-20
  */
-int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)
-{
-  mrb_value response, block, rsa;
+/*int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinKeyIn, uchar *IccRespOut, uchar Mode, ulong TimeoutMs)*/
+/*{*/
+  /*mrb_value response, block, rsa;*/
 
-  rsa = mrb_hash_new(current_mrb);
-  mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "modulus_length"), mrb_fixnum_value(RsaPinKeyIn->modlen));
-  mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "modulus"), mrb_str_new(current_mrb, RsaPinKeyIn->mod, sizeof(RsaPinKeyIn->mod)));
-  mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "exponent"), mrb_str_new(current_mrb, RsaPinKeyIn->exp, sizeof(RsaPinKeyIn->exp)));
-  mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "random_length"), mrb_fixnum_value(RsaPinKeyIn->iccrandomlen));
-  mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "random"), mrb_str_new(current_mrb, RsaPinKeyIn->iccrandom, sizeof(RsaPinKeyIn->iccrandom)));
+  /*rsa = mrb_hash_new(current_mrb);*/
+  /*mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "modulus_length"), mrb_fixnum_value(RsaPinKeyIn->modlen));*/
+  /*mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "modulus"), mrb_str_new(current_mrb, RsaPinKeyIn->mod, sizeof(RsaPinKeyIn->mod)));*/
+  /*mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "exponent"), mrb_str_new(current_mrb, RsaPinKeyIn->exp, sizeof(RsaPinKeyIn->exp)));*/
+  /*mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "random_length"), mrb_fixnum_value(RsaPinKeyIn->iccrandomlen));*/
+  /*mrb_hash_set(current_mrb, rsa, mrb_str_new_lit(current_mrb, "random"), mrb_str_new(current_mrb, RsaPinKeyIn->iccrandom, sizeof(RsaPinKeyIn->iccrandom)));*/
 
-  response = mrb_funcall(current_mrb, current_klass, "internal_verify_cipher_pin", 3,
-      mrb_fixnum_value((mrb_int)IccSlot), mrb_str_new_cstr(current_mrb, ExpPinLenIn), rsa);
+  /*response = mrb_funcall(current_mrb, current_klass, "internal_verify_cipher_pin", 3,*/
+      /*mrb_fixnum_value((mrb_int)IccSlot), mrb_str_new_cstr(current_mrb, ExpPinLenIn), rsa);*/
 
-  block  = mrb_hash_get(current_mrb, response, mrb_str_new_lit(current_mrb , "block"));
+  /*block  = mrb_hash_get(current_mrb, response, mrb_str_new_lit(current_mrb , "block"));*/
 
-  memcpy(IccRespOut, RSTRING_PTR(block), RSTRING_LEN(block));
+  /*memcpy(IccRespOut, RSTRING_PTR(block), RSTRING_LEN(block));*/
 
-  return mrb_fixnum(mrb_hash_get(current_mrb, response, mrb_str_new_lit(current_mrb , "return")));
-}
+  /*return mrb_fixnum(mrb_hash_get(current_mrb, response, mrb_str_new_lit(current_mrb , "return")));*/
+/*}*/
 
 /**
  * @fn	int  cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
@@ -171,114 +171,114 @@ int cEMVPedVerifyCipherPin (uchar IccSlot,uchar *ExpPinLenIn,RSA_PINKEY *RsaPinK
  * @author	Prolin App developer
  * @date	2013-05-20
  */
-uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)
-{
-  int iRet;
+/*uchar cEMVIccIsoCommand(uchar ucslot, APDU_SEND *tApduSend, APDU_RESP *tApduRecv)*/
+/*{*/
+  /*int iRet;*/
 
-  iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);
+  /*iRet = IccIsoCommand(ucslot, tApduSend, tApduRecv);*/
 
-  /*DEBUG*/
-  /*ContextLog(current_mrb, 0, "IccIsoCommand iRet [%d] SWA [%d] SWB [%d]", iRet, tApduRecv->SWA, tApduRecv->SWB);*/
+  /*[>DEBUG<]*/
+  /*[>ContextLog(current_mrb, 0, "IccIsoCommand iRet [%d] SWA [%d] SWB [%d]", iRet, tApduRecv->SWA, tApduRecv->SWB);<]*/
 
-  if (iRet == 0) return EMV_OK;
-  else if(iRet == 1 || iRet == 2) return iRet;
-  else {
-    if(tApduRecv->SWA == 0x90 && tApduRecv->SWB == 0x00) {
-      /*DEBUG*/
-      /*ContextLog(current_mrb, 0, "IccIsoCommand return EMV_OK");*/
-      return EMV_OK;
-    } else if(tApduRecv->SWA == 0x63 && (tApduRecv->SWB & 0xc0) == 0xc0) {
-      /*DEBUG*/
-      /*ContextLog(current_mrb, 0, "IccIsoCommand return [%d]", (tApduRecv->SWB & 0x0F) + 1);*/
-      return ((tApduRecv->SWB & 0x0F) + 1);
-    } else if(tApduRecv->SWA == 0x69 && (tApduRecv->SWB == 0x83 || tApduRecv->SWB == 0x84)) {
-      /*DEBUG*/
-      /*ContextLog(current_mrb, 0, "IccIsoCommand return EMV_RSP_ERR");*/
-      return EMV_RSP_ERR;
-    } else {
-      /*DEBUG*/
-      /*ContextLog(current_mrb, 0, "IccIsoCommand return 0x01");*/
-      return 0x01;
-    }
-  }
-}
+  /*if (iRet == 0) return EMV_OK;*/
+  /*else if(iRet == 1 || iRet == 2) return iRet;*/
+  /*else {*/
+    /*if(tApduRecv->SWA == 0x90 && tApduRecv->SWB == 0x00) {*/
+      /*[>DEBUG<]*/
+      /*[>ContextLog(current_mrb, 0, "IccIsoCommand return EMV_OK");<]*/
+      /*return EMV_OK;*/
+    /*} else if(tApduRecv->SWA == 0x63 && (tApduRecv->SWB & 0xc0) == 0xc0) {*/
+      /*[>DEBUG<]*/
+      /*[>ContextLog(current_mrb, 0, "IccIsoCommand return [%d]", (tApduRecv->SWB & 0x0F) + 1);<]*/
+      /*return ((tApduRecv->SWB & 0x0F) + 1);*/
+    /*} else if(tApduRecv->SWA == 0x69 && (tApduRecv->SWB == 0x83 || tApduRecv->SWB == 0x84)) {*/
+      /*[>DEBUG<]*/
+      /*[>ContextLog(current_mrb, 0, "IccIsoCommand return EMV_RSP_ERR");<]*/
+      /*return EMV_RSP_ERR;*/
+    /*} else {*/
+      /*[>DEBUG<]*/
+      /*[>ContextLog(current_mrb, 0, "IccIsoCommand return 0x01");<]*/
+      /*return 0x01;*/
+    /*}*/
+  /*}*/
+/*}*/
 
 // Callback function required by EMV core.
 // in EMV ver 2.1+, this function is called before GPO
-int cEMVSetParam(void)
-{
-  return EMV_OK;
-}
+/*int cEMVSetParam(void)*/
+/*{*/
+  /*return EMV_OK;*/
+/*}*/
 
-unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)
-{
-  return EMV_OK;
-}
+/*unsigned char cEMVSM3(unsigned char *paucMsgIn, int nMsglenIn,unsigned char *paucResultOut)*/
+/*{*/
+  /*return EMV_OK;*/
+/*}*/
 
-unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)
-{
-  return EMV_OK;
-}
+/*unsigned char cEMVSM2Verify(unsigned char *paucPubkeyIn,unsigned char *paucMsgIn,int nMsglenIn, unsigned char *paucSignIn, int nSignlenIn)*/
+/*{*/
+  /*return EMV_OK;*/
+/*}*/
 
 // it is acallback function for EMV kernel,
 // for displaying a amount input box,
 // developer customize
-int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)
-{
-  return EMV_OK;
-}
+/*int cEMVInputAmount(ulong *AuthAmt, ulong *CashBackAmt)*/
+/*{*/
+  /*return EMV_OK;*/
+/*}*/
 
 // Callback function required by EMV core.
 // Wait holder enter PIN.
 // developer customized.
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
-int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)
-{
-  mrb_value hash, block, screen, pinpad, pax;
-  mrb_int iRet=0;
-  mrb_int column, line, r, g, b;
+/*int cEMVGetHolderPwd(int iTryFlag, int iRemainCnt, uchar *pszPlainPin)*/
+/*{*/
+  /*mrb_value hash, block, screen, pinpad, pax;*/
+  /*mrb_int iRet=0;*/
+  /*mrb_int column, line, r, g, b;*/
 
-  if (pszPlainPin == NULL) {
-    hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,
-        mrb_fixnum_value((mrb_int)iTryFlag), mrb_fixnum_value((mrb_int)iRemainCnt),
-        mrb_nil_value());
-  } else {
-    hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,
-        mrb_fixnum_value((mrb_int)iTryFlag), mrb_fixnum_value((mrb_int)iRemainCnt),
-        mrb_str_new(current_mrb, pszPlainPin, 8));
-  }
-  block = mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "block"));
+  /*if (pszPlainPin == NULL) {*/
+    /*hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,*/
+        /*mrb_fixnum_value((mrb_int)iTryFlag), mrb_fixnum_value((mrb_int)iRemainCnt),*/
+        /*mrb_nil_value());*/
+  /*} else {*/
+    /*hash = mrb_funcall(current_mrb, current_klass, "internal_get_pin_block", 3,*/
+        /*mrb_fixnum_value((mrb_int)iTryFlag), mrb_fixnum_value((mrb_int)iRemainCnt),*/
+        /*mrb_str_new(current_mrb, pszPlainPin, 8));*/
+  /*}*/
+  /*block = mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "block"));*/
 
-  pax    = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "PAX"));
-  pinpad = mrb_const_get(current_mrb, pax, mrb_intern_lit(current_mrb, "Pinpad"));
-  get_rgba(current_mrb, pinpad, &r, &g, &b);
+  /*pax    = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "PAX"));*/
+  /*pinpad = mrb_const_get(current_mrb, pax, mrb_intern_lit(current_mrb, "Pinpad"));*/
+  /*get_rgba(current_mrb, pinpad, &r, &g, &b);*/
 
-  screen = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "STDOUT"));
-  column = mrb_fixnum(mrb_funcall(current_mrb, screen, "x", 0));
-  line   = mrb_fixnum(mrb_funcall(current_mrb, screen, "y", 0));
+  /*screen = mrb_const_get(current_mrb, mrb_obj_value(current_mrb->object_class), mrb_intern_lit(current_mrb, "STDOUT"));*/
+  /*column = mrb_fixnum(mrb_funcall(current_mrb, screen, "x", 0));*/
+  /*line   = mrb_fixnum(mrb_funcall(current_mrb, screen, "y", 0));*/
 
-  OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),
-      RGB(r, g, b), PED_ASTERISK_ALIGN_LEFT);
+  /*OsPedSetAsteriskLayout(fix_x(column) + 1, fix_y(line) + line_height, getAsteriskSize(),*/
+      /*RGB(r, g, b), PED_ASTERISK_ALIGN_LEFT);*/
 
-  if (! mrb_nil_p(block)) {
-    memcpy(&pszPlainPin, RSTRING_PTR(block), 8);
-  }
+  /*if (! mrb_nil_p(block)) {*/
+    /*memcpy(&pszPlainPin, RSTRING_PTR(block), 8);*/
+  /*}*/
 
-  return mrb_fixnum(mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "return")));
-}
+  /*return mrb_fixnum(mrb_hash_get(current_mrb, hash, mrb_str_new_lit(current_mrb , "return")));*/
+/*}*/
 
 // 持卡人认证例程
 // Callback function required by EMV core.
 // Don't need to care about this function
-int cCertVerify(void)
-{
-  return -1;
-}
+/*int cCertVerify(void)*/
+/*{*/
+  /*return -1;*/
+/*}*/
 
-unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)
-{
-  return 0;
-}
+/*unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP *ApduRecv)*/
+/*{*/
+  /*return 0;*/
+/*}*/
 
 // 处理DOL的过程中，EMV库遇到不识别的TAG时会调用该回调函数，要求应用程序处理
 // 如果应用程序无法处理，则直接返回-1，提供该函数只为解决一些不符合EMV的特殊
@@ -287,47 +287,47 @@ unsigned char cEMVPiccIsoCommand(unsigned char cid,APDU_SEND *ApduSend,APDU_RESP
 // When processing DOL, if there is a tag that EMV core doesn't know about, core will call this function.
 // developer should offer processing for proprietary tag.
 // if really unable to, just return -1
-int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)
-{
-  return 0;
-}
+/*int cEMVUnknowTLVData(ushort iTag, uchar *psDat, int iDataLen)*/
+/*{*/
+  /*return 0;*/
+/*}*/
 
 // Modified by Kim_LinHB 2014-5-31
 // for displaying a application list to card holder to select
 // if there is only one application in the chip, then EMV kernel will not call this callback function
-int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)
-{
-  int iCnt, iAppCnt;
-  mrb_value hash, array, labels;
-  APPLABEL_LIST stAppList[MAX_APP_NUM];
+/*int cEMVWaitAppSel(int TryCnt, EMV_APPLIST List[], int AppNum)*/
+/*{*/
+  /*int iCnt, iAppCnt;*/
+  /*mrb_value hash, array, labels;*/
+  /*APPLABEL_LIST stAppList[MAX_APP_NUM];*/
 
-  array  = mrb_ary_new(current_mrb);
-  EMVGetLabelList(stAppList, &iAppCnt);
+  /*array  = mrb_ary_new(current_mrb);*/
+  /*EMVGetLabelList(stAppList, &iAppCnt);*/
 
-  for (iCnt = 0; iCnt < iAppCnt && iCnt<MAX_APP_NUM; iCnt++) {
-    hash = mrb_hash_new(current_mrb);
-    emv_applist_to_hash(current_mrb, hash, List[iCnt]);
-    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "label"),
-        mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));
-    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "aid"),
-        mrb_str_new(current_mrb, (const char*)stAppList[iCnt].aucAID, 16));
-    mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "index"), mrb_fixnum_value(iCnt));
-    mrb_ary_push(current_mrb, array, hash);
-  }
+  /*for (iCnt = 0; iCnt < iAppCnt && iCnt<MAX_APP_NUM; iCnt++) {*/
+    /*hash = mrb_hash_new(current_mrb);*/
+    /*emv_applist_to_hash(current_mrb, hash, List[iCnt]);*/
+    /*mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "label"),*/
+        /*mrb_str_new_cstr(current_mrb, (const char*)stAppList[iCnt].aucAppLabel));*/
+    /*mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "aid"),*/
+        /*mrb_str_new(current_mrb, (const char*)stAppList[iCnt].aucAID, 16));*/
+    /*mrb_hash_set(current_mrb, hash, mrb_str_new_lit(current_mrb, "index"), mrb_fixnum_value(iCnt));*/
+    /*mrb_ary_push(current_mrb, array, hash);*/
+  /*}*/
 
-  if (iAppCnt == 1) return 0;
+  /*if (iAppCnt == 1) return 0;*/
 
-  return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 2, array, mrb_fixnum_value(TryCnt)));
-}
+  /*return mrb_fixnum(mrb_funcall(current_mrb, current_klass, "internal_app_select", 2, array, mrb_fixnum_value(TryCnt)));*/
+/*}*/
 
 // 如果不需要提示密码验证成功，则直接返回就可以了
 // Callback function required by EMV core.
 // Display "EMV PIN OK" info. (plaintext/enciphered PIN)
 // Modified by Kim_LinHB 2014-6-8 v1.01.0000
-void cEMVVerifyPINOK(void)
-{
-  return;
-}
+/*void cEMVVerifyPINOK(void)*/
+/*{*/
+  /*return;*/
+/*}*/
 
 /*Callbacks*/
 
