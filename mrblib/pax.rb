@@ -41,10 +41,10 @@ class PAX
 
   def self.define_device_modules
     Device.const_set(:Touch             , PAX::Touch)
-    Device.const_set(:Pinpad            , Platform::EMV::Pinpad)
+    Device.const_set(:Pinpad            , EMVPlatform::EMV::Pinpad)
     Device.const_set(:SamCard           , PAX::SamCard)
     Device.const_set(:MifareCard        , PAX::MifareCard)
-    Device.const_set(:EMV               , Platform::EMV)
+    Device.const_set(:EMV               , EMVPlatform::EMV)
     Device::Crypto.const_set(:Newdes    , PAX::Crypto::Newdes)
     Device::Network.const_set(:Wifi     , PAX::Network::Wifi)
     Device::Network.const_set(:Gprs     , PAX::Network::Gprs)
