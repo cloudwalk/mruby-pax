@@ -31,6 +31,7 @@ class PAX
   end
 
   def self.set_os_values
+    ret = PAX::System.install("MAINAPP", "./shared/keymap.dat", PAX::System::FILE_TYPE_APP_PARAM) if File.exists?("./shared/keymap.dat")
     PAX::System._os_set_value("persist.sys.mainapp.restart", "1")
     PAX::System._os_set_value("persist.sys.sound.enable", "true")
     PAX::System._os_set_value("persist.sys.backlighttime", 180.chr)
