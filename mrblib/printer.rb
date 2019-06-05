@@ -121,7 +121,9 @@ class PAX
     def self.thread_kill
       if self.thread
         self.printer_control.kill!
-        self.thread.join
+        if self.thread.alive?
+          self.thread.join
+        end
       end
     end
 
