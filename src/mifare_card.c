@@ -464,6 +464,39 @@ mrb_mifare_card_close(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(OsPiccRemove());
 }
 
+  static mrb_value
+mrb_mifare_card_command(mrb_state *mrb, mrb_value self)
+{
+  ST_APDU_REQ req;
+  ST_APDU_RSP rsp;
+  mrb_value command;
+  mrb_value data;
+  mrb_value array;
+  mrb_int ret = RET_OK;
+
+  mrb_get_args(mrb, "SS", &command, &data);
+
+  memset(&req, 0, sizeof(req));
+
+  memcpy(&req.Cmd, RSTRING_PTR(command), RSTRING_LEN(command));
+  req.LC = RSTRING_LEN(command);
+  memcpy(&req.DataIn, RSTRING_PTR(data), RSTRING_LEN(data));
+  req.LE = RSTRING_LEN(data);
+
+  ret = OsPiccIsoCommand(0, &req, &rsp);
+
+  array = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+
+  if (ret == RET_OK) {
+    mrb_ary_push(mrb, array, mrb_str_new(mrb, (const char *) rsp.DataOut, rsp.LenOut));
+    mrb_ary_push(mrb, array, mrb_str_new(mrb, (const char *) rsp.SWA, 1));
+    mrb_ary_push(mrb, array, mrb_str_new(mrb, (const char *) rsp.SWB, 1));
+  }
+
+  return array;
+}
+
   void
 mrb_mifare_card_init(mrb_state* mrb)
 {
@@ -482,5 +515,6 @@ mrb_mifare_card_init(mrb_state* mrb)
   mrb_define_class_method(mrb , mifare_card , "decrement_value" , mrb_mifare_card_decrement_value , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "restore_block"   , mrb_mifare_card_restore_block   , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "close"           , mrb_mifare_card_close           , MRB_ARGS_NONE());
+  mrb_define_class_method(mrb , mifare_card , "command"         , mrb_mifare_card_command         , MRB_ARGS_REQ(2));
 }
 
