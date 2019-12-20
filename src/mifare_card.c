@@ -473,15 +473,38 @@ mrb_mifare_card_command(mrb_state *mrb, mrb_value self)
   mrb_value data;
   mrb_value array;
   mrb_int ret = RET_OK;
+  char *in;
+  int sizeIn;
 
-  mrb_get_args(mrb, "SS", &command, &data);
+  mrb_get_args(mrb, "S", &command);
+
+  in     = RSTRING_PTR(command);
+  sizeIn = RSTRING_LEN(command);
 
   memset(&req, 0, sizeof(req));
 
-  memcpy(&req.Cmd, RSTRING_PTR(command), RSTRING_LEN(command));
-  req.LC = RSTRING_LEN(command);
-  memcpy(&req.DataIn, RSTRING_PTR(data), RSTRING_LEN(data));
-  req.LE = RSTRING_LEN(data);
+  if (sizeIn > 0) {
+    req.Cmd[0] = in[0]; /*CLA*/
+  }
+  if (sizeIn > 1) {
+    req.Cmd[1] = in[1]; /*INS*/
+  }
+  if (sizeIn > 2) {
+    req.Cmd[2] = in[2]; /*P1 */
+  }
+  if (sizeIn > 3) {
+    req.Cmd[3] = in[3]; /*P2 */
+  }
+  if (sizeIn > 5) {     //LC is optional, for it to be present, LE also must be present
+    req.LC     = in[4]; /*LC */
+  }
+  if (req.LC > 0) {
+    memcpy(req.DataIn, (in + 5), req.LC);
+  }
+  if (sizeIn > (4 + req.LC)) {
+    int adjust = sizeIn == 5 ? 4 : 5 + req.LC;
+    req.LE     = *(in + adjust);
+  }
 
   ret = OsPiccIsoCommand(0, &req, &rsp);
 
@@ -515,6 +538,6 @@ mrb_mifare_card_init(mrb_state* mrb)
   mrb_define_class_method(mrb , mifare_card , "decrement_value" , mrb_mifare_card_decrement_value , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "restore_block"   , mrb_mifare_card_restore_block   , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "close"           , mrb_mifare_card_close           , MRB_ARGS_NONE());
-  mrb_define_class_method(mrb , mifare_card , "command"         , mrb_mifare_card_command         , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , mifare_card , "command"         , mrb_mifare_card_command         , MRB_ARGS_REQ(1));
 }
 
