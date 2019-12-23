@@ -497,6 +497,35 @@ mrb_mifare_card_command(mrb_state *mrb, mrb_value self)
   return array;
 }
 
+  static mrb_value
+mrb_mifare_card_active_command(mrb_state *mrb, mrb_value self)
+{
+  // input
+  char piccType;
+  mrb_int keyType;
+
+  // output
+  unsigned char data[1024];
+  mrb_int ret = RET_OK;
+  mrb_value array;
+
+  mrb_get_args(mrb, "i", &keyType);
+
+  piccType = keyType == 0 ? 'A' : 'B';
+
+  memset(data, 0x00, sizeof(data))
+
+  ret = OsPiccActive(piccType, data)
+
+  array = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+
+  if (ret == RET_OK) {
+    mrb_ary_push(mrb, array, mrb_str_new(mrb, (char *)data, sizeof(data)));
+  }
+
+}
+
   void
 mrb_mifare_card_init(mrb_state* mrb)
 {
@@ -516,5 +545,6 @@ mrb_mifare_card_init(mrb_state* mrb)
   mrb_define_class_method(mrb , mifare_card , "restore_block"   , mrb_mifare_card_restore_block   , MRB_ARGS_REQ(3));
   mrb_define_class_method(mrb , mifare_card , "close"           , mrb_mifare_card_close           , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , mifare_card , "command"         , mrb_mifare_card_command         , MRB_ARGS_REQ(2));
+  mrb_define_class_method(mrb , mifare_card , "active_command"  , mrb_mifare_card_active_command  , MRB_ARGS_REQ(1));
 }
 
