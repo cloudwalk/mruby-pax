@@ -536,9 +536,9 @@ mrb_mifare_card_active_command(mrb_state *mrb, mrb_value self)
 
   piccType = keyType == 0 ? 'A' : 'B';
 
-  memset(data, 0x00, sizeof(data))
+  memset(data, 0x00, sizeof(data));
 
-  ret = OsPiccActive(piccType, data)
+  ret = OsPiccActive(piccType, data);
 
   array = mrb_ary_new(mrb);
   mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
@@ -546,7 +546,6 @@ mrb_mifare_card_active_command(mrb_state *mrb, mrb_value self)
   if (ret == RET_OK) {
     mrb_ary_push(mrb, array, mrb_str_new(mrb, (char *)data, sizeof(data)));
   }
-
 }
 
   void
