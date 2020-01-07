@@ -546,6 +546,39 @@ mrb_mifare_card_active_command(mrb_state *mrb, mrb_value self)
   if (ret == RET_OK) {
     mrb_ary_push(mrb, array, mrb_str_new(mrb, (char *)data, sizeof(data)));
   }
+  return array;
+}
+
+  static mrb_value
+mrb_mifare_card_transfer(mrb_state *mrb, mrb_value self)
+{
+  //input
+  mrb_value command;
+  unsigned char *in;
+  int sizeIn;
+
+  //output
+  unsigned char out[512];
+  int sizeOut = sizeof(out);
+  mrb_int ret = RET_OK;
+  mrb_value array;
+
+  memset(out, 0x00, sizeOut);
+
+  mrb_get_args(mrb, "S", &command);
+
+  in     = RSTRING_PTR(command);
+  sizeIn = RSTRING_LEN(command);
+
+  ret = OsPiccTransfer(in, sizeIn, out, &sizeOut);
+
+  array = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, array, mrb_fixnum_value(ret));
+
+  if (ret == RET_OK){
+    mrb_ary_push(mrb, array, mrb_str_new(mrb, (const char *) out, sizeOut));
+  }
+  return array;
 }
 
   void
@@ -568,5 +601,6 @@ mrb_mifare_card_init(mrb_state* mrb)
   mrb_define_class_method(mrb , mifare_card , "close"           , mrb_mifare_card_close           , MRB_ARGS_NONE());
   mrb_define_class_method(mrb , mifare_card , "command"         , mrb_mifare_card_command         , MRB_ARGS_REQ(1));
   mrb_define_class_method(mrb , mifare_card , "active_command"  , mrb_mifare_card_active_command  , MRB_ARGS_REQ(1));
+  mrb_define_class_method(mrb , mifare_card , "transfer"        , mrb_mifare_card_transfer        , MRB_ARGS_REQ(1));
 }
 
