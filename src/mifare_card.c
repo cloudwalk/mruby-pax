@@ -546,7 +546,6 @@ mrb_mifare_card_active_command(mrb_state *mrb, mrb_value self)
   if (ret == RET_OK) {
     mrb_ary_push(mrb, array, mrb_str_new(mrb, (char *)data, sizeof(data)));
   }
-
   return array;
 }
 
@@ -579,7 +578,6 @@ mrb_mifare_card_transfer(mrb_state *mrb, mrb_value self)
   if (ret == RET_OK){
     mrb_ary_push(mrb, array, mrb_str_new(mrb, (const char *) out, sizeOut));
   }
-
   return array;
 }
 
