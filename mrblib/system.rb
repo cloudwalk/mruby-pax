@@ -32,7 +32,7 @@ class PAX
 
     # Returns the device serial number.
     def self.serial
-      _serial
+      self._serial
     end
 
     # Defines screen brightness level [0~100].
@@ -41,17 +41,15 @@ class PAX
       level < 0 && level = 0
       level = ((level * 7) / 100).to_i
 
-      # ContextLog.info "Screen Backlight [#{level}]"
-
       if level == 0
-        _kb_backlight = 0
-        _sleep_mode = 1
+        self._kb_backlight = 0
+        self._sleep_mode = 1
       else
-        _kb_backlight = 1
-        _sleep_mode = 0
+        self._kb_backlight = 1
+        self._sleep_mode = 0
       end
 
-      _backlight = level
+      self._backlight = level
     end
 
     # (deprecated) Returns default backlight for DaFunk:
@@ -66,12 +64,12 @@ class PAX
     # Defines system execution mode: 0 (active), 1 (screensaver) and 2
     # (sleep).
     def self.sleep_mode=(mode)
-      _sleep_mode = mode
+      self._sleep_mode = mode
     end
 
     # Defines keyboard backlight behavior: 0 to disable, non-zero to enable.
     def self.kb_backlight=(level)
-      _kb_backlight = level
+      self._kb_backlight = level
     end
 
     # Returns current battery capacity (%) in the range [-1~100].
@@ -85,17 +83,17 @@ class PAX
 
     # Checks if device is connected to any power supply.
     def self.power_supply
-      [POWER_ADAPTER, POWER_USB].include?(_power_supply)
+      [POWER_ADAPTER, POWER_USB].include?(self._power_supply)
     end
 
     # Returns the device model (downcased).
     def self.model
-      _model.to_s.downcase
+      self._model.to_s.downcase
     end
 
     # Reboots the device.
     def self.reboot
-      _reboot
+      self._reboot
     end
 
     # Returns device brand (downcased).
@@ -105,7 +103,7 @@ class PAX
 
     # Updates the main application.
     def self.update(path)
-      ret = install('MAINAPP', path, FILE_TYPE_APP)
+      ret = self.install('MAINAPP', path, FILE_TYPE_APP)
       if !ret
         true
       else
@@ -120,9 +118,9 @@ class PAX
         @versions = {}
 
         @versions['EMV'] = PAX::EMV.version
-        @versions['OS'] = _os_version
-        @versions['Pinpad'] = _pinpad_version
-        @versions['SDK'] = _osal_version
+        @versions['OS'] = self._os_version
+        @versions['Pinpad'] = self._pinpad_version
+        @versions['SDK'] = self._osal_version
       end
       @versions
     end
