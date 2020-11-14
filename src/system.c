@@ -25,6 +25,12 @@
 #include "ui.h"
 #include "xui.h"
 
+/**********/
+/* Macros */
+/**********/
+
+#define BATTERY_CAPACITY_FILE "/sys/class/power_supply/battery/capacity"
+
 /********************/
 /* Global variables */
 /********************/
@@ -36,6 +42,8 @@ int reload_flag = 0;
 /* Static */
 
 static pthread_mutex_t system_lock;
+
+static struct timeval _battery_timestamp[2];
 
 /*********************/
 /* Private functions */
@@ -109,39 +117,37 @@ mrb_s__set_kb_backlight(mrb_state *mrb, mrb_value self)
 }
 
 /**
- * @brief Returns current battery capacity (%). In the event of an error, the
- * last known value in the range [-1~100] is returned.
+ * @brief Returns current battery capacity (string %). In the event of an
+ * error, the last known value in the range [-1~100] is returned.
  */
 static mrb_value
 mrb_s_battery(mrb_state *mrb, mrb_value self)
 {
-    static int battery_percentage = -1;
+    static char capacity_value[255 + 1] = { "-1" };
 
     FILE *fd;
-    char capacity_value[255 + 1];
-    mrb_value return_value;
 
     pthread_mutex_lock(&system_lock);
 
-    memset(&return_value, 0, sizeof(mrb_value));
+    gettimeofday(&_battery_timestamp[1], NULL);
 
-    fd = fopen("/sys/class/power_supply/battery/capacity", "r");
-
-    if (fd)
+    if (_battery_timestamp[1].tv_sec > _battery_timestamp[0].tv_usec)
     {
-        if (fgets(capacity_value, sizeof(capacity_value), fd))
-        {
-            battery_percentage = atoi(capacity_value);
-        }
+        fd = fopen(BATTERY_CAPACITY_FILE, "r");
+
+        fgets(capacity_value, sizeof(capacity_value), fd);
 
         fclose(fd);
     }
 
-    return_value = mrb_fixnum_value(battery_percentage);
+    gettimeofday(&_battery_timestamp[0], NULL);
+
+    _battery_timestamp[0].tv_sec  += 4;
+    _battery_timestamp[0].tv_usec += 4000000;
 
     pthread_mutex_unlock(&system_lock);
 
-    return return_value;
+    return mrb_str_new_cstr(mrb, capacity_value);
 }
 
 /**
@@ -396,4 +402,6 @@ void mrb_system_init(mrb_state *mrb)
 
         mutex_init = 1;
     }
+
+    gettimeofday(&_battery_timestamp[0], NULL);
 }

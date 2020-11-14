@@ -30,11 +30,6 @@ class PAX
     # Deprecated macros
     DEFAULT_BACKLIGHT     = 1
 
-    # Static class variables
-    @@battery_capacity = -1
-    @@semaphore = Mutex.new
-    @@timestamp = [Time.now, 0]
-
     # Returns the device serial number.
     def self.serial
       _serial
@@ -42,13 +37,13 @@ class PAX
 
     # Defines screen brightness level [0~100].
     def self.backlight=(level)
-      level.negative? && level = 0
-
       level > 100 && level = 100
+      level < 0 && level = 0
+      level = ((level * 7) / 100).to_i
 
-      ret = _backlight = (level * 7 / 100).to_i
+      # ContextLog.info "Screen Backlight [#{level}]"
 
-      if level.zero?
+      if level == 0
         _kb_backlight = 0
         _sleep_mode = 1
       else
@@ -56,7 +51,7 @@ class PAX
         _sleep_mode = 0
       end
 
-      ret
+      _backlight = level
     end
 
     # (deprecated) Returns default backlight for DaFunk:
@@ -81,31 +76,16 @@ class PAX
 
     # Returns current battery capacity (%) in the range [-1~100].
     def self.battery
-      @@semaphore.lock
-
-      @@timestamp[1] = Time.now
-
-      if @@timestamp[1] > @@timestamp[0]
-        @@timestamp[0] = Time.now + 4 # To prevent stressing both file system
-                                      # and battery
-
-        @@battery_capacity = _battery
-
-        ContextLog.info "System Battery - #{__method__}"
+      if !power_supply
+        75 # TODO: replace by '_battery.to_i'
+      else
+        50
       end
-
-      ContextLog.info "System Battery - Capacity [#{@@battery_capacity}%]"
-
-      capacity = @@battery_capacity
-
-      @@semaphore.unlock
-
-      capacity
     end
 
     # Checks if device is connected to any power supply.
     def self.power_supply
-      [POWER_SOURCE_ADAPTER, POWER_SOURCE_USB].include?(_power_supply)
+      [POWER_ADAPTER, POWER_USB].include?(_power_supply)
     end
 
     # Returns the device model (downcased).
