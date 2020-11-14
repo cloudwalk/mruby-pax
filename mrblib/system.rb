@@ -74,11 +74,7 @@ class PAX
 
     # Returns current battery capacity (%) in the range [-1~100].
     def self.battery
-      if !power_supply
-        75 # TODO: replace by '_battery.to_i'
-      else
-        50
-      end
+      _battery.to_i
     end
 
     # Checks if device is connected to any power supply.
