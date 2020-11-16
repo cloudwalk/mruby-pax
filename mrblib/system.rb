@@ -72,6 +72,11 @@ class PAX
       self._kb_backlight = level
     end
 
+    # Defines the battery capacity type of return (percentage or scale).
+    def self.battery_capacity_type
+      'percentage' # otherwise, 'scale'
+    end
+
     # Returns current battery capacity (%) in the range [-1~100].
     def self.battery
       _battery.to_i
