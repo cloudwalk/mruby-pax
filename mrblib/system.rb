@@ -131,7 +131,7 @@ class PAX
     end
 
     class << self
-      alias restart reboot
+      alias_method :restart, :reboot
     end
   end
 end
