@@ -29,6 +29,7 @@ class PAX
 
     # Deprecated macros
     DEFAULT_BACKLIGHT     = 1
+    RET_OK                = 0
 
     # Returns the device serial number.
     def self.serial
@@ -102,10 +103,10 @@ class PAX
       'pax'
     end
 
-    # Updates the main application.
+    # Updates the .aip application.
     def self.update(path)
       ret = self.install('MAINAPP', path, FILE_TYPE_APP)
-      if !ret
+      if ret == RET_OK
         true
       else
         ContextLog.info "System Update - Error [#{path}][#{ret.inspect}]"
